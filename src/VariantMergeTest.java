@@ -1,6 +1,6 @@
 /*
 
-	Main class for testing variant merging.
+	Class for testing variant merging.
 
 	Current output of this (only prints merged variants):
 	
@@ -25,7 +25,7 @@
 
 import java.util.ArrayList;
 
-public class Thriver {
+public class VariantMergeTest {
 	public static void main(String[] args)
 	{
 		Variant[] data = new Variant[] {
@@ -44,7 +44,8 @@ public class Thriver {
 				new Variant(4, "var13", 22, 22, "chr1")
 		};
 		
-		VariantMerger vm = new VariantMerger(data, 5.0);
+		Settings.MAX_DIST = 5;
+		VariantMerger vm = new VariantMerger(data);
 		vm.runMerging();
 		ArrayList<Variant>[] res = vm.getGroups();
 		

@@ -7,16 +7,13 @@ import java.util.PriorityQueue;
 
 public class VariantMerger {
 	
-	Variant[] data;
-	int n;
-	double distThreshold;
-	Forest forest;
-	KDTree knn;
+	Variant[] data; // An array of all of the variants to be considered
+	int n; // The number of total variants
+	Forest forest; // A forest in which connected components will represent merged groups
+	KDTree knn; // A KD-tree data structure for fast k-nearest-neighbors queries
 
-	public VariantMerger(Variant[] data, double distThreshold)
+	public VariantMerger(Variant[] data)
 	{
-		
-		this.distThreshold = distThreshold;
 		n = data.length;
 		for(int i = 0; i<n; i++) data[i].index = i;
 		this.data = data;
@@ -24,13 +21,54 @@ public class VariantMerger {
 		forest = new Forest(data);
 		knn = new KDTree(data);
 	}
-		
+	
+	/*
+	 * Helper function to convert an ArrayList to an array to make the constructor more flexible
+	 */
+	static Variant[] listToArray(ArrayList<Variant> data)
+	{
+		int length = data.size();
+		Variant[] asArray = new Variant[length];
+		for(int i = 0; i<length; i++)
+		{
+			asArray[i] = data.get(i);
+		}
+		return asArray;
+	}
+	
+	/*
+	 * Alternate constructor which takes a list instead of an array
+	 */
+	public VariantMerger(ArrayList<Variant> data)
+	{
+		this(listToArray(data));
+	}
+	
+	/*
+	 * Runs the core algorithm for building the implicit merging graph and
+	 * performing merging
+	 */
 	void runMerging()
 	{
+		if(n == 1)
+		{
+			return;
+		}
+		
+		// For each variant v, how many of its nearest neighbors have had their edges
+		// from v considered already.  
 		int[] countEdgesProcessed = new int[n];
+		
+		// nearestNeighbors will be used as a cache to store the next few nearest neighbors
+		// The purpose of this is to prevent performing a new KNN-query every time an edge
+		// is considered, but instead a logarithmic number of times.
 		Variant[][] nearestNeighbors = new Variant[n][];
 		
+		// A heap of edges to be processed in non-decreasing order of distance
 		PriorityQueue<Edge> toProcess = new PriorityQueue<Edge>();
+		
+		// Get the first 4 nearest neighbors for every variant, and add their first edges to
+		// the heap
 		for(int i = 0; i<n; i++)
 		{
 			nearestNeighbors[i] = knn.kNearestNeighbor(data[i], 4);
@@ -43,36 +81,53 @@ public class VariantMerger {
 			boolean valid = forest.union(e.from, e.to);
 			if(valid)
 			{
-				System.out.println("Added edge from " + data[e.from].id + " to " + data[e.to].id + " with distance " + e.dist);
+				// Two variants are being merged here - nothing needs to be done but might need to do some logging
 			}
 			
 			while(true)
 			{
 				countEdgesProcessed[e.from]++;
-				if(countEdgesProcessed[e.from]== nearestNeighbors[e.from].length)
+				
+				// If we already used the stored neighbors, query again for twice as many
+				if(countEdgesProcessed[e.from] >= nearestNeighbors[e.from].length)
 				{
 					nearestNeighbors[e.from] = knn.kNearestNeighbor(data[e.from], 2 * nearestNeighbors[e.from].length);
 				}
-				Variant candidateTo = nearestNeighbors[e.from][countEdgesProcessed[e.from]];
-				if(data[e.from].distance(candidateTo) > distThreshold + 1e-9)
+				
+				// If we tried to get more and didn't find anymore, then we are done with this variant
+				if(countEdgesProcessed[e.from] >= nearestNeighbors[e.from].length)
 				{
-					// This edge was invalid because of the distance from the query, so stop looking at any edges since they'll only get farther away
 					break;
 				}
+				Variant candidateTo = nearestNeighbors[e.from][countEdgesProcessed[e.from]];
+				
+				// This edge was invalid because of distance from the query, so stop looking at any edges 
+				// since they'll only get farther away
+				if(data[e.from].distance(candidateTo) > Settings.MAX_DIST + 1e-9)
+				{
+					break;
+				}
+				
+				// The next edge is something we want to consider since it is close enough and goes to a
+				// different sample
 				else if(data[e.from].sample != candidateTo.sample)
 				{
-					// Possibly valid edge
 					toProcess.add(new Edge(e.from, candidateTo.index, data[e.from].distance(candidateTo)));
+					break;
 				}
+				
+				// If edge was invalid because of coming from the same sample, ignore it and try the next one
 				else
 				{
-					// This edge was invalid because of coming from the same sample, so ignore it and try the next one
 					continue;
 				}
 			}
 		}
 	}
 	
+	/*
+	 * Get an array of all of the groups of variants
+	 */
 	@SuppressWarnings("unchecked")
 	ArrayList<Variant>[] getGroups()
 	{
@@ -94,7 +149,11 @@ public class VariantMerger {
 		}
 		return res;
 	}
-		
+	
+	/*
+	 * An edge between two variants indicating that they can be merged
+	 * Sorting is non-decreasing order of edge weights (ties broken with variant IDs)
+	 */
 	class Edge implements Comparable<Edge>
 	{
 		int from, to;
