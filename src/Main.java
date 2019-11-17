@@ -39,7 +39,7 @@ public static void main(String[] args) throws Exception
 	}
 	
 	// Print the merged variants to a file if they have enough support
-	output.writeMergedVariants(Settings.FILE_LIST, Settings.OUT_FILE, 2);
+	output.writeMergedVariants(Settings.FILE_LIST, Settings.OUT_FILE, Settings.MIN_SUPPORT);
 	System.out.println("Number of sets with multiple variants: " + totalMerged); 
 	
 }
