@@ -86,7 +86,7 @@ public class VariantInput {
 			{
 				continue;
 			}
-			allVariants.add(fromVcfEntry(line, sample));
+			allVariants.add(fromVcfEntry(new VcfEntry(line), sample));
 		}
 		
 		System.out.println(filename + " has " + allVariants.size() + " variants");
@@ -117,12 +117,15 @@ public class VariantInput {
 	 * From a line of a VCF file, extract the information needed for merging
 	 * and return it as a Variant object
 	 */
-	private static Variant fromVcfEntry(String line, int sample) throws Exception
+	public static Variant fromVcfEntry(VcfEntry entry, int sample) throws Exception
 	{
-		VcfEntry entry = new VcfEntry(line);
-		
 		int start = (int)entry.getPos();
-		int end = start + entry.getLength();
+		int end = entry.getLength();
+		
+		if(entry.getType().equals("INS"))
+		{
+			end = 0;
+		}
 		
 		String id = entry.getGraphID();
 		

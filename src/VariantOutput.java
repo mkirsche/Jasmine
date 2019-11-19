@@ -116,6 +116,7 @@ public class VariantOutput {
 		HashMap<String, Integer> varToGroup; // For each variant ID, the group number it is in
 		String[] supportVectors;
 		int[] supportCounts;
+		StringBuilder[] idLists; // The list of variant IDs in each merged variant
 		VariantGraph(ArrayList<Variant>[] groups, int sampleCount)
 		{
 			int n = groups.length;
@@ -124,6 +125,7 @@ public class VariantOutput {
 			consensus = new VcfEntry[n];
 			supportVectors = new String[n];
 			supportCounts = new int[n];
+			idLists = new StringBuilder[n];
 			varToGroup = new HashMap<String, Integer>();
 			
 			// Scan through groups and map variant IDs to group numbers
@@ -131,6 +133,7 @@ public class VariantOutput {
 			{
 				sizes[i] = groups[i].size();
 				consensus[i] = null;
+				idLists[i] = new StringBuilder("");
 				char[] suppVec = new char[sampleCount];
 				Arrays.fill(suppVec, '0');
 				for(int j = 0; j<sizes[i]; j++)
@@ -164,6 +167,7 @@ public class VariantOutput {
 			if(used[groupNumber] == 0)
 			{
 				consensus[groupNumber] = entry;
+				idLists[groupNumber].append(entry.getId());
 			}
 			
 			// Otherwise, update the consensus to include info from this variant
@@ -171,6 +175,7 @@ public class VariantOutput {
 			else
 			{
 				consensus[groupNumber].setPos(consensus[groupNumber].getPos() + entry.getPos());
+				idLists[groupNumber].append("," + entry.getId());
 			}
 			
 			used[groupNumber]++;
@@ -182,6 +187,7 @@ public class VariantOutput {
 				consensus[groupNumber].setInfo("SUPP_VEC", supportVectors[groupNumber]);
 				consensus[groupNumber].setInfo("SUPP", supportCounts[groupNumber]+"");
 				consensus[groupNumber].setInfo("SVMETHOD", "THRIVER");
+				consensus[groupNumber].setInfo("IDLIST", idLists[groupNumber].toString());
 			}
 		}
 		
