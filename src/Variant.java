@@ -4,7 +4,7 @@
 public class Variant
 {
 	int sample; // Which sample number the variant came from
-	String id; // Variant ID, assumed to be unique for all variants
+	String id; // Variant ID, assumed to be unique for all variants.  It has the "<sampleId>_" added to the beginning to ensure this.
 	int start, end; // End should be start+length for insertion
 	String graphID; // Store chromosome, and optionally type and strand
 	int index; // this is initialized and used internally for bookkeeping and does not come from VCF

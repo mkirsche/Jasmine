@@ -25,7 +25,7 @@ import sys
 from PyQt5 import QtWidgets, QtCore
 
 # No yellow because it's hard to see so use brown instead
-colors = ['red', 'orange', 'brown', 'green', 'blue', 'purple', 'pink']
+colors = ['red', 'orange', 'brown', 'green', 'blue', 'purple', 'pink', 'gray', 'black']
 
 xs = [] # x values are genomic positions of variants
 ys = [] # y values are the sample ID
@@ -120,9 +120,9 @@ plt.xlim(0, max(xs))
 ax.scatter(xs, ys, c = cs)
 
 # Add axis labels and title
-ax.set_ylabel('0 = ENC002, 1 = ENC003')
+ax.set_ylabel('Sample ID')
 ax.set_xlabel('Position (chr1)')
-ax.set_yticks([0, 1])
+ax.set_yticks(np.arange(0, max(ys)+1))
 ax.set_title('chr1')
 
 # Plot the line segments

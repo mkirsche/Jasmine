@@ -127,6 +127,8 @@ public class VariantInput {
 			end = 0;
 		}
 		
+		entry.setId(sample + "_" + entry.getId());
+		
 		String id = entry.getGraphID();
 		
 		return new Variant(sample, entry.getId(), start, end, id);

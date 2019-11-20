@@ -15,15 +15,34 @@ public class VisualizationPrep {
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception
 	{
-		String vcf1 = "/home/mkirsche/crossstitch/ENC0002.spes.rck.vcf";
-		String vcf2 = "/home/mkirsche/crossstitch/ENC0003.spes.rck.vcf";
-		String thriverOutput = "out.vcf";
-		String survivorOutput = "outsurv.vcf";
+		String fileList = "/home/mkirsche/eichler/filelist.txt";
+		//String fileList = "filelist.txt";
+		String survivorOutput = "/home/mkirsche/eichler/survmerged.vcf";
+		String thriverOutput = "/home/mkirsche/eichler/merged.vcf";
+		//String thriverOutput = "out.vcf";
+		//String survivorOutput = "outsurv.vcf";
+		Scanner fileNameReader = new Scanner(new FileInputStream(new File(fileList)));
+		ArrayList<String> vcfsAsList = new ArrayList<String>();
+		while(fileNameReader.hasNext())
+		{
+			String line = fileNameReader.nextLine();
+			if(line.length() == 0) continue;
+			vcfsAsList.add(line);
+		}
+		fileNameReader.close();
+		String[] vcfs = new String[vcfsAsList.size()];
+		for(int i = 0; i<vcfs.length; i++)
+		{
+			vcfs[i] = vcfsAsList.get(i);
+		}
 		
 		String outFile = thriverOutput + ".graph";
 		
-		String[] vcfs = new String[] {vcf1, vcf2};
-		int[] ys = new int[] {0, 1}; // The y-coordinate where we want to plot each sample's variants
+		int[] ys = new int[vcfs.length];
+		for(int i = 0; i<ys.length; i++)
+		{
+			ys[i] = i;
+		}
 		
 		PrintWriter out = new PrintWriter(new File(outFile));
 		
@@ -58,6 +77,7 @@ public class VisualizationPrep {
 				}
 				VcfEntry entry = new VcfEntry(line);
 				if(!entry.getChromosome().equals("1")) continue;
+				if(entry.getPos() > 10000000) continue;
 				int pos = (int)entry.getPos();
 				positions[i].add(pos);
 				idToEntry[i].put(entry.getId(), entry);
@@ -81,29 +101,26 @@ public class VisualizationPrep {
 		}
 		
 		// Now we have to get line segments, so get merged sets from both SURVIVOR and THRIVER.
-		TreeSet<String> myEdges = getJoinedPairs(thriverOutput, false);
-		TreeSet<String> survEdges = getJoinedPairs(survivorOutput, true);
+		TreeSet<Merge> myEdges = getJoinedPairs(thriverOutput, false);
+		TreeSet<Merge> survEdges = getJoinedPairs(survivorOutput, true);
 		
 		// Store the union of the merge-sets so we get every line segment
-		TreeSet<String> union = new TreeSet<String>();
-		for(String s : myEdges) union.add(s);
-		for(String s : survEdges) union.add(s);
+		TreeSet<Merge> union = new TreeSet<Merge>();
+		for(Merge s : myEdges) union.add(s);
+		for(Merge s : survEdges) union.add(s);
 		
 		// For each line segment, color it based on which software it came from (possibly both)
-		for(String edge : union)
+		for(Merge edge : union)
 		{
-			String[] ids = edge.split(",");
-			if(ids.length != 2)
-			{
-				continue;
-			}
+			String[] ids = new String[] {edge.id1, edge.id2};
+			int[] samples = new int[] {edge.sample1, edge.sample2};
 			boolean okay = true;
 			int[] curPositions = new int[2];
 			for(int i = 0; i<2; i++)
 			{
-				if(idToEntry[i].containsKey(ids[i]))
+				if(idToEntry[samples[i]].containsKey(ids[i]))
 				{
-					curPositions[i] = (int)idToEntry[i].get(ids[i]).getPos();
+					curPositions[i] = (int)idToEntry[samples[i]].get(ids[i]).getPos();
 				}
 				else
 				{
@@ -122,17 +139,18 @@ public class VisualizationPrep {
 			// If the pair was only merged by one software, print out information about it
 			if(color == 1 || color == 2)
 			{
-				VcfEntry first = idToEntry[0].get(ids[0]);
-				VcfEntry second = idToEntry[1].get(ids[1]);
+				VcfEntry first = idToEntry[samples[0]].get(ids[0]);
+				VcfEntry second = idToEntry[samples[1]].get(ids[1]);
 				System.out.println("Merge unique to " + (color == 1 ? "thriver" : "survivor"));
 				System.out.println("  " + ids[0] + " " + first.getType() + " " + first.getStrand() + " at " + first.getPos() + " (length " + first.getLength() + ")");
 				System.out.println("  " + ids[1] + " " + second.getType() + " " + second.getStrand() + " at " + second.getPos() + " (length " + second.getLength() + ")");
+				System.out.println("  Samples: " + edge.sample1 + " " + edge.sample2);
 				Variant a = VariantInput.fromVcfEntry(first, 0), b = VariantInput.fromVcfEntry(second, 0);
 				System.out.println("  Distance according to THRIVER: " + a.distance(b));
 			}
 			
 			// Print the line segment
-			out.println(curPositions[0]+" "+ys[0]+" "+curPositions[1]+" "+ys[1]+" "+color);
+			out.println(curPositions[0]+" "+ys[edge.sample1]+" "+curPositions[1]+" "+ys[edge.sample2]+" "+color);
 		}
 		out.close();
 		
@@ -144,32 +162,81 @@ public class VisualizationPrep {
 	 * For now, assumes only 2 samples, and the survivor flag is true if SURVIVOR was used
 	 * and false if THRIVER was used instead.
 	 */
-	static TreeSet<String> getJoinedPairs(String fn, boolean survivor) throws Exception
+	static TreeSet<Merge> getJoinedPairs(String fn, boolean survivor) throws Exception
 	{
 		Scanner input = new Scanner(new FileInputStream(new File(fn)));
-		TreeSet<String> res = new TreeSet<String>();
+		TreeSet<Merge> res = new TreeSet<Merge>();
 		while(input.hasNext())
 		{
 			String line = input.nextLine();
 			if(line.length() == 0 || line.startsWith("#")) continue;
 			VcfEntry entry = new VcfEntry(line);
+			String supportVector = entry.getInfo("SUPP_VEC");
+			ArrayList<Integer> samples = new ArrayList<Integer>();
+			for(int i = 0; i<supportVector.length(); i++)
+			{
+				if(supportVector.charAt(i) == '1')
+				{
+					samples.add(i);
+				}
+			}
 			if(survivor)
 			{
 				if(entry.tabTokens.length < 11) continue;
-				String[] ids = new String[] {
-						entry.tabTokens[9].split(":")[7], 
-						entry.tabTokens[10].split(":")[7]
-				};
-				res.add(ids[0] + "," + ids[1]);
+				String[] ids = new String[entry.tabTokens.length - 9];
+				for(int i = 0; i<ids.length; i++)
+				{
+					ids[i] = entry.tabTokens[i+9].split(":")[7];
+				}
+				for(int i = 0; i<ids.length-1 && i < samples.size()-1; i++)
+				{
+					res.add(new Merge(ids[i], ids[i+1], samples.get(i), samples.get(i+1)));
+				}
+				
 			}
 			else
 			{
 				String[] ids = entry.getInfo("IDLIST").split(",");
-				res.add(ids[0]+ "," + ids[1]);
+				for(int i = 0; i<ids.length-1 && i < samples.size()-1; i++)
+				{
+					res.add(new Merge(ids[i], ids[i+1], samples.get(i), samples.get(i+1)));
+				}
 			}
 			
 		}
 		input.close();
 		return res;
+	}
+	
+	/*
+	 * A merge between two variants in different samples
+	 */
+	static class Merge implements Comparable<Merge>
+	{
+		String id1, id2;
+		int sample1, sample2;
+		Merge(String ii1, String ii2, int ss1, int ss2)
+		{
+			id1 = ii1;
+			id2 = ii2;
+			sample1 = ss1;
+			sample2 = ss2;
+		}
+		@Override
+		public int compareTo(Merge o) {
+			if(sample1 != o.sample1)
+			{
+				return sample1 - o.sample1;
+			}
+			if(sample2 != o.sample2)
+			{
+				return sample2 - o.sample2;
+			}
+			if(!id1.equals(o.id1))
+			{
+				return id1.compareTo(o.id1);
+			}
+			return id2.compareTo(o.id2);
+		}
 	}
 }

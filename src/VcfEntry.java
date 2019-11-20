@@ -68,6 +68,11 @@ public class VcfEntry {
 		return tabTokens[2];
 	}
 	
+	public void setId(String s)
+	{
+		tabTokens[2] = s;
+	}
+	
 	public String getRef()
 	{
 		return tabTokens[3];
@@ -108,9 +113,9 @@ public class VcfEntry {
 		{
 			int refLength = getRef().length();
 			int altLength = getAlt().length();
-			if(altLength == 5 && getAlt().startsWith("<") && getAlt().endsWith(">"))
+			if(getAlt().startsWith("<") && getAlt().endsWith(">"))
 			{
-				return getAlt().substring(1, 4);
+				return getAlt().substring(1, getAlt().length() - 1);
 			}
 			if(refLength > altLength)
 			{

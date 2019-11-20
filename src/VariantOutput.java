@@ -69,7 +69,7 @@ public class VariantOutput {
 					// Update the consensus variant in the appropriate graph
 					VcfEntry entry = new VcfEntry(line);
 					String graphID = entry.getGraphID();
-					groups.get(graphID).processVariant(entry);
+					groups.get(graphID).processVariant(entry, sample);
 				}
 			}
 			input.close();
@@ -101,6 +101,8 @@ public class VariantOutput {
 		}
 		for(VcfEntry entry : allEntries)
 		{
+			String oldId = entry.getId();
+			entry.setId(oldId.substring(1 + oldId.indexOf('_')));
 			out.println(entry);
 		}
 		
@@ -144,24 +146,24 @@ public class VariantOutput {
 						suppVec[sampleID] = '1';
 						supportCounts[i]++;
 					}
-					varToGroup.put(groups[i].get(j).id, i);
+					String idString = groups[i].get(j).id;
+					varToGroup.put(idString, i);
 				}
 				supportVectors[i] = new String(suppVec);
 			}
 		}
 		
 		// From a VCF line, update the appropriate consensus entry
-		void processVariant(VcfEntry entry) throws Exception
+		void processVariant(VcfEntry entry, int sample) throws Exception
 		{
-			String varID = entry.getId();
-			
 			// This should never happen, but if the variant ID is not in the graph ignore it
-			if(!varToGroup.containsKey(varID))
+			String fullId = VariantInput.fromVcfEntry(entry, sample).id;
+			if(!varToGroup.containsKey(fullId))
 			{
 				return;
 			}
 			
-			int groupNumber = varToGroup.get(varID);
+			int groupNumber = varToGroup.get(fullId);
 			
 			// If this is the first variant in the group, initialize the consensus entry
 			if(used[groupNumber] == 0)
@@ -175,7 +177,9 @@ public class VariantOutput {
 			else
 			{
 				consensus[groupNumber].setPos(consensus[groupNumber].getPos() + entry.getPos());
-				idLists[groupNumber].append("," + entry.getId());
+				String varId = entry.getId();
+				varId = varId.substring(varId.indexOf('_') + 1);
+				idLists[groupNumber].append("," + varId);
 			}
 			
 			used[groupNumber]++;
@@ -188,6 +192,9 @@ public class VariantOutput {
 				consensus[groupNumber].setInfo("SUPP", supportCounts[groupNumber]+"");
 				consensus[groupNumber].setInfo("SVMETHOD", "THRIVER");
 				consensus[groupNumber].setInfo("IDLIST", idLists[groupNumber].toString());
+				String varId = entry.getId();
+				varId = varId.substring(varId.indexOf('_') + 1);
+				consensus[groupNumber].setId(varId);
 			}
 		}
 		
