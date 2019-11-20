@@ -169,7 +169,9 @@ public class VariantOutput {
 			if(used[groupNumber] == 0)
 			{
 				consensus[groupNumber] = entry;
-				idLists[groupNumber].append(entry.getId());
+				String varId = entry.getId();
+				varId = varId.substring(varId.indexOf('_') + 1);
+				idLists[groupNumber].append(varId);
 			}
 			
 			// Otherwise, update the consensus to include info from this variant

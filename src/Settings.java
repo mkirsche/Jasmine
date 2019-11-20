@@ -10,6 +10,7 @@ public class Settings {
 	static String OUT_FILE = "";
 	static int MAX_DIST = 1000;
 	static int MIN_SUPPORT = 2;
+	static double MIN_SEQUENCE_SIMILARITY = 0.5;
 	
 	static void usage()
 	{
@@ -23,7 +24,7 @@ public class Settings {
 		System.out.println();
 		System.out.println("Optional args:");
 		System.out.println("  max_dist    (int) [1000] - the maximum distance variants can be apart when being merged");
-		System.out.println("  min_support (int) [2]    - the maximum distance variants can be apart when being merged");
+		System.out.println("  min_support (int) [2]    - the minimum number of callsets a variant must be in to be output");
 		System.out.println("  --ignore_strand          - allow variants with different strands to be merged");
 		System.out.println("  --ignore_type            - allow variants with different types to be merged");
 		System.out.println();

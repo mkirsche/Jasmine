@@ -131,6 +131,16 @@ public class VariantInput {
 		
 		String id = entry.getGraphID();
 		
-		return new Variant(sample, entry.getId(), start, end, id);
+		String seq = null;
+		if(entry.getType().equals("INS"))
+		{
+			String entrySeq = entry.getSeq();
+			if(entrySeq.length() > 0)
+			{
+				seq = entrySeq;
+			}
+		}
+		
+		return new Variant(sample, entry.getId(), start, end, id, seq);
 	}
 }

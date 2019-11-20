@@ -15,12 +15,12 @@ public class VisualizationPrep {
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception
 	{
-		String fileList = "/home/mkirsche/eichler/filelist.txt";
-		//String fileList = "filelist.txt";
-		String survivorOutput = "/home/mkirsche/eichler/survmerged.vcf";
-		String thriverOutput = "/home/mkirsche/eichler/merged.vcf";
-		//String thriverOutput = "out.vcf";
-		//String survivorOutput = "outsurv.vcf";
+		//String fileList = "/home/mkirsche/eichler/filelist.txt";
+		String fileList = "filelist.txt";
+		//String survivorOutput = "/home/mkirsche/eichler/survmerged.vcf";
+		//String thriverOutput = "/home/mkirsche/eichler/merged.vcf";
+		String thriverOutput = "out.vcf";
+		String survivorOutput = "outsurv.vcf";
 		Scanner fileNameReader = new Scanner(new FileInputStream(new File(fileList)));
 		ArrayList<String> vcfsAsList = new ArrayList<String>();
 		while(fileNameReader.hasNext())
@@ -77,7 +77,7 @@ public class VisualizationPrep {
 				}
 				VcfEntry entry = new VcfEntry(line);
 				if(!entry.getChromosome().equals("1")) continue;
-				if(entry.getPos() > 10000000) continue;
+				//if(entry.getPos() > 10000000) continue;
 				int pos = (int)entry.getPos();
 				positions[i].add(pos);
 				idToEntry[i].put(entry.getId(), entry);
@@ -144,6 +144,7 @@ public class VisualizationPrep {
 				System.out.println("Merge unique to " + (color == 1 ? "thriver" : "survivor"));
 				System.out.println("  " + ids[0] + " " + first.getType() + " " + first.getStrand() + " at " + first.getPos() + " (length " + first.getLength() + ")");
 				System.out.println("  " + ids[1] + " " + second.getType() + " " + second.getStrand() + " at " + second.getPos() + " (length " + second.getLength() + ")");
+				System.out.println("  " + edge.line);
 				System.out.println("  Samples: " + edge.sample1 + " " + edge.sample2);
 				Variant a = VariantInput.fromVcfEntry(first, 0), b = VariantInput.fromVcfEntry(second, 0);
 				System.out.println("  Distance according to THRIVER: " + a.distance(b));
@@ -183,14 +184,18 @@ public class VisualizationPrep {
 			if(survivor)
 			{
 				if(entry.tabTokens.length < 11) continue;
-				String[] ids = new String[entry.tabTokens.length - 9];
-				for(int i = 0; i<ids.length; i++)
+				//String[] ids = new String[entry.tabTokens.length - 9];
+				ArrayList<String> ids = new ArrayList<String>();
+				for(int i = 9; i<entry.tabTokens.length; i++)
 				{
-					ids[i] = entry.tabTokens[i+9].split(":")[7];
+					String val = entry.tabTokens[i].split(":")[7];
+					if(!val.equalsIgnoreCase("nan")) ids.add(val);
+					//ids.add();
+					//ids[i] = entry.tabTokens[i+9].split(":")[7];
 				}
-				for(int i = 0; i<ids.length-1 && i < samples.size()-1; i++)
+				for(int i = 0; i<ids.size()-1 && i < samples.size()-1; i++)
 				{
-					res.add(new Merge(ids[i], ids[i+1], samples.get(i), samples.get(i+1)));
+					res.add(new Merge(ids.get(i), ids.get(i+1), samples.get(i), samples.get(i+1), line));
 				}
 				
 			}
@@ -199,7 +204,7 @@ public class VisualizationPrep {
 				String[] ids = entry.getInfo("IDLIST").split(",");
 				for(int i = 0; i<ids.length-1 && i < samples.size()-1; i++)
 				{
-					res.add(new Merge(ids[i], ids[i+1], samples.get(i), samples.get(i+1)));
+					res.add(new Merge(ids[i], ids[i+1], samples.get(i), samples.get(i+1), line));
 				}
 			}
 			
@@ -215,8 +220,10 @@ public class VisualizationPrep {
 	{
 		String id1, id2;
 		int sample1, sample2;
-		Merge(String ii1, String ii2, int ss1, int ss2)
+		String line;
+		Merge(String ii1, String ii2, int ss1, int ss2, String ll)
 		{
+			line = ll;
 			id1 = ii1;
 			id2 = ii2;
 			sample1 = ss1;

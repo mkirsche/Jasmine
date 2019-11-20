@@ -127,7 +127,10 @@ ax.set_title('chr1')
 
 # Plot the line segments
 for i in range(0, len(xline)):
-  ax.plot(xline[i], yline[i], c = linecs[i])
+  if linecs[i] == colors[4]:
+    ax.plot(xline[i], yline[i], c = linecs[i], linestyle='dotted')
+  else:
+    ax.plot(xline[i], yline[i], c = linecs[i])
 custom_lines = [Line2D([0], [0], color=colors[2], lw=4),
                 Line2D([0], [0], color=colors[4], lw=4),
                 Line2D([0], [0], color=colors[6], lw=4)]

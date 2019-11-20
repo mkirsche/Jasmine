@@ -73,6 +73,7 @@ public class VariantMerger {
 		{
 			nearestNeighbors[i] = knn.kNearestNeighbor(data[i], 4);
 			toProcess.add(new Edge(i, nearestNeighbors[i][0].index, data[i].distance(nearestNeighbors[i][0])));
+			countEdgesProcessed[i]++;
 		}
 		
 		while(!toProcess.isEmpty())
@@ -86,7 +87,6 @@ public class VariantMerger {
 			
 			while(true)
 			{
-				countEdgesProcessed[e.from]++;
 				
 				// If we already used the stored neighbors, query again for twice as many
 				if(countEdgesProcessed[e.from] >= nearestNeighbors[e.from].length)
@@ -108,18 +108,28 @@ public class VariantMerger {
 					break;
 				}
 				
-				// The next edge is something we want to consider since it is close enough and goes to a
-				// different sample
-				else if(data[e.from].sample != candidateTo.sample)
+				// If edge was invalid because of coming from the same sample, ignore it and try the next one
+				else if(data[e.from].sample == candidateTo.sample)
 				{
-					toProcess.add(new Edge(e.from, candidateTo.index, data[e.from].distance(candidateTo)));
-					break;
+					countEdgesProcessed[e.from]++;
+					continue;
 				}
 				
-				// If edge was invalid because of coming from the same sample, ignore it and try the next one
+				// If sequences weren't similar enough for two insertions, ignore and try again
+				else if(!data[e.from].passesStringSimilarity(candidateTo))
+				{
+					System.out.println("Failed because of string similarity: " + data[e.from].id+" "+ candidateTo.id);
+					countEdgesProcessed[e.from]++;
+					continue;
+				}
+				
+				// The next edge is something we want to consider since it is close enough and goes to a
+				// different sample
 				else
 				{
-					continue;
+					toProcess.add(new Edge(e.from, candidateTo.index, data[e.from].distance(candidateTo)));
+					countEdgesProcessed[e.from]++;
+					break;
 				}
 			}
 		}
