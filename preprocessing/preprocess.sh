@@ -38,8 +38,11 @@ VCFFILE_CONVERTED_DUPS='duptoins_'$VCFFILE
 javac $BINDIR/*.java
 java -cp $BINDIR DuplicationsToInsertions $VCFFILE $GENOME $VCFFILE_CONVERTED_DUPS
 
+VCFFILE_SPEC='spec_'$VCFFILE_CONVERTED_DUPS
+java -cp $BINDIR MarkSpecificCalls $VCFFILE_CONVERTED_DUPS $VCFFILE_SPEC 10 30
+
 $BINDIR/RefineInsertions/build.sh
-java -cp $BINDIR/RefineInsertions/ Iris genome_in=$GENOME vcf_in=$VCFFILE_CONVERTED_DUPS reads_in=$BAMFILE vcf_out=$OUTFILE
+java -cp $BINDIR/RefineInsertions/ Iris genome_in=$GENOME vcf_in=$VCFFILE_SPEC reads_in=$BAMFILE vcf_out=$OUTFILE
 
 
 
