@@ -178,6 +178,10 @@ public class VariantOutput {
 			// For average, don't divide yet to avoid loss of precision
 			else
 			{
+				if(entry.getInfo("OLDTYPE").equals("DUP"))
+				{
+					consensus[groupNumber].setInfo("OLDTYPE", "DUP");
+				}
 				consensus[groupNumber].setPos(consensus[groupNumber].getPos() + entry.getPos());
 				String varId = entry.getId();
 				varId = varId.substring(varId.indexOf('_') + 1);

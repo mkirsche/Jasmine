@@ -45,11 +45,10 @@ public static void main(String[] args) throws Exception
 			VcfEntry entry = new VcfEntry(line);
 			boolean inSpecific = false;
 			int readSupport = 0;
-			String rnamesField = entry.getInfo("RNAMES");
-			if(rnamesField.length() > 0)
+			String[] rnamesField = entry.getRnames();
+			if(rnamesField.length > 0)
 			{
-				String[] split = rnamesField.split(",");
-				readSupport = split.length;
+				readSupport = rnamesField.length;
 			}
 			
 			if(readSupport >= minReadSupport && Math.abs(entry.getLength()) >= minLength) 
@@ -58,6 +57,7 @@ public static void main(String[] args) throws Exception
 			}
 			
 			entry.setInfo("IN_SPECIFIC", inSpecific ? "1" : "0");
+			entries.add(entry);
 		}
 	}
 	

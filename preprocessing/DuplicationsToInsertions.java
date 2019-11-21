@@ -12,8 +12,8 @@ public class DuplicationsToInsertions {
 	{
 		if(args.length != 3)
 		{
-			//System.out.println("Usage: java DuplicationsToInsertions input_vcf reference_genome output_vcf");
-			//return;
+			System.out.println("Usage: java DuplicationsToInsertions input_vcf reference_genome output_vcf");
+			return;
 		}
 		else
 		{
