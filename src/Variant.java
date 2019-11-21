@@ -9,6 +9,19 @@ public class Variant
 	String graphID; // Store chromosome, and optionally type and strand
 	int index; // this is initialized and used internally for bookkeeping and does not come from VCF
 	String seq; // For insertions, the sequence being inserted, or null otherwise
+	int maxDist; // The maximum distance a variant can be to merge with this one
+	double minSeqId; // The minimum sequence similarity another variant needs to merge with this one if both are insertions
+	Variant(int sample, String id, int start, int end, String graphID, String seq, int maxDist, double minSeqId)
+	{
+		this.sample = sample;
+		this.id = id;
+		this.start = start;
+		this.end = end;
+		this.graphID = graphID;
+		this.seq = seq;
+		this.maxDist = maxDist;
+		this.minSeqId = minSeqId;
+	}
 	Variant(int sample, String id, int start, int end, String graphID, String seq)
 	{
 		this.sample = sample;
@@ -17,6 +30,8 @@ public class Variant
 		this.end = end;
 		this.graphID = graphID;
 		this.seq = seq;
+		this.maxDist = Settings.MAX_DIST;
+		this.minSeqId = Settings.MIN_SEQUENCE_SIMILARITY;
 	}
 	double distance(Variant v)
 	{
@@ -31,7 +46,8 @@ public class Variant
 		{
 			return 1.0;
 		}
-		return StringUtils.editDistanceSimilarity(seq, v.seq);
+		return StringUtils.jaccardSimilarity(seq, v.seq);
+		//return StringUtils.editDistanceSimilarity(seq, v.seq);
 	}
 	boolean passesStringSimilarity(Variant v)
 	{
@@ -41,13 +57,15 @@ public class Variant
 		}
 		String s = seq, t = v.seq;
 		
+		double similarityNeeded = Math.min(minSeqId, v.minSeqId); 
+		
 		int minLength = Math.min(s.length(), t.length());
 		int maxLength = s.length() + t.length() - minLength;
-		if(minLength < maxLength * Settings.MIN_SEQUENCE_SIMILARITY - 1e-9)
+		if(minLength < maxLength * similarityNeeded - 1e-9)
 		{
 			return false;
 		}
-		return stringSimilarity(v) >= Settings.MIN_SEQUENCE_SIMILARITY - 1e-9;
+		return stringSimilarity(v) >= similarityNeeded - 1e-9;
 	}
 	public String toString()
 	{

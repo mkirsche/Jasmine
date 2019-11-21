@@ -141,6 +141,21 @@ public class VariantInput {
 			}
 		}
 		
-		return new Variant(sample, entry.getId(), start, end, id, seq);
+		int maxDist = Settings.MAX_DIST;
+		double minSeqId = Settings.MIN_SEQUENCE_SIMILARITY;
+		
+		String maxDistInfo = entry.getInfo("THRIVER_DIST");
+		if(maxDistInfo.length() > 0)
+		{
+			maxDist = Integer.parseInt(maxDistInfo);
+		}
+		
+		String minIdInfo = entry.getInfo("THRIVER_ID");
+		if(minIdInfo.length() > 0)
+		{
+			minSeqId = Double.parseDouble(minIdInfo);
+		}
+		
+		return new Variant(sample, entry.getId(), start, end, id, seq, maxDist, minSeqId);
 	}
 }

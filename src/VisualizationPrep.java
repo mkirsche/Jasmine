@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.Scanner;
 import java.util.TreeSet;
 public class VisualizationPrep {
+	
+	static String chrToPlot = ""; // Empty string if whole genome or chromosome name for plotting that chromosome
+	
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception
 	{
@@ -49,6 +52,7 @@ public class VisualizationPrep {
 		// For each variant, keep track of its position and color (type)
 		ArrayList<Integer>[] positions = new ArrayList[vcfs.length];
 		ArrayList<Integer>[] colors = new ArrayList[vcfs.length];
+		int[] colorCounts = new int[4];
 		HashMap<String, VcfEntry>[] idToEntry = new HashMap[vcfs.length];
 		
 		// Hard-code the colors of the common variant types, so we know which color is which in downstream plotting
@@ -76,7 +80,7 @@ public class VisualizationPrep {
 					continue;
 				}
 				VcfEntry entry = new VcfEntry(line);
-				if(!entry.getChromosome().equals("1")) continue;
+				if(chrToPlot.length() > 0 && !entry.getChromosome().equals(chrToPlot)) continue;
 				//if(entry.getPos() > 10000000) continue;
 				int pos = (int)entry.getPos();
 				positions[i].add(pos);
@@ -136,6 +140,8 @@ public class VisualizationPrep {
 			if(myEdges.contains(edge)) color |= 1;
 			if(survEdges.contains(edge)) color |= 2;
 			
+			colorCounts[color]++;
+			
 			// If the pair was only merged by one software, print out information about it
 			if(color == 1 || color == 2)
 			{
@@ -153,6 +159,9 @@ public class VisualizationPrep {
 			// Print the line segment
 			out.println(curPositions[0]+" "+ys[edge.sample1]+" "+curPositions[1]+" "+ys[edge.sample2]+" "+color);
 		}
+		System.out.println("THRIVER unique merges: " + colorCounts[1]);
+		System.out.println("SURVIVOR unique merges: " + colorCounts[2]);
+		System.out.println("Shared merges: " + colorCounts[3]);
 		out.close();
 		
 		

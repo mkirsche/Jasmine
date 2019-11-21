@@ -118,7 +118,6 @@ public class VariantMerger {
 				// If sequences weren't similar enough for two insertions, ignore and try again
 				else if(!data[e.from].passesStringSimilarity(candidateTo))
 				{
-					System.out.println("Failed because of string similarity: " + data[e.from].id+" "+ candidateTo.id);
 					countEdgesProcessed[e.from]++;
 					continue;
 				}

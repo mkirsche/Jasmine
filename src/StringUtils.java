@@ -1,3 +1,5 @@
+import java.util.HashMap;
+
 /*
  * A collection of String functions
  */
@@ -23,5 +25,88 @@ public class StringUtils {
 			}
 		}
 		return 1.0 * editDistance[n][m] / Math.max(n, m);
+	}
+	
+	/*
+	 * The sequence identity of two strings based on their kmer Jaccard distance
+	 */
+	static int k = 9;
+	static double jaccardSimilarity(String s, String t)
+	{
+		HashMap<Integer, Integer> kmerCount = new HashMap<Integer, Integer>();
+		int baseCount = 0;
+		int n = s.length(), m = t.length();
+		int kmer = 0;
+		for(int i = 0; i<n; i++)
+		{
+			char c = s.charAt(i);
+			int base = -1;
+			if(c == 'a' || c == 'A') base = 0;
+			if(c == 'c' || c == 'C') base = 1;
+			if(c == 'g' || c == 'G') base = 2;
+			if(c == 't' || c == 'T') base = 3;
+			if(base != -1)
+			{
+				int allButTwoHighest = ((1 << (2*k-2)) - 1) & kmer;
+				kmer = (allButTwoHighest << 2) | base;
+				baseCount++;
+				if(baseCount >= k)
+				{
+					if(kmerCount.containsKey(kmer))
+					{
+						kmerCount.put(kmer, kmerCount.get(kmer)+1);
+					}
+					else
+					{
+						kmerCount.put(kmer, 1);
+					}
+				}
+			}
+		}
+		
+		int totalS = baseCount - (k - 1);
+		if(totalS <= 0)
+		{
+			return 1.0;
+		}
+		
+		baseCount = 0;
+		int intersect = 0;
+		for(int i = 0; i<m; i++)
+		{
+			char c = t.charAt(i);
+			int base = -1;
+			if(c == 'a' || c == 'A') base = 0;
+			if(c == 'c' || c == 'C') base = 1;
+			if(c == 'g' || c == 'G') base = 2;
+			if(c == 't' || c == 'T') base = 3;
+			if(base != -1)
+			{
+				int allButTwoHighest = ((1 << (2*k-2)) - 1) & kmer;
+				kmer = (allButTwoHighest << 2) | base;
+				baseCount++;
+				if(baseCount >= k)
+				{
+					if(kmerCount.containsKey(kmer))
+					{
+						intersect++;
+						kmerCount.put(kmer, kmerCount.get(kmer)-1);
+						if(kmerCount.get(kmer) == 0)
+						{
+							kmerCount.remove(kmer);
+						}
+					}
+				}
+			}
+		}
+		
+		int totalT = baseCount - (k - 1);
+		
+		if(totalT <= 0)
+		{
+			return 1.0;
+		}
+		return 1.0 * intersect / Math.max(totalS, totalT);
+		
 	}
 }
