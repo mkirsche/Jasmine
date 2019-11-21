@@ -92,6 +92,8 @@ public class DuplicationsToInsertions {
 			out.println(s);
 		}
 		
+		out.println("##INFO=<ID=OLDTYPE,Number=1,Type=String,Description=\"\">");
+		
 		for(VcfEntry ve : entries)
 		{
 			out.println(ve);

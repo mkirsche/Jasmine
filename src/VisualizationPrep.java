@@ -13,8 +13,8 @@ import java.util.Scanner;
 import java.util.TreeSet;
 public class VisualizationPrep {
 	
-	static String chrToPlot = ""; // Empty string if whole genome or chromosome name for plotting that chromosome
-	static boolean myRev = true; // True iff we did one of the two with the samples in reverse order
+	static String chrToPlot = "1"; // Empty string if whole genome or chromosome name for plotting that chromosome
+	static boolean myRev = false; // True iff we did one of the two with the samples in reverse order
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception
 	{
@@ -22,7 +22,7 @@ public class VisualizationPrep {
 		//String fileList = "filelist.txt";
 		String survivorOutput = "/home/mkirsche/eichler/survmerged.vcf";
 		String thriverOutput = "/home/mkirsche/eichler/merged.vcf";
-		//String thriverOutput = "/home/mkirsche/eichler/revout.vcf";
+		//String thriverOutput = "/home/mkirsche/eichler/revsurvout.vcf";
 		//String thriverOutput = "out.vcf";
 		//String survivorOutput = "outsurv.vcf";
 		Scanner fileNameReader = new Scanner(new FileInputStream(new File(fileList)));
