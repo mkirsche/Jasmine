@@ -14,16 +14,17 @@ import java.util.TreeSet;
 public class VisualizationPrep {
 	
 	static String chrToPlot = ""; // Empty string if whole genome or chromosome name for plotting that chromosome
-	
+	static boolean myRev = true; // True iff we did one of the two with the samples in reverse order
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception
 	{
-		//String fileList = "/home/mkirsche/eichler/filelist.txt";
-		String fileList = "filelist.txt";
-		//String survivorOutput = "/home/mkirsche/eichler/survmerged.vcf";
-		//String thriverOutput = "/home/mkirsche/eichler/merged.vcf";
-		String thriverOutput = "out.vcf";
-		String survivorOutput = "outsurv.vcf";
+		String fileList = "/home/mkirsche/eichler/filelist.txt";
+		//String fileList = "filelist.txt";
+		String survivorOutput = "/home/mkirsche/eichler/survmerged.vcf";
+		String thriverOutput = "/home/mkirsche/eichler/merged.vcf";
+		//String thriverOutput = "/home/mkirsche/eichler/revout.vcf";
+		//String thriverOutput = "out.vcf";
+		//String survivorOutput = "outsurv.vcf";
 		Scanner fileNameReader = new Scanner(new FileInputStream(new File(fileList)));
 		ArrayList<String> vcfsAsList = new ArrayList<String>();
 		while(fileNameReader.hasNext())
@@ -105,8 +106,8 @@ public class VisualizationPrep {
 		}
 		
 		// Now we have to get line segments, so get merged sets from both SURVIVOR and THRIVER.
-		TreeSet<Merge> myEdges = getJoinedPairs(thriverOutput, false);
-		TreeSet<Merge> survEdges = getJoinedPairs(survivorOutput, true);
+		TreeSet<Merge> myEdges = getJoinedPairs(thriverOutput, false, myRev);
+		TreeSet<Merge> survEdges = getJoinedPairs(survivorOutput, true, false);
 		
 		// Store the union of the merge-sets so we get every line segment
 		TreeSet<Merge> union = new TreeSet<Merge>();
@@ -172,7 +173,7 @@ public class VisualizationPrep {
 	 * For now, assumes only 2 samples, and the survivor flag is true if SURVIVOR was used
 	 * and false if THRIVER was used instead.
 	 */
-	static TreeSet<Merge> getJoinedPairs(String fn, boolean survivor) throws Exception
+	static TreeSet<Merge> getJoinedPairs(String fn, boolean survivor, boolean rev) throws Exception
 	{
 		Scanner input = new Scanner(new FileInputStream(new File(fn)));
 		TreeSet<Merge> res = new TreeSet<Merge>();
@@ -204,7 +205,8 @@ public class VisualizationPrep {
 				}
 				for(int i = 0; i<ids.size()-1 && i < samples.size()-1; i++)
 				{
-					res.add(new Merge(ids.get(i), ids.get(i+1), samples.get(i), samples.get(i+1), line));
+					if(rev) res.add(new Merge(ids.get(i), ids.get(i+1), samples.get(samples.size()-1-i), samples.get(samples.size()-1-(i+1)), line));
+					else res.add(new Merge(ids.get(i), ids.get(i+1), samples.get(i), samples.get(i+1), line));
 				}
 				
 			}

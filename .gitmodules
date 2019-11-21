@@ -1,0 +1,3 @@
+[submodule "preprocessing/RefineInsertions"]
+	path = preprocessing/RefineInsertions
+	url = git@github.com:mkirsche/RefineInsertions.git
