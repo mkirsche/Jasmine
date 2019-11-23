@@ -32,23 +32,27 @@ then
   rm $PREPROCESSED_FILELIST
 fi
 
-for i in `cat $FILELIST`
-do
-  echo 'Preprocessing ' $i
-  PREPROCESSED_VCF=$i'_preprocessed'.vcf
-  if [ $REFINE -eq 1 ]
-  then
-    $BINDIR/preprocessing/preprocess.sh $i $BAMFILE $GENOME $PREPROCESSED_VCF
-  else
+if [ $REFINE -eq 1 ]
+then
+  while read -u 3 -r file1 && read -u 4 -r file2; do
+    echo 'Preprocessing ' $i
+    PREPROCESSED_VCF=$i'_preprocessed'.vcf
+    $BINDIR/preprocessing/preprocess.sh $file1 $file2 $GENOME $PREPROCESSED_VCF
+    echo $PREPROCESSED_VCF >> $PREPROCESSED_FILELIST
+  done 3<$FILELIST 4<$BAMFILELIST
+else
+  for i in `cat $FILELIST`
+  do
+    echo 'Preprocessing ' $i
+    PREPROCESSED_VCF=$i'_preprocessed'.vcf
     $BINDIR/preprocessing/preprocess.sh $i $GENOME $PREPROCESSED_VCF
-  fi
-
-  echo $PREPROCESSED_VCF >> $PREPROCESSED_FILELIST
-done
+    echo $PREPROCESSED_VCF >> $PREPROCESSED_FILELIST
+  done
+fi
 
 THRIVER_OUT=$WORKINGDIR/thriver_out.vcf
 
 javac $BINDIR/src/*.java
-java -cp $BINDIR/src Main file_list=$PREPROCESSED_FILELIST out_file=$THRIVER_OUT
+java -cp $BINDIR/src Main file_list=$PREPROCESSED_FILELIST min_support=1 out_file=$THRIVER_OUT
 
 $BINDIR/postprocessing/postprocess.sh $THRIVER_OUT $OUTFILE
