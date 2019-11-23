@@ -28,7 +28,31 @@ public static void main(String[] args) throws Exception
 	if(Settings.CONVERT_DUPLICATIONS)
 	{
 		String typeConvertedInput = StringUtils.addDescriptor(currentInputFile, "dupToIns");
-		DuplicationsToInsertions.convertFile(currentInputFile, Settings.GENOME_FILE, typeConvertedInput);
+		Scanner vcfListInput = new Scanner(new FileInputStream(new File(currentInputFile)));
+		ArrayList<String> vcfFiles = new ArrayList<String>();
+				
+		// Get a list of all VCF Files to refine
+		while(vcfListInput.hasNext())
+		{
+			String line = vcfListInput.nextLine();
+			if(line.length() > 0)
+			{
+				vcfFiles.add(line);
+			}
+		}
+		
+		PrintWriter newFileListOut = new PrintWriter(new File(typeConvertedInput));
+		
+		for(int i = 0; i<vcfFiles.size(); i++)
+		{
+			String vcfFile = vcfFiles.get(i);
+			String newVcfFile = StringUtils.addDescriptor(vcfFile, "dupToIns");
+			newFileListOut.println(newVcfFile);
+			DuplicationsToInsertions.convertFile(vcfFile, Settings.GENOME_FILE, newVcfFile);
+		}
+		vcfListInput.close();
+		newFileListOut.close();
+		
 		currentInputFile = typeConvertedInput; 
 	}
 	
@@ -42,7 +66,7 @@ public static void main(String[] args) throws Exception
 		Scanner bamListInput = new Scanner(new FileInputStream(new File(Settings.BAM_FILE_LIST)));
 		ArrayList<String> vcfFiles = new ArrayList<String>(), bamFiles = new ArrayList<String>();
 		
-		PrintWriter newFileListOut =new PrintWriter(new File(refinedInput));
+		PrintWriter newFileListOut = new PrintWriter(new File(refinedInput));
 		
 		// Get a list of all VCF Files to refine
 		while(vcfListInput.hasNext())
@@ -109,13 +133,13 @@ public static void main(String[] args) throws Exception
 	}
 	
 	// Get the variants and bin them into individual graphs
-	TreeMap<String, ArrayList<Variant>> allVariants = VariantInput.readAllFiles(Settings.FILE_LIST);
+	TreeMap<String, ArrayList<Variant>> allVariants = VariantInput.readAllFiles(currentInputFile);
 	
 	VariantOutput output = new VariantOutput();
 	int totalMerged = 0;
 	
 	// Get the number of samples to know the length of the SUPP_VEC field
-	int sampleCount = VariantInput.countFiles(Settings.FILE_LIST);
+	int sampleCount = VariantInput.countFiles(currentInputFile);
 	
 	// Merge one graph at a time
 	for(String graphID : allVariants.keySet())
@@ -137,7 +161,7 @@ public static void main(String[] args) throws Exception
 	}
 	
 	// Print the merged variants to a file if they have enough support
-	output.writeMergedVariants(Settings.FILE_LIST, Settings.OUT_FILE, Settings.MIN_SUPPORT);
+	output.writeMergedVariants(currentInputFile, Settings.OUT_FILE, Settings.MIN_SUPPORT);
 	System.out.println("Number of sets with multiple variants: " + totalMerged); 
 	
 	/*
@@ -146,6 +170,11 @@ public static void main(String[] args) throws Exception
 	if(Settings.CONVERT_DUPLICATIONS)
 	{
 		String unconvertedOutput = StringUtils.addDescriptor(Settings.OUT_FILE, "dupToIns");
+		File f;
+		if((f = new File(unconvertedOutput)).exists())
+		{
+			f.delete();
+		}
 		Files.move(Paths.get(Settings.OUT_FILE), Paths.get(unconvertedOutput));
 		InsertionsToDuplications.convertFile(unconvertedOutput, Settings.OUT_FILE);
 	}

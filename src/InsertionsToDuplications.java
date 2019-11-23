@@ -65,8 +65,7 @@ public class InsertionsToDuplications {
 			}
 		}
 		
-		System.out.println("Number of duplications: " + countDup);
-		System.out.println("Number of variants: " + entries.size());
+		System.out.println("Number of insertions converted back to duplications: " + countDup + " out of " + entries.size() + " total variants");
 		
 		for(String s : header)
 		{

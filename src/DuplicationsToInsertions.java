@@ -27,7 +27,7 @@ public class DuplicationsToInsertions {
 	
 	static void convertFile(String inputFile, String genomeFile, String outputFile) throws Exception
 	{
-Scanner input = new Scanner(new FileInputStream(new File(inputFile)));
+		Scanner input = new Scanner(new FileInputStream(new File(inputFile)));
 		
 		GenomeQuery gq = new GenomeQuery(genomeFile);
 		
@@ -45,7 +45,7 @@ Scanner input = new Scanner(new FileInputStream(new File(inputFile)));
 			{
 				header.add(line);
 			}
-			else
+			else if(line.length() > 0)
 			{
 				VcfEntry ve = new VcfEntry(line);
 				if(ve.getType().equals("DUP"))
@@ -76,7 +76,8 @@ Scanner input = new Scanner(new FileInputStream(new File(inputFile)));
 					}
 					else
 					{
-						System.out.println(line);
+						//System.out.println(line);
+						ve.setInfo("OLDTYPE", "DUP");
 					}
 					ve.setType("INS");
 					
@@ -89,8 +90,7 @@ Scanner input = new Scanner(new FileInputStream(new File(inputFile)));
 			}
 		}
 		
-		System.out.println("Number of duplications: " + countDup);
-		System.out.println("Number of variants: " + entries.size());
+		System.out.println("Number of duplications converted to insertions: " + countDup + " out of " + entries.size() + " total variants");
 		
 		for(String s : header)
 		{
