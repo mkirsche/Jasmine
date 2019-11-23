@@ -20,6 +20,10 @@ public class InsertionsToDuplications {
 			outputFile = args[1];
 		}
 		
+		convertFile(inputFile, outputFile);
+	}
+	static void convertFile(String inputFile, String outputFile) throws Exception
+	{
 		Scanner input = new Scanner(new FileInputStream(new File(inputFile)));
 		
 		PrintWriter out = new PrintWriter(new File(outputFile));

@@ -23,6 +23,12 @@ public static void main(String[] args) throws Exception
 		System.out.println("Usage: java MarkSpecificCalls vcffile outfile minreadsupport minlength");
 		return;
 	}
+	
+	convertFile(fn, ofn, minReadSupport, minLength);
+	
+}
+static void convertFile(String fn, String ofn, int minReadSupport, int minLength) throws Exception
+{
 	Scanner input = new Scanner(new FileInputStream(new File(fn)));
 	PrintWriter out = new PrintWriter(new File(ofn));
 	

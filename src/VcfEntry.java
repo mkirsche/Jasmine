@@ -133,6 +133,11 @@ public class VcfEntry {
 		else return res;
 	}
 	
+	public void setType(String s) throws Exception
+	{
+		setInfo("SVTYPE", s);
+	}
+	
 	public String getStrand() throws Exception
 	{
 		return getInfo("STRANDS");
@@ -248,6 +253,31 @@ public class VcfEntry {
 		
 		// Field not found, so add it!
 		tabTokens[7] += ";" + field + "=" + val;
+	}
+	
+	// Get list of supporting read names - first check for RNAMES field, and then anything containing with RNAMES
+	public String[] getRnames() throws Exception
+	{
+		if(hasInfoField("RNAMES"))
+		{
+			return getInfo("RNAMES").split(",");
+		}
+		String infoToken = tabTokens[7];
+		String[] semicolonSplit = infoToken.split(";");
+		for(String semitoken : semicolonSplit)
+		{
+			int equalIndex = semitoken.indexOf('=');
+			if(equalIndex == -1)
+			{
+				continue;
+			}
+			String key = semitoken.substring(0, equalIndex);
+			if(key.toUpperCase().contains("RNAMES"))
+			{
+				return semitoken.substring(1 + equalIndex).split(",");
+			}
+		}
+		return new String[] {};
 	}
 	
 	/*

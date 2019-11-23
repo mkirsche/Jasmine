@@ -109,4 +109,20 @@ public class StringUtils {
 		return 1.0 * intersect / Math.max(totalS, totalT);
 		
 	}
+	
+	/*
+	 * Assumes input is a filename, and adds "_<desc>: right before the file extension
+	 */
+	static String addDescriptor(String input, String desc)
+	{
+		int idx = input.lastIndexOf(".");
+		if(idx == -1)
+		{
+			return input + "_" + desc;
+		}
+		
+		String before = input.substring(0, idx);
+		String after = input.substring(idx);
+		return before + "_" + desc + after;
+	}
 }

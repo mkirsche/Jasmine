@@ -22,7 +22,12 @@ public class DuplicationsToInsertions {
 			outputFile = args[2];
 		}
 		
-		Scanner input = new Scanner(new FileInputStream(new File(inputFile)));
+		convertFile(inputFile, genomeFile, outputFile);
+	}
+	
+	static void convertFile(String inputFile, String genomeFile, String outputFile) throws Exception
+	{
+Scanner input = new Scanner(new FileInputStream(new File(inputFile)));
 		
 		GenomeQuery gq = new GenomeQuery(genomeFile);
 		

@@ -12,6 +12,12 @@ public class Settings {
 	static int MIN_SUPPORT = 2;
 	static double MIN_SEQUENCE_SIMILARITY = 0;
 	
+	static boolean CONVERT_DUPLICATIONS = false;
+	static boolean RUN_IRIS = false;
+	static String GENOME_FILE = "";
+	static String BAM_FILE_LIST = "";
+	static String IRIS_ARGS = "";
+	
 	static void usage()
 	{
 		System.out.println();
@@ -23,12 +29,22 @@ public class Settings {
 		System.out.println("  out_file  (String) - the name of the file to output the merged variants to");
 		System.out.println();
 		System.out.println("Optional args:");
-		System.out.println("  max_dist    (int)   [1000] - the maximum distance variants can be apart when being merged");
-		System.out.println("  min_seq_id  (float) [0]    - the minimum sequence identity for two insertions to be merged");
-		System.out.println("  min_support (int)   [2]    - the minimum number of callsets a variant must be in to be output");
-		System.out.println("  --ignore_strand            - allow variants with different strands to be merged");
-		System.out.println("  --ignore_type              - allow variants with different types to be merged");
+		System.out.println("  max_dist    (int)    [1000] - the maximum distance variants can be apart when being merged");
+		System.out.println("  min_seq_id  (float)  [0]    - the minimum sequence identity for two insertions to be merged");
+		System.out.println("  min_support (int)    [2]    - the minimum number of callsets a variant must be in to be output");
+		System.out.println("  genome_file (String) []     - the reference genome being used");
+		System.out.println("  bam_list    (String) []     - a file listing paths to BAMs in the same order as the VCFs");
+		System.out.println("  iris_args   (String) []     - a comma-separated list of optional arguments to pass to Iris");
+		System.out.println("  --ignore_strand             - allow variants with different strands to be merged");
+		System.out.println("  --ignore_type               - allow variants with different types to be merged");
+		System.out.println("  --dup_to_ins                - convert duplications to insertions for SV merging and then convert them back");
+		System.out.println("  --run_iris                  - run Iris before merging for refining the sequences of insertions");
 		System.out.println();
+		System.out.println("Notes:");
+		System.out.println("  genome_file is required if the dup_to_ins option or the run_iris option is used.");
+		System.out.println("  bam_list is required if the run_iris option is used.");
+		System.out.println();
+		
 	}
 	
 	/*
@@ -75,6 +91,14 @@ public class Settings {
 				{
 					USE_TYPE = false;
 				}
+				else if(args[i].endsWith("dup_to_ins"))
+				{
+					CONVERT_DUPLICATIONS = true;
+				}
+				else if(args[i].endsWith("run_iris"))
+				{
+					RUN_IRIS = true;
+				}
 				continue;
 			}
 			int equalIdx = args[i].indexOf('=');
@@ -98,11 +122,30 @@ public class Settings {
 				case "out_file":
 					OUT_FILE = val;
 					break;
+				case "genome_file":
+					GENOME_FILE = val;
+					break;
+				case "bam_list":
+					BAM_FILE_LIST = val;
+					break;
+				case "iris_args":
+					IRIS_ARGS = val;
+					break;
 				default:
 					break;
 			}
 		}
 		if(FILE_LIST.length() == 0 || OUT_FILE.length() == 0)
+		{
+			usage();
+			System.exit(1);
+		}
+		if(GENOME_FILE.length() == 0 && (RUN_IRIS || CONVERT_DUPLICATIONS))
+		{
+			usage();
+			System.exit(1);
+		}
+		if(BAM_FILE_LIST.length() == 0 && RUN_IRIS)
 		{
 			usage();
 			System.exit(1);
