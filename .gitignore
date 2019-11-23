@@ -3,7 +3,9 @@ bin/
 .project
 .settings/
 *.class
-
+*.vcf
+*.vcf.graph
+*.txt
 # IDEA setup
 .idea/
 *.iml
