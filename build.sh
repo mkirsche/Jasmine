@@ -10,5 +10,6 @@ cd $BINDIR
 git submodule update --init --recursive
 cd $WORKINGDIR
 $BINDIR/Iris/build.sh
+$BINDIR/Iris/rebuild_default_external.sh
 
-javac -cp $BINDIR/Iris/src $BINDIR/src/*.java
+javac -cp $BINDIR/Iris/src $BINDIR/src/*.java 

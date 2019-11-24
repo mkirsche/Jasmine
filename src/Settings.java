@@ -1,3 +1,7 @@
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /*
  * Utility for handling command line parameters and the usage message 
  */
@@ -17,6 +21,8 @@ public class Settings {
 	static String GENOME_FILE = "";
 	static String BAM_FILE_LIST = "";
 	static String IRIS_ARGS = "";
+	
+	static String OUT_DIR = "output";
 	
 	static void usage()
 	{
@@ -150,5 +156,11 @@ public class Settings {
 			usage();
 			System.exit(1);
 		}
+		
+		Path currentRelativePath = Paths.get("");
+		OUT_DIR = currentRelativePath.toAbsolutePath().toString() + "/" + OUT_DIR;
+		File f = new File(OUT_DIR);
+		f.mkdir();
+		
 	}
 }

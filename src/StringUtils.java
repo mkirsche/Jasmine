@@ -125,4 +125,17 @@ public class StringUtils {
 		String after = input.substring(idx);
 		return before + "_" + desc + after;
 	}
+	
+	/*
+	 * Gets the name of a file from its path by removing the directory name
+	 */
+	static String fileBaseName(String path)
+	{
+		int idx = path.lastIndexOf('/');
+		if(idx == -1)
+		{
+			return path;
+		}
+		return path.substring(1 + idx);
+	}
 }
