@@ -118,6 +118,41 @@ static String runIris(String fileList) throws Exception
 }
 
 /*
+ * Mark all specific calls in the input VCFs
+ */
+static String markSpecificCalls(String fileList) throws Exception
+{
+String newFileList = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(fileList), "markedSpec");
+	
+	Scanner vcfListInput = new Scanner(new FileInputStream(new File(fileList)));
+	ArrayList<String> vcfFiles = new ArrayList<String>();
+			
+	// Get a list of all VCF Files to refine
+	while(vcfListInput.hasNext())
+	{
+		String line = vcfListInput.nextLine();
+		if(line.length() > 0)
+		{
+			vcfFiles.add(line);
+		}
+	}
+	
+	PrintWriter newFileListOut = new PrintWriter(new File(newFileList));
+	
+	for(int i = 0; i<vcfFiles.size(); i++)
+	{
+		String vcfFile = vcfFiles.get(i);
+		String newVcfFile = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(vcfFile), "markedSpec");
+		newFileListOut.println(newVcfFile);
+		MarkSpecificCalls.convertFile(vcfFile, newVcfFile, 10, 30);
+	}
+	vcfListInput.close();
+	newFileListOut.close();
+		
+	return newFileList;
+}
+
+/*
  * Converts insertions in the output file which used to include a duplication back to their original types
  * Moves the old output file and replaces it with the updated one
  */

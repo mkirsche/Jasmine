@@ -20,6 +20,11 @@ public static void main(String[] args) throws Exception
 		currentInputFile = PipelineManager.convertDuplicationsToInsertions(currentInputFile);
 	}
 	
+	if(Settings.MARK_SPECIFIC)
+	{
+		currentInputFile = PipelineManager.markSpecificCalls(currentInputFile);
+	}
+	
 	/*
 	 * Run iris if the user specifies they want it run
 	 */
@@ -32,33 +37,17 @@ public static void main(String[] args) throws Exception
 	TreeMap<String, ArrayList<Variant>> allVariants = VariantInput.readAllFiles(currentInputFile);
 	
 	VariantOutput output = new VariantOutput();
-	int totalMerged = 0;
 	
 	// Get the number of samples to know the length of the SUPP_VEC field
 	int sampleCount = VariantInput.countFiles(currentInputFile);
 	
-	// Merge one graph at a time
-	for(String graphID : allVariants.keySet())
-	{
-		ArrayList<Variant> variantList = allVariants.get(graphID);
-		VariantMerger vm = new VariantMerger(variantList);
-		vm.runMerging();
-		ArrayList<Variant>[] res = vm.getGroups();
-		output.addGraph(graphID, res, sampleCount);
-		int merges = 0;
-		for(ArrayList<Variant> list : res)
-		{
-			if(list.size() > 1)
-			{
-				merges++;
-			}
-		}
-		totalMerged += merges;
-	}
+	// Merge each graph in parallel
+	ParallelMerger pm = new ParallelMerger(allVariants, output, sampleCount);
+	pm.run();
 	
 	// Print the merged variants to a file if they have enough support
 	output.writeMergedVariants(currentInputFile, Settings.OUT_FILE, Settings.MIN_SUPPORT);
-	System.out.println("Number of sets with multiple variants: " + totalMerged); 
+	System.out.println("Number of sets with multiple variants: " + pm.totalMerged.get()); 
 	
 	// Convert insertions back to duplications as needed
 	if(Settings.CONVERT_DUPLICATIONS)
