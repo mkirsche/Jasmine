@@ -98,6 +98,10 @@ public class VariantOutput {
 		header.addInfoField("SUPP", "1", "String", "Number of samples supporting the variant");
 		header.addInfoField("IDLIST", ".", "String", "Variant IDs of variants merged to make this call");
 		header.addInfoField("SVMETHOD", "1", "String", "");
+		header.addInfoField("STARTVARIANCE", "1", "String", "Variance of start position for variants merged into this one");
+		header.addInfoField("ENDVARIANCE", "1", "String", "Variance of start position for variants merged into this one");
+		header.addInfoField("END", "1", "String", "The end position of the variant");
+		header.addInfoField("SVLEN", "1", "String", "The length (in bp) of the variant");
 		
 		// Actually print the header and variants
 		header.print(out);
@@ -175,6 +179,10 @@ public class VariantOutput {
 				String varId = entry.getId();
 				varId = varId.substring(varId.indexOf('_') + 1);
 				idLists[groupNumber].append(varId);
+				consensus[groupNumber].setInfo("END", entry.getEnd() + "");
+				consensus[groupNumber].setInfo("SVLEN", entry.getLength() + "");
+				consensus[groupNumber].setInfo("STARTVARIANCE", (entry.getPos() * entry.getPos()) + "");
+				consensus[groupNumber].setInfo("ENDVARIANCE", (entry.getPos() * entry.getPos()) + "");
 			}
 			
 			// Otherwise, update the consensus to include info from this variant
@@ -185,13 +193,26 @@ public class VariantOutput {
 				{
 					consensus[groupNumber].setInfo("OLDTYPE", "DUP");
 				}
+				
+				// Update start
 				consensus[groupNumber].setPos(consensus[groupNumber].getPos() + entry.getPos());
-				if(consensus[groupNumber].hasInfoField("END"))
-				{
-					int oldEnd = Integer.parseInt(consensus[groupNumber].getInfo("END"));
-					int newEnd = Integer.parseInt(entry.getInfo("END"));
-					consensus[groupNumber].setInfo("END", (oldEnd + newEnd) + "");
-				}
+				
+				// Update end
+				long oldEnd = consensus[groupNumber].getEnd();
+				long newEnd = entry.getEnd();
+				consensus[groupNumber].setInfo("END", (oldEnd + newEnd) + "");
+				
+				// Update start/end variance (stored as sum of squares of start/end - variance is computed at the end)
+				long oldStartVar = Long.parseLong(consensus[groupNumber].getInfo("STARTVARIANCE"));
+				long oldEndVar = Long.parseLong(consensus[groupNumber].getInfo("ENDVARIANCE"));
+				consensus[groupNumber].setInfo("STARTVARIANCE", (oldStartVar + entry.getPos() * entry.getPos()) + "");
+				consensus[groupNumber].setInfo("ENDVARIANCE", (oldEndVar + newEnd * newEnd) + "");
+				
+				// Update SVLEN
+				long oldLength = consensus[groupNumber].getLength();
+				long newLength = entry.getLength();
+				consensus[groupNumber].setInfo("SVLEN", (oldLength + newLength) + "");
+				
 				String varId = entry.getId();
 				varId = varId.substring(varId.indexOf('_') + 1);
 				idLists[groupNumber].append("," + varId);
@@ -210,16 +231,41 @@ public class VariantOutput {
 				{
 					consensus[groupNumber].setInfo("SVTYPE", "???");
 				}
-				consensus[groupNumber].setPos((long)(.5 + 1.0 * consensus[groupNumber].getPos() / sizes[groupNumber]));
-				if(consensus[groupNumber].hasInfoField("END"))
-				{
-					long avgEnd = (long)(.5 + 1.0 * Integer.parseInt(consensus[groupNumber].getInfo("END")) / sizes[groupNumber]);
-					consensus[groupNumber].setInfo("END", avgEnd + "");
-				}
+				
+				// Divide start and end by number of merged variants and round
+				int groupSize = sizes[groupNumber];
+				long totalStart = consensus[groupNumber].getPos();
+				long totalEnd = consensus[groupNumber].getEnd();
+				long totalSquaredStart = Long.parseLong(consensus[groupNumber].getInfo("STARTVARIANCE"));
+				long totalSquaredEnd = Long.parseLong(consensus[groupNumber].getInfo("ENDVARIANCE"));
+				
+				// Compute start and end variances from the INFO fields
+				double expectedSquaredStart = totalSquaredStart * 1.0 / groupSize;
+				double expectedStartSquared = totalStart * totalStart * 1.0 / groupSize / groupSize;
+				double varStart = expectedSquaredStart - expectedStartSquared;
+				double expectedSquaredEnd = totalSquaredEnd * 1.0 / groupSize;
+				double expectedEndSquared = totalEnd * totalEnd * 1.0 / groupSize / groupSize;
+				double varEnd = expectedSquaredEnd - expectedEndSquared;
+				String varStartString = String.format("%.6f", varStart);
+				String varEndString = String.format("%.6f", varEnd);
+				
+				// Update the start and end mean/variance values
+				consensus[groupNumber].setPos((long)((totalStart * 1.0 + .5) / groupSize)); 
+				consensus[groupNumber].setInfo("END", (long)((totalEnd * 1.0 + .5) / groupSize) + "");
+				consensus[groupNumber].setInfo("STARTVARIANCE", varStartString);
+				consensus[groupNumber].setInfo("ENDVARIANCE", varEndString);
+				
+				// Update the average SV length
+				long totalLength = consensus[groupNumber].getLength();
+				consensus[groupNumber].setInfo("SVLEN", (long)((totalLength * 1.0 + .5) / groupSize) + "");
+				
+				// Fill the support-related fields
 				consensus[groupNumber].setInfo("SUPP_VEC", supportVectors[groupNumber]);
 				consensus[groupNumber].setInfo("SUPP", supportCounts[groupNumber]+"");
 				consensus[groupNumber].setInfo("SVMETHOD", "THRIVER");
 				consensus[groupNumber].setInfo("IDLIST", idLists[groupNumber].toString());
+				
+				// Remove the sample number from the variant ID (copied over from the first sample which is a part of this merged set)
 				String varId = entry.getId();
 				varId = varId.substring(varId.indexOf('_') + 1);
 				consensus[groupNumber].setId(varId);
