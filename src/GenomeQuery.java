@@ -22,7 +22,7 @@ public class GenomeQuery {
 	 */
 	void testSamtoolsInstalled() throws Exception
 	{
-		String samtoolsTestCommand = "samtools";
+		String samtoolsTestCommand = Settings.SAMTOOLS_PATH;
 		Process child = Runtime.getRuntime().exec(samtoolsTestCommand);
         int seqExit = child.waitFor();
 		
@@ -41,7 +41,7 @@ public class GenomeQuery {
 		{
 			return "";
 		}
-		String faidxCommand = String.format("samtools faidx %s %s:%d-%d", filename, chr, startPos, endPos);
+		String faidxCommand = String.format("%s faidx %s %s:%d-%d", Settings.SAMTOOLS_PATH, filename, chr, startPos, endPos);
 		Process child = Runtime.getRuntime().exec(faidxCommand);
         InputStream seqStream = child.getInputStream();
 		Scanner seqInput = new Scanner(seqStream);
