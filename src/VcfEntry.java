@@ -106,6 +106,20 @@ public class VcfEntry {
 		}
 	}
 	
+	public long getEnd() throws Exception
+	{
+		if(hasInfoField("END")) return Long.parseLong(getInfo("END"));
+		String type = getType();
+		if(type.equals("INS"))
+		{
+			return getPos();
+		}
+		else
+		{
+			return getPos() + Math.abs(getLength());
+		}
+	}
+	
 	public String getType() throws Exception
 	{
 		String res = getInfo("SVTYPE");
