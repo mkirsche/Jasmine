@@ -48,7 +48,7 @@ public class DuplicationsToInsertions {
 			else if(line.length() > 0)
 			{
 				VcfEntry ve = new VcfEntry(line);
-				if(ve.getType().equals("DUP"))
+				if(ve.getType().equals("DUP") && ve.getLength() < Settings.MAX_DUP_LEN)
 				{
 					countDup++;
 					
