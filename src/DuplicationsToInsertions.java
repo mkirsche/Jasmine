@@ -58,7 +58,7 @@ public class DuplicationsToInsertions {
 
 					if(ve.getAlt().equals("<DUP>"))
 					{
-						String seq = gq.genomeSubstring("chr" + ve.getChromosome(), start, end-1);
+						String seq = gq.genomeSubstring(ve.getChromosome(), start, end-1);
 						
 						if(length < 100000)
 						{
