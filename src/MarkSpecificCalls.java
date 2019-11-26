@@ -32,7 +32,7 @@ static void convertFile(String fn, String ofn, int minReadSupport, int minLength
 	Scanner input = new Scanner(new FileInputStream(new File(fn)));
 	PrintWriter out = new PrintWriter(new File(ofn));
 	
-	ArrayList<String> headerLines = new ArrayList<String>();
+	VcfHeader header = new VcfHeader();
 	ArrayList<VcfEntry> entries = new ArrayList<VcfEntry>();
 	
 	while(input.hasNext())
@@ -44,7 +44,7 @@ static void convertFile(String fn, String ofn, int minReadSupport, int minLength
 		}
 		if(line.startsWith("#"))
 		{
-			headerLines.add(line);
+			header.addLine(line);
 		}
 		else
 		{
@@ -67,12 +67,8 @@ static void convertFile(String fn, String ofn, int minReadSupport, int minLength
 		}
 	}
 	
-	for(String s : headerLines)
-	{
-		out.println(s);
-	}
-	
-	out.println("##INFO=<ID=IN_SPECIFIC,Number=1,Type=String,Description=\"\">");
+	header.addInfoField("IN_SPECIFIC", "1", "String", "");
+	header.print(out);
 	
 	for(VcfEntry entry : entries)
 	{

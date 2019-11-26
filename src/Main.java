@@ -33,6 +33,11 @@ public static void main(String[] args) throws Exception
 		currentInputFile = PipelineManager.runIris(currentInputFile);
 	}
 	
+	if(Settings.PREPROCESS_ONLY)
+	{
+		return;
+	}
+	
 	// Get the variants and bin them into individual graphs
 	TreeMap<String, ArrayList<Variant>> allVariants = VariantInput.readAllFiles(currentInputFile);
 	

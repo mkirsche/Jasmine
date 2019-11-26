@@ -46,8 +46,11 @@ public class Variant
 		{
 			return 1.0;
 		}
+		if(Settings.USE_EDIT_DISTANCE)
+		{
+			return StringUtils.editDistanceSimilarity(seq, v.seq);
+		}
 		return StringUtils.jaccardSimilarity(seq, v.seq);
-		//return StringUtils.editDistanceSimilarity(seq, v.seq);
 	}
 	boolean passesStringSimilarity(Variant v)
 	{

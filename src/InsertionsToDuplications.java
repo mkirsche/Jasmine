@@ -28,7 +28,7 @@ public class InsertionsToDuplications {
 		
 		PrintWriter out = new PrintWriter(new File(outputFile));
 		
-		ArrayList<String> header = new ArrayList<String>();
+		VcfHeader header = new VcfHeader();
 		ArrayList<VcfEntry> entries = new ArrayList<VcfEntry>();
 		
 		int countDup = 0;
@@ -38,7 +38,7 @@ public class InsertionsToDuplications {
 			String line = input.nextLine();
 			if(line.startsWith("#"))
 			{
-				header.add(line);
+				header.addLine(line);
 			}
 			else if(line.contains("OLDTYPE=DUP"))
 			{
@@ -67,13 +67,9 @@ public class InsertionsToDuplications {
 		
 		System.out.println("Number of insertions converted back to duplications: " + countDup + " out of " + entries.size() + " total variants");
 		
-		for(String s : header)
-		{
-			out.println(s);
-		}
-		
-		out.println("##INFO=<ID=REFINEDALT,Number=1,Type=String,Description=\"\">");
-				
+		header.addInfoField("REFINEDALT", "1", "String", "");
+		header.print(out);
+						
 		for(VcfEntry ve : entries)
 		{
 			out.println(ve);

@@ -33,7 +33,7 @@ public class DuplicationsToInsertions {
 		
 		PrintWriter out = new PrintWriter(new File(outputFile));
 		
-		ArrayList<String> header = new ArrayList<String>();
+		VcfHeader header = new VcfHeader();
 		ArrayList<VcfEntry> entries = new ArrayList<VcfEntry>();
 		
 		int countDup = 0;
@@ -43,7 +43,7 @@ public class DuplicationsToInsertions {
 			String line = input.nextLine();
 			if(line.startsWith("#"))
 			{
-				header.add(line);
+				header.addLine(line);
 			}
 			else if(line.length() > 0)
 			{
@@ -92,12 +92,8 @@ public class DuplicationsToInsertions {
 		
 		System.out.println("Number of duplications converted to insertions: " + countDup + " out of " + entries.size() + " total variants");
 		
-		for(String s : header)
-		{
-			out.println(s);
-		}
-		
-		out.println("##INFO=<ID=OLDTYPE,Number=1,Type=String,Description=\"\">");
+		header.addInfoField("OLDTYPE", "1", "String", "");
+		header.print(out);
 		
 		for(VcfEntry ve : entries)
 		{

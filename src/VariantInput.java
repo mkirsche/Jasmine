@@ -120,12 +120,7 @@ public class VariantInput {
 	public static Variant fromVcfEntry(VcfEntry entry, int sample) throws Exception
 	{
 		int start = (int)entry.getPos();
-		int end = entry.getLength();
-		
-		if(entry.getType().equals("INS"))
-		{
-			end = 0;
-		}
+		int end = Math.abs(entry.getLength());
 		
 		entry.setId(sample + "_" + entry.getId());
 		

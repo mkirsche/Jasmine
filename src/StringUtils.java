@@ -30,9 +30,9 @@ public class StringUtils {
 	/*
 	 * The sequence identity of two strings based on their kmer Jaccard distance
 	 */
-	static int k = 9;
 	static double jaccardSimilarity(String s, String t)
 	{
+		int k = Settings.K_JACCARD;
 		HashMap<Integer, Integer> kmerCount = new HashMap<Integer, Integer>();
 		int baseCount = 0;
 		int n = s.length(), m = t.length();
