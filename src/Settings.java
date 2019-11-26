@@ -58,7 +58,7 @@ public class Settings {
 		System.out.println("  bam_list        (String) []         - a file listing paths to BAMs in the same order as the VCFs");
 		System.out.println("  iris_args       (String) []         - a comma-separated list of optional arguments to pass to Iris");
 		System.out.println("  out_dir         (String) [output]   - the directory where intermediate files go");
-		System.out.println("  samtools_path   (String) [samtools] - the directory where intermediate files go");
+		System.out.println("  samtools_path   (String) [samtools] - the path to the samtools executable used for coverting duplications");
 		System.out.println("  --ignore_strand                     - allow variants with different strands to be merged");
 		System.out.println("  --ignore_type                       - allow variants with different types to be merged");
 		System.out.println("  --dup_to_ins                        - convert duplications to insertions for SV merging and then convert them back");
