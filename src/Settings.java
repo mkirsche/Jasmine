@@ -16,7 +16,10 @@ public class Settings {
 	static double MAX_DIST_LINEAR = 0.0;
 	static int MIN_SUPPORT = 2;
 	static double MIN_SEQUENCE_SIMILARITY = 0;
+	static boolean USE_EDIT_DISTANCE = false;
+	static int K_JACCARD = 9;
 	
+	static boolean PREPROCESS_ONLY = false;
 	static boolean CONVERT_DUPLICATIONS = false;
 	static boolean MARK_SPECIFIC = false;
 	static boolean RUN_IRIS = false;
@@ -41,21 +44,25 @@ public class Settings {
 		System.out.println("  out_file  (String) - the name of the file to output the merged variants to");
 		System.out.println();
 		System.out.println("Optional args:");
-		System.out.println("  max_dist        (int)    [1000] - the maximum distance variants can be apart when being merged");
-		System.out.println("  max_dist_linear (float)  [0]    - make max_dist this proportion of the length of each variant (overrides max_dost)");
-		System.out.println("  min_seq_id      (float)  [0]    - the minimum sequence identity for two insertions to be merged");
-		System.out.println("  min_support     (int)    [2]    - the minimum number of callsets a variant must be in to be output");
-		System.out.println("  threads         (int)    [2]    - the number of threads to use for merging the variants");
-		System.out.println("  spec_reads      (int)    [10]   - the minimum number of reads a variant needs to be in the specific callset");
-		System.out.println("  spec_len        (int)    [30]   - the minimum length a variant needs to be in the specific callset");
-		System.out.println("  genome_file     (String) []     - the reference genome being used");
-		System.out.println("  bam_list        (String) []     - a file listing paths to BAMs in the same order as the VCFs");
-		System.out.println("  iris_args       (String) []     - a comma-separated list of optional arguments to pass to Iris");
-		System.out.println("  --ignore_strand             - allow variants with different strands to be merged");
-		System.out.println("  --ignore_type               - allow variants with different types to be merged");
-		System.out.println("  --dup_to_ins                - convert duplications to insertions for SV merging and then convert them back");
-		System.out.println("  --mark_specific             - mark calls in the original VCF files that have enough support to called specific");
-		System.out.println("  --run_iris                  - run Iris before merging for refining the sequences of insertions");
+		System.out.println("  max_dist        (int)    [1000]   - the maximum distance variants can be apart when being merged");
+		System.out.println("  max_dist_linear (float)  [0]      - make max_dist this proportion of the length of each variant (overrides max_dost)");
+		System.out.println("  min_seq_id      (float)  [0]      - the minimum sequence identity for two insertions to be merged");
+		System.out.println("  k_jaccard       (int)    [9]      - the kmer size to use when computing Jaccard similarity of insertions");
+		System.out.println("  min_support     (int)    [2]      - the minimum number of callsets a variant must be in to be output");
+		System.out.println("  threads         (int)    [2]      - the number of threads to use for merging the variants");
+		System.out.println("  spec_reads      (int)    [10]     - the minimum number of reads a variant needs to be in the specific callset");
+		System.out.println("  spec_len        (int)    [30]     - the minimum length a variant needs to be in the specific callset");
+		System.out.println("  genome_file     (String) []       - the reference genome being used");
+		System.out.println("  bam_list        (String) []       - a file listing paths to BAMs in the same order as the VCFs");
+		System.out.println("  iris_args       (String) []       - a comma-separated list of optional arguments to pass to Iris");
+		System.out.println("  out_dir         (String) [output] - the directory where intermediate files go");
+		System.out.println("  --ignore_strand                   - allow variants with different strands to be merged");
+		System.out.println("  --ignore_type                     - allow variants with different types to be merged");
+		System.out.println("  --dup_to_ins                      - convert duplications to insertions for SV merging and then convert them back");
+		System.out.println("  --mark_specific                   - mark calls in the original VCF files that have enough support to called specific");
+		System.out.println("  --run_iris                        - run Iris before merging for refining the sequences of insertions");
+		System.out.println("  --use_edit_dist                   - use edit distance for comparing insertion sequences instead of Jaccard");
+		System.out.println("  --preprocess_only                 - only run the preprocessing and not the actual merging or post-processing");
 		System.out.println();
 		System.out.println("Notes:");
 		System.out.println("  genome_file is required if the dup_to_ins option or the run_iris option is used.");
@@ -120,6 +127,14 @@ public class Settings {
 				{
 					RUN_IRIS = true;
 				}
+				else if(args[i].endsWith("use_edit_dist"))
+				{
+					USE_EDIT_DISTANCE = true;
+				}
+				else if(args[i].endsWith("preprocess_only"))
+				{
+					PREPROCESS_ONLY = true;
+				}
 				continue;
 			}
 			int equalIdx = args[i].indexOf('=');
@@ -146,6 +161,9 @@ public class Settings {
 				case "threads":
 					THREADS = parseInt(val);
 					break;
+				case "k_jaccard":
+					K_JACCARD = parseInt(val);
+					break;
 				case "spec_reads":
 					SPECIFIC_MIN_RCOUNT = parseInt(val);
 					break;
@@ -166,6 +184,9 @@ public class Settings {
 					break;
 				case "iris_args":
 					IRIS_ARGS = val;
+					break;
+				case "out_dir":
+					OUT_DIR = val;
 					break;
 				default:
 					break;

@@ -29,7 +29,7 @@ public class VariantOutput {
 		PrintWriter out = new PrintWriter(new File(outFile));
 		int sample = 0;
 		
-		ArrayList<String> headerLinesToPrint = new ArrayList<String>();
+		VcfHeader header = new VcfHeader();
 		
 		// Go through one VCF file at a time
 		while(listInput.hasNext())
@@ -57,7 +57,7 @@ public class VariantOutput {
 				{
 					if(sample == 0)
 					{
-						headerLinesToPrint.add(line);
+						header.addLine(line);
 					}
 					else
 					{
@@ -94,11 +94,14 @@ public class VariantOutput {
 			}
 		}
 		
+		header.addInfoField("SUPP_VEC", "1", "String", "Vector of supporting samples");
+		header.addInfoField("SUPP", "1", "String", "Number of samples supporting the variant");
+		header.addInfoField("IDLIST", ".", "String", "Variant IDs of variants merged to make this call");
+		header.addInfoField("SVMETHOD", "1", "String", "");
+		
 		// Actually print the header and variants
-		for(String headerLine : headerLinesToPrint)
-		{
-			out.println(headerLine);
-		}
+		header.print(out);
+		
 		for(VcfEntry entry : allEntries)
 		{
 			String oldId = entry.getId();
