@@ -13,6 +13,7 @@ public class Settings {
 	static String FILE_LIST = "";
 	static String OUT_FILE = "";
 	static int MAX_DIST = 1000;
+	static double MAX_DIST_LINEAR = 0.0;
 	static int MIN_SUPPORT = 2;
 	static double MIN_SEQUENCE_SIMILARITY = 0;
 	
@@ -40,15 +41,16 @@ public class Settings {
 		System.out.println("  out_file  (String) - the name of the file to output the merged variants to");
 		System.out.println();
 		System.out.println("Optional args:");
-		System.out.println("  max_dist    (int)    [1000] - the maximum distance variants can be apart when being merged");
-		System.out.println("  min_seq_id  (float)  [0]    - the minimum sequence identity for two insertions to be merged");
-		System.out.println("  min_support (int)    [2]    - the minimum number of callsets a variant must be in to be output");
-		System.out.println("  threads     (int)    [2]    - the number of threads to use for merging the variants");
-		System.out.println("  spec_reads  (int)    [10]   - the minimum number of reads a variant needs to be in the specific callset");
-		System.out.println("  spec_len    (int)    [30]   - the minimum length a variant needs to be in the specific callset");
-		System.out.println("  genome_file (String) []     - the reference genome being used");
-		System.out.println("  bam_list    (String) []     - a file listing paths to BAMs in the same order as the VCFs");
-		System.out.println("  iris_args   (String) []     - a comma-separated list of optional arguments to pass to Iris");
+		System.out.println("  max_dist        (int)    [1000] - the maximum distance variants can be apart when being merged");
+		System.out.println("  max_dist_linear (float)  [0]    - make max_dist this proportion of the length of each variant (overrides max_dost)");
+		System.out.println("  min_seq_id      (float)  [0]    - the minimum sequence identity for two insertions to be merged");
+		System.out.println("  min_support     (int)    [2]    - the minimum number of callsets a variant must be in to be output");
+		System.out.println("  threads         (int)    [2]    - the number of threads to use for merging the variants");
+		System.out.println("  spec_reads      (int)    [10]   - the minimum number of reads a variant needs to be in the specific callset");
+		System.out.println("  spec_len        (int)    [30]   - the minimum length a variant needs to be in the specific callset");
+		System.out.println("  genome_file     (String) []     - the reference genome being used");
+		System.out.println("  bam_list        (String) []     - a file listing paths to BAMs in the same order as the VCFs");
+		System.out.println("  iris_args       (String) []     - a comma-separated list of optional arguments to pass to Iris");
 		System.out.println("  --ignore_strand             - allow variants with different strands to be merged");
 		System.out.println("  --ignore_type               - allow variants with different types to be merged");
 		System.out.println("  --dup_to_ins                - convert duplications to insertions for SV merging and then convert them back");
@@ -131,6 +133,12 @@ public class Settings {
 			{
 				case "max_dist":
 					MAX_DIST = parseInt(val);
+					break;
+				case "max_dist_linear":
+					MAX_DIST_LINEAR = Double.parseDouble(val);
+					break;
+				case "min_seq_id":
+					MIN_SEQUENCE_SIMILARITY = Double.parseDouble(val);
 					break;
 				case "min_support":
 					MIN_SUPPORT = parseInt(val);

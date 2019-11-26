@@ -183,6 +183,12 @@ public class VariantOutput {
 					consensus[groupNumber].setInfo("OLDTYPE", "DUP");
 				}
 				consensus[groupNumber].setPos(consensus[groupNumber].getPos() + entry.getPos());
+				if(consensus[groupNumber].hasInfoField("END"))
+				{
+					int oldEnd = Integer.parseInt(consensus[groupNumber].getInfo("END"));
+					int newEnd = Integer.parseInt(entry.getInfo("END"));
+					consensus[groupNumber].setInfo("END", (oldEnd + newEnd) + "");
+				}
 				String varId = entry.getId();
 				varId = varId.substring(varId.indexOf('_') + 1);
 				idLists[groupNumber].append("," + varId);
@@ -193,7 +199,20 @@ public class VariantOutput {
 			// If this group is done, divide out any averages (e.g., position) as necessary
 			if(used[groupNumber] == sizes[groupNumber])
 			{
+				if((!Settings.USE_STRAND))
+				{
+					consensus[groupNumber].setInfo("STRANDS", "??");
+				}
+				if(!Settings.USE_TYPE)
+				{
+					consensus[groupNumber].setInfo("SVTYPE", "???");
+				}
 				consensus[groupNumber].setPos((long)(.5 + 1.0 * consensus[groupNumber].getPos() / sizes[groupNumber]));
+				if(consensus[groupNumber].hasInfoField("END"))
+				{
+					long avgEnd = (long)(.5 + 1.0 * Integer.parseInt(consensus[groupNumber].getInfo("END")) / sizes[groupNumber]);
+					consensus[groupNumber].setInfo("END", avgEnd + "");
+				}
 				consensus[groupNumber].setInfo("SUPP_VEC", supportVectors[groupNumber]);
 				consensus[groupNumber].setInfo("SUPP", supportCounts[groupNumber]+"");
 				consensus[groupNumber].setInfo("SVMETHOD", "THRIVER");

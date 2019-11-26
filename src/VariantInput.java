@@ -149,6 +149,10 @@ public class VariantInput {
 		{
 			maxDist = Integer.parseInt(maxDistInfo);
 		}
+		else if(Settings.MAX_DIST_LINEAR > 0)
+		{
+			maxDist = (int)(Settings.MAX_DIST_LINEAR * entry.getLength() + 0.5);
+		}
 		
 		String minIdInfo = entry.getInfo("THRIVER_ID");
 		if(minIdInfo.length() > 0)
