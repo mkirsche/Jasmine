@@ -21,6 +21,7 @@ public class ParallelMerger {
 		this.allVariants = allVariants;
 		this.output = output;
 		this.numThreads = Settings.THREADS;
+		System.out.println("Nummber of threads: " + numThreads);
 		this.sampleCount = sampleCount;
 		todo = new LinkedList<String>();
 		for(String s : allVariants.keySet())
