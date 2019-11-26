@@ -182,7 +182,7 @@ public class VariantOutput {
 				consensus[groupNumber].setInfo("END", entry.getEnd() + "");
 				consensus[groupNumber].setInfo("SVLEN", entry.getLength() + "");
 				consensus[groupNumber].setInfo("STARTVARIANCE", (entry.getPos() * entry.getPos()) + "");
-				consensus[groupNumber].setInfo("ENDVARIANCE", (entry.getPos() * entry.getPos()) + "");
+				consensus[groupNumber].setInfo("ENDVARIANCE", (entry.getEnd() * entry.getEnd()) + "");
 			}
 			
 			// Otherwise, update the consensus to include info from this variant
