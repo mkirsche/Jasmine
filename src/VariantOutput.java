@@ -69,12 +69,25 @@ public class VariantOutput {
 					// Update the consensus variant in the appropriate graph
 					VcfEntry entry = new VcfEntry(line);
 					String graphID = entry.getGraphID();
-					groups.get(graphID).processVariant(entry, sample);
+					groups.get(graphID).processVariant(entry, sample, out);
 				}
 			}
 			input.close();
 			sample++;
 		}
+		
+		
+		header.addInfoField("SUPP_VEC", "1", "String", "Vector of supporting samples");
+		header.addInfoField("SUPP", "1", "String", "Number of samples supporting the variant");
+		header.addInfoField("IDLIST", ".", "String", "Variant IDs of variants merged to make this call");
+		header.addInfoField("SVMETHOD", "1", "String", "");
+		header.addInfoField("STARTVARIANCE", "1", "String", "Variance of start position for variants merged into this one");
+		header.addInfoField("ENDVARIANCE", "1", "String", "Variance of end position for variants merged into this one");
+		header.addInfoField("END", "1", "String", "The end position of the variant");
+		header.addInfoField("SVLEN", "1", "String", "The length (in bp) of the variant");
+		
+		// Actually print the header and variants
+		header.print(out);
 		
 		// Go through the graphs and add all the consensus variants to a big list
 		ArrayList<VcfEntry> allEntries = new ArrayList<VcfEntry>();
@@ -93,18 +106,6 @@ public class VariantOutput {
 				}
 			}
 		}
-		
-		header.addInfoField("SUPP_VEC", "1", "String", "Vector of supporting samples");
-		header.addInfoField("SUPP", "1", "String", "Number of samples supporting the variant");
-		header.addInfoField("IDLIST", ".", "String", "Variant IDs of variants merged to make this call");
-		header.addInfoField("SVMETHOD", "1", "String", "");
-		header.addInfoField("STARTVARIANCE", "1", "String", "Variance of start position for variants merged into this one");
-		header.addInfoField("ENDVARIANCE", "1", "String", "Variance of start position for variants merged into this one");
-		header.addInfoField("END", "1", "String", "The end position of the variant");
-		header.addInfoField("SVLEN", "1", "String", "The length (in bp) of the variant");
-		
-		// Actually print the header and variants
-		header.print(out);
 		
 		for(VcfEntry entry : allEntries)
 		{
@@ -161,7 +162,7 @@ public class VariantOutput {
 		}
 		
 		// From a VCF line, update the appropriate consensus entry
-		void processVariant(VcfEntry entry, int sample) throws Exception
+		void processVariant(VcfEntry entry, int sample, PrintWriter out) throws Exception
 		{
 			// This should never happen, but if the variant ID is not in the graph ignore it
 			String fullId = VariantInput.fromVcfEntry(entry, sample).id;
@@ -269,6 +270,8 @@ public class VariantOutput {
 				String varId = entry.getId();
 				varId = varId.substring(varId.indexOf('_') + 1);
 				consensus[groupNumber].setId(varId);
+				out.println(consensus[groupNumber]);
+				consensus[groupNumber] = null;
 			}
 		}
 		
