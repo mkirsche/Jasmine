@@ -18,7 +18,7 @@ public class Variant
 		this.start = start;
 		this.end = end;
 		this.graphID = graphID;
-		this.seq = seq;
+		if(minSeqId > 0) this.seq = seq;
 		this.maxDist = maxDist;
 		this.minSeqId = minSeqId;
 	}
@@ -29,7 +29,7 @@ public class Variant
 		this.start = start;
 		this.end = end;
 		this.graphID = graphID;
-		this.seq = seq;
+		if(minSeqId > 0) this.seq = seq;
 		this.maxDist = Settings.MAX_DIST;
 		this.minSeqId = Settings.MIN_SEQUENCE_SIMILARITY;
 	}
@@ -58,9 +58,16 @@ public class Variant
 		{
 			return true;
 		}
+		
 		String s = seq, t = v.seq;
 		
-		double similarityNeeded = Math.min(minSeqId, v.minSeqId); 
+		double similarityNeeded = Math.min(minSeqId, v.minSeqId);
+		
+		// If there is no sequence identity requirement, don't compute the score and just return true
+		if(similarityNeeded <= 0)
+		{
+			return true;
+		}
 		
 		int minLength = Math.min(s.length(), t.length());
 		int maxLength = s.length() + t.length() - minLength;
