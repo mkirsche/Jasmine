@@ -2,15 +2,13 @@
 
 Tool for merging structural variants.
 
-It's still in development, so while it works, it doesn't yet have the full set of features.
-
 ## Instructions for building
 
 ./build.sh
 
 ## Instructions for running
 
-java -cp src Main
+java -cp src:Iris/src Main
 
 Running this without parameters will provide a menu describing the necessary parameters.
 
