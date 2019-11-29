@@ -136,20 +136,25 @@ public class VariantInput {
 			}
 		}
 		
+		// Default distance threshold model is constant, so set to that first
 		int maxDist = Settings.MAX_DIST;
 		double minSeqId = Settings.MIN_SEQUENCE_SIMILARITY;
 		
-		String maxDistInfo = entry.getInfo("THRIVER_DIST");
+		// Then, check if there is a per-variant distance threshold
+		String maxDistInfo = entry.getInfo("JASMINE_DIST");
 		if(maxDistInfo.length() > 0)
 		{
 			maxDist = Integer.parseInt(maxDistInfo);
 		}
+		
+		// Next, check if there is a length-based threshold
 		else if(Settings.MAX_DIST_LINEAR > 0)
 		{
 			maxDist = (int)(Settings.MAX_DIST_LINEAR * entry.getLength() + 0.5);
 		}
 		
-		String minIdInfo = entry.getInfo("THRIVER_ID");
+		// Check for per-variant sequence ID thresholds
+		String minIdInfo = entry.getInfo("JASMINE_ID");
 		if(minIdInfo.length() > 0)
 		{
 			minSeqId = Double.parseDouble(minIdInfo);

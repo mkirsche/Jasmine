@@ -1,3 +1,8 @@
+/*
+ * The header of a VCF file, including a list of INFO fields
+ * The main purpose of this is to manage INFO field description lines and avoid duplicates
+ */
+
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -20,6 +25,9 @@ public class VcfHeader {
 		lastInfoFieldIndex = -1;
 	}
 	
+	/*
+	 * Print all lines of the header
+	 */
 	void print(PrintWriter out)
 	{
 		for(String s : lines)
@@ -28,6 +36,9 @@ public class VcfHeader {
 		}
 	}
 	
+	/*
+	 * Adds a line to the header, updating the list of INFO fields as needed
+	 */
 	void addLine(String line)
 	{
 		lines.add(line);
@@ -42,6 +53,9 @@ public class VcfHeader {
 		}
 	}
 	
+	/*
+	 * Adds an INFO field, adding the header line if it's not already present
+	 */
 	void addInfoField(String id, String number, String type, String desc)
 	{
 		if(infoFields.contains(id))

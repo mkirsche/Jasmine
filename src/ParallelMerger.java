@@ -1,3 +1,12 @@
+/*
+ * Multi-threading support for variant merging
+ * Since each chromosome (and possibly type and strand) is its own graph,
+ * the algorithm can be parallelized pretty naturally.
+ * 
+ * The graphs that need to be processed are stored in a queue, and each thread
+ * processes one graph at a time, querying the queue for the next graph to process
+ */
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -6,12 +15,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ParallelMerger {
 	
+	// IDs of graphs left to process
 	Queue<String> todo;
 	
+	// the variant graphs on which merging will be performed
 	TreeMap<String, ArrayList<Variant>> allVariants;
+	
+	// A data structure for holding merged variants to output
 	VariantOutput output;
 	
+	// The number of threads to use
 	int numThreads;
+	
+	// The total number of samples 
 	int sampleCount;
 	
 	AtomicInteger totalMerged = new AtomicInteger(0);
@@ -30,9 +46,12 @@ public class ParallelMerger {
 		}
 	}
 	
+	/*
+	 * Start merging in parallel, initializing all threads
+	 */
 	void run() throws Exception
 	{
-		// Here the last thread in the array is the main thread, so it calls
+		// The last thread in the array is the main thread, so it calls
 		// run() instead of start() and doesn't get joined below
 		MyThread[] threads = new MyThread[numThreads];
 		for(int i = 0; i<numThreads; i++)
@@ -53,10 +72,13 @@ public class ParallelMerger {
 		}
 	}
 
+	/*
+	 * A single thread performing variant merging
+	 */
 	public class MyThread extends Thread {
 			
-		@Override
-		public void run() {
+		public void run()
+		{
 			while(!todo.isEmpty())
 			{
 				String graphID = todo.poll();

@@ -1,16 +1,33 @@
 /*
  * Minimum set of info we need to store for a variant
  */
+
 public class Variant
 {
-	int sample; // Which sample number the variant came from
-	String id; // Variant ID, assumed to be unique for all variants.  It has the "<sampleId>_" added to the beginning to ensure this.
-	int start, end; // End should be start+length for insertion
-	String graphID; // Store chromosome, and optionally type and strand
-	int index; // this is initialized and used internally for bookkeeping and does not come from VCF
-	String seq; // For insertions, the sequence being inserted, or null otherwise
-	int maxDist; // The maximum distance a variant can be to merge with this one
-	double minSeqId; // The minimum sequence similarity another variant needs to merge with this one if both are insertions
+	// Which sample number the variant came from
+	int sample; 
+	
+	// Variant ID, assumed to be unique for all variants.  It has the "<sampleId>_" added to the beginning to ensure this.
+	String id; 
+	
+	// End should be start+length for insertion
+	int start, end;
+	
+	// Store chromosome, and optionally type and strand
+	String graphID;
+	
+	// This is initialized and used internally for bookkeeping and does not come from VCF
+	int index;
+	
+	// For insertions, the sequence being inserted, or null otherwise
+	String seq;
+	
+	// The maximum distance a variant can be away to merge with this one
+	int maxDist;
+	
+	// The minimum sequence similarity another variant needs to merge with this one if both are insertions
+	double minSeqId;
+	
 	Variant(int sample, String id, int start, int end, String graphID, String seq, int maxDist, double minSeqId)
 	{
 		this.sample = sample;
@@ -48,6 +65,10 @@ public class Variant
 			return Math.pow(powSum, 1.0 / norm);
 		}
 	}
+	
+	/*
+	 * The similarity score of two variants, which is based on sequence similarity for pairs of insertions and 1 otherwise
+	 */
 	double stringSimilarity(Variant v)
 	{
 		// If either sequence is null, the variant is either non-insertion, or has no sequence, which we don't want to penalize for
@@ -55,12 +76,20 @@ public class Variant
 		{
 			return 1.0;
 		}
+		
 		if(Settings.USE_EDIT_DISTANCE)
 		{
 			return StringUtils.editDistanceSimilarity(seq, v.seq);
 		}
-		return StringUtils.jaccardSimilarity(seq, v.seq);
+		else
+		{
+			return StringUtils.jaccardSimilarity(seq, v.seq);
+		}
 	}
+	
+	/*
+	 * Whether or not the sequence similarity of two variants is high enough for them to be merged
+	 */
 	boolean passesStringSimilarity(Variant v)
 	{
 		if(seq == null || v.seq == null)
@@ -80,12 +109,18 @@ public class Variant
 		
 		int minLength = Math.min(s.length(), t.length());
 		int maxLength = s.length() + t.length() - minLength;
+		
 		if(minLength < maxLength * similarityNeeded - 1e-9)
 		{
 			return false;
 		}
+		
 		return stringSimilarity(v) >= similarityNeeded - 1e-9;
 	}
+	
+	/*
+	 * Human-readable format for printing some of the variant information
+	 */
 	public String toString()
 	{
 		return "id: " + id + ", sample: " + sample + ", start: " + start + ", end: " + end;

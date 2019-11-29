@@ -10,17 +10,33 @@ import java.util.Arrays;
 
 public class Forest
 {
-	int[] map; //negative if root, more negative means bigger set; if nonnegative, then it indicates the parent
-	long[] sampleMask; // For each root, a bitmask of which samples are present in its component
+	int[] map; // map[i] is negative if root, more negative means bigger set; if nonnegative, then it indicates the parent
+	long[][] sampleMask; // For each root node, a bitmask of which samples are present in its component
+	static int samplesPerMask = 63;
+	
 	public Forest(Variant[] data)
 	{
 		int n = data.length;
+		int maxSample = 0;
+		for(int i = 0; i<n; i++)
+		{
+			maxSample = Math.max(maxSample, data[i].sample);
+		}
+		
+		// Each component may require multiple 64-bit integers to hold its bitset of sample IDs if there are many samples
+		int masksNeeded = maxSample / samplesPerMask + 1;
 		map = new int[n];
 		Arrays.fill(map, -1);
-		sampleMask = new long[n];
-		for(int i = 0; i<n; i++) sampleMask[i] |= (1L << data[i].sample);
+		sampleMask = new long[masksNeeded][n];
+		for(int i = 0; i<n; i++)
+		{
+			int maskId = data[i].sample / samplesPerMask;
+			int maskVal = data[i].sample % samplesPerMask;
+			sampleMask[maskId][i] |= (1L << maskVal);
+		}
 		
 	}
+	
 	/*
 	 * Get the root of the component containing a variant
 	 */
@@ -34,6 +50,7 @@ public class Forest
 			return map[x];
 		}
 	}
+	
 	/*
 	 * Add an edge between two variants
 	 */
@@ -52,19 +69,35 @@ public class Forest
 		{
 			map[roota] += map[rootb]; //add the sizes
 			map[rootb] = roota; //connect the smaller to the bigger
-			sampleMask[roota] |= sampleMask[rootb];
+			for(int j = 0; j<sampleMask.length; j++)
+			{
+				sampleMask[j][roota] |= sampleMask[j][rootb];
+			}
 		}
 		else
 		{
 			map[rootb] += map[roota];
 			map[roota] = rootb;
-			sampleMask[rootb] |= sampleMask[roota];
+			for(int j = 0; j<sampleMask.length; j++)
+			{
+				sampleMask[j][rootb] |= sampleMask[j][roota];
+			}
 		}
 		return true;
 	}
 	
+	/*
+	 * Whether or not adding an edge will avoid causing intrasample merging
+	 */
 	private boolean okayEdge(int rootA, int rootB)
 	{
-		return (sampleMask[rootA] & sampleMask[rootB]) == 0;
+		for(int j = 0; j<sampleMask.length; j++)
+		{
+			if((sampleMask[j][rootA] & sampleMask[j][rootB]) != 0)
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 }

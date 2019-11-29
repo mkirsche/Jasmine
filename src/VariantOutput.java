@@ -1,3 +1,9 @@
+/*
+ * A data structure for holding merged variants to output
+ * When merging is performed, the resulting variants use information from multiple files,
+ * so some bookkeeping is required to scan through the files one at a time and update all merged variants at once
+ */
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
@@ -16,13 +22,17 @@ public class VariantOutput {
 		groups = new TreeMap<String, VariantGraph>();
 	}
 	
+	/*
+	 * Adds a graph to the output so that it can be accessed by graph ID easily
+	 */
 	void addGraph(String graphID, ArrayList<Variant>[] graph, int sampleCount)
 	{
 		groups.put(graphID,  new VariantGraph(graph, sampleCount));
 	}
 	
-	// Given a list of VCF files and merging results, output an updated VCF file
-	// TODO use minSupport
+	/*
+	 * Given a list of VCF files and merging results, output an updated VCF file
+	 */
 	public void writeMergedVariants(String fileList, String outFile, int minSupport) throws Exception
 	{
 		Scanner listInput = new Scanner(new FileInputStream(new File(fileList)));
@@ -118,15 +128,33 @@ public class VariantOutput {
 		listInput.close();
 	}
 	
+	/*
+	 * A graph of variants which are all on the same chromosome, and have the same type and/or strand as specified by the user
+	 * This class has login for storing and updating the connected components of the graph as consensus variants
+	 */
 	static class VariantGraph
 	{
-		int[] sizes; // Number of variants in each group
-		int[] used; // How many variants in each group have been seen so far
-		VcfEntry[] consensus; // The current consensus variant for each group
-		HashMap<String, Integer> varToGroup; // For each variant ID, the group number it is in
+		// Number of variants in each group
+		int[] sizes;
+		
+		// How many variants in each group have been seen so far
+		int[] used;
+		
+		// The current consensus variant for each group
+		VcfEntry[] consensus;
+		
+		// For each variant ID, the group number it is in
+		HashMap<String, Integer> varToGroup;
+		
+		// For each group, the support vector of samples it's in
 		String[] supportVectors;
+		
+		// For each group, the number of sample it's in
 		int[] supportCounts;
-		StringBuilder[] idLists; // The list of variant IDs in each merged variant
+		
+		// The list of variant IDs in each merged variant
+		StringBuilder[] idLists;
+		
 		VariantGraph(ArrayList<Variant>[] groups, int sampleCount)
 		{
 			int n = groups.length;
@@ -161,7 +189,9 @@ public class VariantOutput {
 			}
 		}
 		
-		// From a VCF line, update the appropriate consensus entry
+		/*
+		 * From a VCF line, update the appropriate consensus entry
+		 */
 		void processVariant(VcfEntry entry, int sample, PrintWriter out) throws Exception
 		{
 			// This should never happen, but if the variant ID is not in the graph ignore it

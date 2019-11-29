@@ -3,7 +3,7 @@
  * For a given query, the k closest points to it in the dataset will be reported,
  * breaking ties by variant ID to ensure deterministic behavior.
  * 
- * We assume variants are 2-D points; nearness is based on Euclidean distance.
+ * We assume variants are 2-D points; nearness is based on Euclidean distance or its generalizations.
  * 
  * Uses algorithm described here: 
  * https://courses.cs.washington.edu/courses/cse599c1/13wi/slides/lsh-hashkernels-annotated.pdf
@@ -33,10 +33,17 @@ public class KDTree
 		Collections.shuffle(list);
 		root = build(list, 0);
 	}
+	
+	/*
+	 * Build a subtree of the data structure from a subset of the points
+	 * Initially this is called on the whole tree with all the points
+	 */
 	private Node build(LinkedList<Node> p, int depth) 
 	{
 		if (p.size() == 0) return null;
 		Node pivot = p.remove();
+		
+		// Sort the points into left and right subtrees based on current split dimension
 		LinkedList<Node> left = new LinkedList<Node>();
 		LinkedList<Node> right = new LinkedList<Node>();
 		while (!p.isEmpty()) 
@@ -68,6 +75,10 @@ public class KDTree
 		}
 		return res;
 	}
+	
+	/*
+	 * Search the subtree rooted at cur for candidate points in the set of query's k-nearest neighbors
+	 */
 	private void search(Node cur, int depth) {
 		if (cur == null) return;
 		int betterChild = (int) Math.signum(search.planes[depth % K] - cur.planes[depth % K]) < 0 ? 0 : 1;
@@ -86,6 +97,11 @@ public class KDTree
 			search(cur.children[1 - betterChild], depth + 1);
 		}
 	}
+	
+	/*
+	 * A node of the KD tree
+	 * Each node has a variant, storing alongside it its values along the split planes, as well as two (possibly null) children
+	 */
 	private class Node {
 		Node[] children;
 		Variant p;
@@ -99,6 +115,10 @@ public class KDTree
 			children = new Node[2];
 		}
 	}
+	
+	/*
+	 * Candidate k-nearest neighbor of the current query point
+	 */
 	private static class Candidate implements Comparable<Candidate>
 	{
 		Variant v;

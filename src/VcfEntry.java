@@ -39,60 +39,89 @@ public class VcfEntry {
 		return sb.toString();
 	}
 	
+	/*
+	 * Get the chromosome field
+	 */
 	public String getChromosome()
 	{
 		return tabTokens[0];
 	}
 	
+	/*
+	 * Set the chromosome field
+	 */
 	public void setChromosome(String s)
 	{
 		tabTokens[0] = s;
 	}
 	
+	/*
+	 * Get hte POS field
+	 */
 	public long getPos() throws Exception
 	{
-		try {
-			return Long.parseLong(tabTokens[1]);
-		} catch(Exception e) {
-			throw new Exception("Tried to access invalid VCF position: " + tabTokens[1]);
-		}
+		return Long.parseLong(tabTokens[1]);
 	}
 	
+	/*
+	 * Set the POS field
+	 */
 	public void setPos(long val)
 	{
 		tabTokens[1] = val+"";
 	}
 	
+	/*
+	 * Get the variant ID field
+	 */
 	public String getId()
 	{
 		return tabTokens[2];
 	}
 	
+	/*
+	 * Set the variant ID field
+	 */
 	public void setId(String s)
 	{
 		tabTokens[2] = s;
 	}
 	
+	/*
+	 * Get the REF sequence field
+	 */
 	public String getRef()
 	{
 		return tabTokens[3];
 	}
 	
+	/*
+	 * Set the REF sequence field
+	 */
 	public void setRef(String s)
 	{
 		tabTokens[3] = s;
 	}
 	
+	/*
+	 * Get the ALT sequence field
+	 */
 	public String getAlt()
 	{
 		return tabTokens[4];
 	}
 	
+	/*
+	 * Set the ALT sequence field
+	 */
 	public void setAlt(String s)
 	{
 		tabTokens[4] = s;
 	}
 	
+	/*
+	 * The length of a variant
+	 */
 	public int getLength() throws Exception
 	{
 		try {
@@ -106,6 +135,9 @@ public class VcfEntry {
 		}
 	}
 	
+	/*
+	 * The end position of a variant
+	 */
 	public long getEnd() throws Exception
 	{
 		if(hasInfoField("END")) return Long.parseLong(getInfo("END"));
@@ -120,6 +152,9 @@ public class VcfEntry {
 		}
 	}
 	
+	/*
+	 * Get the variant type
+	 */
 	public String getType() throws Exception
 	{
 		String res = getInfo("SVTYPE");
@@ -147,16 +182,25 @@ public class VcfEntry {
 		else return res;
 	}
 	
+	/*
+	 * Set the SVTYPE INFO field to a certain value
+	 */
 	public void setType(String s) throws Exception
 	{
 		setInfo("SVTYPE", s);
 	}
 	
+	/*
+	 * The strands on which the variant occurs
+	 */
 	public String getStrand() throws Exception
 	{
 		return getInfo("STRANDS");
 	}
 	
+	/*
+	 * Get which graph the variant belongs in based on how the user wants them separated
+	 */
 	public String getGraphID() throws Exception
 	{
 		String id = getChromosome();
@@ -171,6 +215,9 @@ public class VcfEntry {
 		return id;
 	}
 	
+	/*
+	 * The genomic sequence being affected/added/deleted by the variant
+	 */
 	public String getSeq() throws Exception
 	{
 		if(hasInfoField("SEQ"))
@@ -269,7 +316,9 @@ public class VcfEntry {
 		tabTokens[7] += ";" + field + "=" + val;
 	}
 	
-	// Get list of supporting read names - first check for RNAMES field, and then anything containing with RNAMES
+	/*
+	 * Get list of supporting read names - first check for RNAMES field, and then anything containing RNAMES
+	 */
 	public String[] getRnames() throws Exception
 	{
 		if(hasInfoField("RNAMES"))
@@ -317,6 +366,9 @@ public class VcfEntry {
 		return "";
 	}
 	
+	/*
+	 * Whether or not the line has a particular INFO field
+	 */
 	public boolean hasInfoField(String fieldName)
 	{
 		String infoToken = tabTokens[7];

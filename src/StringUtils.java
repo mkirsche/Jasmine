@@ -4,6 +4,7 @@ import java.util.HashMap;
  * A collection of String functions
  */
 public class StringUtils {
+	
 	/*
 	 * The sequence identity of two strings based on their edit distance
 	 */
@@ -34,8 +35,10 @@ public class StringUtils {
 	{
 		int k = Settings.K_JACCARD;
 		HashMap<Integer, Integer> kmerCount = new HashMap<Integer, Integer>();
+		
+		// Scan through s and count its kmers
 		int baseCount = 0;
-		int n = s.length(), m = t.length();
+		int n = s.length();
 		int kmer = 0;
 		for(int i = 0; i<n; i++)
 		{
@@ -70,8 +73,10 @@ public class StringUtils {
 			return 1.0;
 		}
 		
+		// Scan through t and counts its kmers and its intersection with the kmer set of s
 		baseCount = 0;
 		int intersect = 0;
+		int m = t.length();
 		for(int i = 0; i<m; i++)
 		{
 			char c = t.charAt(i);
@@ -106,12 +111,13 @@ public class StringUtils {
 		{
 			return 1.0;
 		}
+		
 		return 1.0 * intersect / Math.max(totalS, totalT);
 		
 	}
 	
 	/*
-	 * Assumes input is a filename, and adds "_<desc>: right before the file extension
+	 * Assumes input is a filename, and adds "_<desc>" right before the file extension
 	 */
 	static String addDescriptor(String input, String desc)
 	{
@@ -127,7 +133,7 @@ public class StringUtils {
 	}
 	
 	/*
-	 * Gets the name of a file from its path by removing the directory name
+	 * Gets the basename of a file from its path by removing the directory name
 	 */
 	static String fileBaseName(String path)
 	{

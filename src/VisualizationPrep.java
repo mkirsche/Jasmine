@@ -1,5 +1,5 @@
 /*
- * Given the results of both THRIVER and SURVIVOR, extract out shared and different merges,
+ * Given the results of both Jasmine and SURVIVOR, extract out shared and different merges,
  * producing a list of points and line segments which can be plotted to visualize the results.
  * 
  * For now, this only works on datasets with two samples (i.e., two VCFs input to the merging software).
@@ -13,19 +13,24 @@ import java.util.Scanner;
 import java.util.TreeSet;
 public class VisualizationPrep {
 	
-	static String chrToPlot = "1"; // Empty string if whole genome or chromosome name for plotting that chromosome
-	static boolean myRev = false; // True iff we did one of the two with the samples in reverse order
+	// Empty string if whole genome or chromosome name for plotting that chromosome
+	static String chrToPlot = "1";
+	
+	 // True iff we did one of the two with the samples in reverse order
+	static boolean myRev = true;
+	
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception
 	{
+		// File containing a list of VCF files
 		String fileList = "/home/mkirsche/eichler/filelist.txt";
-		//String fileList = "filelist.txt";
-		String survivorOutput = "/home/mkirsche/eichler/survmerged.vcf";
-		String thriverOutput = "/home/mkirsche/eichler/merged.vcf";
-		//String thriverOutput = "/home/mkirsche/eichler/revsurvout.vcf";
-		//String thriverOutput = "out.vcf";
-		//String survivorOutput = "outsurv.vcf";
+		
+		// The resulting merged VCF files from both Jasmine and SURVIVOR
+		String survivorOutput = "/home/mkirsche/eichler/merged.vcf";
+		String myOutput = "/home/mkirsche/eichler/revmerged.vcf";
 		Scanner fileNameReader = new Scanner(new FileInputStream(new File(fileList)));
+		
+		// Get the list of VCF files
 		ArrayList<String> vcfsAsList = new ArrayList<String>();
 		while(fileNameReader.hasNext())
 		{
@@ -40,8 +45,9 @@ public class VisualizationPrep {
 			vcfs[i] = vcfsAsList.get(i);
 		}
 		
-		String outFile = thriverOutput + ".graph";
+		String outFile = myOutput + ".graph";
 		
+		// The y-coordinate of each point (variant) will be the sample it came from
 		int[] ys = new int[vcfs.length];
 		for(int i = 0; i<ys.length; i++)
 		{
@@ -82,7 +88,10 @@ public class VisualizationPrep {
 				}
 				VcfEntry entry = new VcfEntry(line);
 				if(chrToPlot.length() > 0 && !entry.getChromosome().equals(chrToPlot)) continue;
+				
+				// Below is an example of how to restrict the plot to certain positions
 				//if(entry.getPos() > 10000000) continue;
+				
 				int pos = (int)entry.getPos();
 				positions[i].add(pos);
 				idToEntry[i].put(entry.getId(), entry);
@@ -105,8 +114,8 @@ public class VisualizationPrep {
 			}
 		}
 		
-		// Now we have to get line segments, so get merged sets from both SURVIVOR and THRIVER.
-		TreeSet<Merge> myEdges = getJoinedPairs(thriverOutput, false, myRev);
+		// Now we have to get line segments, so get merged sets from both SURVIVOR and Jasmine.
+		TreeSet<Merge> myEdges = getJoinedPairs(myOutput, false, myRev);
 		TreeSet<Merge> survEdges = getJoinedPairs(survivorOutput, true, false);
 		
 		// Store the union of the merge-sets so we get every line segment
@@ -148,19 +157,19 @@ public class VisualizationPrep {
 			{
 				VcfEntry first = idToEntry[samples[0]].get(ids[0]);
 				VcfEntry second = idToEntry[samples[1]].get(ids[1]);
-				System.out.println("Merge unique to " + (color == 1 ? "thriver" : "survivor"));
+				System.out.println("Merge unique to " + (color == 1 ? "Jasmine" : "survivor"));
 				System.out.println("  " + ids[0] + " " + first.getType() + " " + first.getStrand() + " at " + first.getPos() + " (length " + first.getLength() + ")");
 				System.out.println("  " + ids[1] + " " + second.getType() + " " + second.getStrand() + " at " + second.getPos() + " (length " + second.getLength() + ")");
 				System.out.println("  " + edge.line);
 				System.out.println("  Samples: " + edge.sample1 + " " + edge.sample2);
 				Variant a = VariantInput.fromVcfEntry(first, 0), b = VariantInput.fromVcfEntry(second, 0);
-				System.out.println("  Distance according to THRIVER: " + a.distance(b));
+				System.out.println("  Distance according to Jasmine: " + a.distance(b));
 			}
 			
 			// Print the line segment
 			out.println(curPositions[0]+" "+ys[edge.sample1]+" "+curPositions[1]+" "+ys[edge.sample2]+" "+color);
 		}
-		System.out.println("THRIVER unique merges: " + colorCounts[1]);
+		System.out.println("Jasmine unique merges: " + colorCounts[1]);
 		System.out.println("SURVIVOR unique merges: " + colorCounts[2]);
 		System.out.println("Shared merges: " + colorCounts[3]);
 		out.close();
@@ -171,7 +180,7 @@ public class VisualizationPrep {
 	/*
 	 * For a given merged VCF file, get the list of all pairs of variants which were joined
 	 * For now, assumes only 2 samples, and the survivor flag is true if SURVIVOR was used
-	 * and false if THRIVER was used instead.
+	 * and false if Jasmine was used instead.
 	 */
 	static TreeSet<Merge> getJoinedPairs(String fn, boolean survivor, boolean rev) throws Exception
 	{
@@ -194,14 +203,11 @@ public class VisualizationPrep {
 			if(survivor)
 			{
 				if(entry.tabTokens.length < 11) continue;
-				//String[] ids = new String[entry.tabTokens.length - 9];
 				ArrayList<String> ids = new ArrayList<String>();
 				for(int i = 9; i<entry.tabTokens.length; i++)
 				{
 					String val = entry.tabTokens[i].split(":")[7];
 					if(!val.equalsIgnoreCase("nan")) ids.add(val);
-					//ids.add();
-					//ids[i] = entry.tabTokens[i+9].split(":")[7];
 				}
 				for(int i = 0; i<ids.size()-1 && i < samples.size()-1; i++)
 				{

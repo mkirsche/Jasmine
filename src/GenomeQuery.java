@@ -1,3 +1,7 @@
+/*
+ * A wrapper around samtools to get substrings of a genome
+ */
+
 import java.io.File;
 import java.io.InputStream;
 import java.util.Scanner;
@@ -5,13 +9,15 @@ import java.util.Scanner;
 public class GenomeQuery {
 	String filename;
 	
-	// Assume that samtools is on the user's path
-	
+	/*
+	 * The constructor tests that samtools works and that the genome file exists
+	 */
 	GenomeQuery(String filename) throws Exception
 	{
 		testSamtoolsInstalled();
 		boolean validFile = new File(filename).exists();
-		if(!validFile) {
+		if(!validFile)
+		{
 			throw new Exception("geonome file does not exist: " + filename);
 		}
 		this.filename = filename;
@@ -26,15 +32,16 @@ public class GenomeQuery {
 		Process child = Runtime.getRuntime().exec(samtoolsTestCommand);
         int seqExit = child.waitFor();
 		
-		// Make sure an exit code is output
         // Exit code > 1 means the command failed, usually because samtools is not installed or on path
         if(seqExit > 1)
         {
-        	throw new Exception("samtools produced bad exit code (" 
-        			+ seqExit + ") - perhaps it is not on your path: " + "samtools");
+        	throw new Exception("samtools produced bad exit code (" + seqExit + ") - check path: " + Settings.SAMTOOLS_PATH);
         }
 	}
 	
+	/*
+	 * Queries a genomic substring - runs samtools faidx <genomeFile> chr:startPos-endPos
+	 */
 	String genomeSubstring(String chr, long startPos, long endPos) throws Exception
 	{
 		if(startPos > endPos)
@@ -55,18 +62,21 @@ public class GenomeQuery {
 		// Read in and ignore sequence name
 		seqInput.next();
 		
-		// Make sure there's also a sequence
+		// Make sure there's a sequence
 		if(!seqInput.hasNext())
 		{
 			seqInput.close();
         	throw new Exception("samtools faidx produced a sequence name but not an actual sequence: " + faidxCommand);
 		}
+		
+		// Concatenate all lines of the output sequence
 		StringBuilder res = new StringBuilder("");
 		while(seqInput.hasNext())
 		{
 			res.append(seqInput.next());
 		}
 		seqInput.close();
+
 		return res.toString();
 	}
 }
