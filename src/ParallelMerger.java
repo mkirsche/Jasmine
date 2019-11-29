@@ -82,6 +82,7 @@ public class ParallelMerger {
 			while(!todo.isEmpty())
 			{
 				String graphID = todo.poll();
+				System.out.println("Merging graph ID: " + graphID);
 				ArrayList<Variant> variantList = allVariants.get(graphID);
 				VariantMerger vm = new VariantMerger(variantList);
 				vm.runMerging();

@@ -17,7 +17,16 @@ public class VisualizationPrep {
 	static String chrToPlot = "1";
 	
 	 // True iff we did one of the two with the samples in reverse order
-	static boolean myRev = true;
+	static boolean secondRev = true;
+	
+	// Whether or not each file was produced by SURVIVOR and needs to be parsed differently
+	static boolean firstSurvivor = false;
+	static boolean secondSurvivor = false;
+	
+	// Whether or not to print merges unique to one output file
+	static boolean printUnique = false;
+	
+	static int sampleCount = 0;
 	
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception
@@ -26,8 +35,8 @@ public class VisualizationPrep {
 		String fileList = "/home/mkirsche/eichler/filelist.txt";
 		
 		// The resulting merged VCF files from both Jasmine and SURVIVOR
-		String survivorOutput = "/home/mkirsche/eichler/merged.vcf";
-		String myOutput = "/home/mkirsche/eichler/revmerged.vcf";
+		String firstOutput = "/home/mkirsche/eichler/merged.vcf";
+		String secondOutput = "/home/mkirsche/eichler/revmerged.vcf";
 		Scanner fileNameReader = new Scanner(new FileInputStream(new File(fileList)));
 		
 		// Get the list of VCF files
@@ -45,7 +54,9 @@ public class VisualizationPrep {
 			vcfs[i] = vcfsAsList.get(i);
 		}
 		
-		String outFile = myOutput + ".graph";
+		sampleCount = vcfs.length;
+		
+		String outFile = secondOutput + ".graph";
 		
 		// The y-coordinate of each point (variant) will be the sample it came from
 		int[] ys = new int[vcfs.length];
@@ -115,15 +126,17 @@ public class VisualizationPrep {
 		}
 		
 		// Now we have to get line segments, so get merged sets from both SURVIVOR and Jasmine.
-		TreeSet<Merge> myEdges = getJoinedPairs(myOutput, false, myRev);
-		TreeSet<Merge> survEdges = getJoinedPairs(survivorOutput, true, false);
+		TreeSet<Merge> firstEdges = getJoinedPairs(firstOutput, firstSurvivor, false);
+		System.out.println("Merges in first output: " + firstEdges.size());
+		TreeSet<Merge> secondEdges = getJoinedPairs(secondOutput, secondSurvivor, secondRev);
+		System.out.println("Merges in second output: " + secondEdges.size());
 		
 		// Store the union of the merge-sets so we get every line segment
 		TreeSet<Merge> union = new TreeSet<Merge>();
-		for(Merge s : myEdges) union.add(s);
-		for(Merge s : survEdges) union.add(s);
+		for(Merge s : secondEdges) union.add(s);
+		for(Merge s : firstEdges) union.add(s);
 		
-		// For each line segment, color it based on which software it came from (possibly both)
+		// For each line segment, color it based on which output it came from (possibly both)
 		for(Merge edge : union)
 		{
 			String[] ids = new String[] {edge.id1, edge.id2};
@@ -147,8 +160,12 @@ public class VisualizationPrep {
 				continue;
 			}
 			int color = 0;
-			if(myEdges.contains(edge)) color |= 1;
-			if(survEdges.contains(edge)) color |= 2;
+			if(secondEdges.contains(edge)) color |= 2;
+			if(firstEdges.contains(edge)) color |= 1;
+			
+			String firstSoftware = firstSurvivor ? "survivor" : "Jasmine";
+			String secondSoftware = secondSurvivor ? "survivor" : "Jasmine";
+			if(secondRev) secondSoftware += "rev";
 			
 			colorCounts[color]++;
 			
@@ -157,20 +174,24 @@ public class VisualizationPrep {
 			{
 				VcfEntry first = idToEntry[samples[0]].get(ids[0]);
 				VcfEntry second = idToEntry[samples[1]].get(ids[1]);
-				System.out.println("Merge unique to " + (color == 1 ? "Jasmine" : "survivor"));
-				System.out.println("  " + ids[0] + " " + first.getType() + " " + first.getStrand() + " at " + first.getPos() + " (length " + first.getLength() + ")");
-				System.out.println("  " + ids[1] + " " + second.getType() + " " + second.getStrand() + " at " + second.getPos() + " (length " + second.getLength() + ")");
-				System.out.println("  " + edge.line);
-				System.out.println("  Samples: " + edge.sample1 + " " + edge.sample2);
-				Variant a = VariantInput.fromVcfEntry(first, 0), b = VariantInput.fromVcfEntry(second, 0);
-				System.out.println("  Distance according to Jasmine: " + a.distance(b));
+				
+				if(printUnique)
+				{
+					System.out.println("Merge unique to " + (color == 1 ? firstSoftware : secondSoftware));
+					System.out.println("  " + ids[0] + " " + first.getType() + " " + first.getStrand() + " at " + first.getPos() + " (length " + first.getLength() + ")");
+					System.out.println("  " + ids[1] + " " + second.getType() + " " + second.getStrand() + " at " + second.getPos() + " (length " + second.getLength() + ")");
+					System.out.println("  " + edge.line);
+					System.out.println("  Samples: " + edge.sample1 + " " + edge.sample2);
+					Variant a = VariantInput.fromVcfEntry(first, 0), b = VariantInput.fromVcfEntry(second, 0);
+					System.out.println("  Distance according to Jasmine: " + a.distance(b));
+				}
 			}
 			
 			// Print the line segment
 			out.println(curPositions[0]+" "+ys[edge.sample1]+" "+curPositions[1]+" "+ys[edge.sample2]+" "+color);
 		}
-		System.out.println("Jasmine unique merges: " + colorCounts[1]);
-		System.out.println("SURVIVOR unique merges: " + colorCounts[2]);
+		System.out.println("First output unique merges: " + colorCounts[1]);
+		System.out.println("Second output unique merges: " + colorCounts[2]);
 		System.out.println("Shared merges: " + colorCounts[3]);
 		out.close();
 		
@@ -191,6 +212,7 @@ public class VisualizationPrep {
 			String line = input.nextLine();
 			if(line.length() == 0 || line.startsWith("#")) continue;
 			VcfEntry entry = new VcfEntry(line);
+			if(chrToPlot.length() > 0 && !entry.getChromosome().equals(chrToPlot)) continue;
 			String supportVector = entry.getInfo("SUPP_VEC");
 			ArrayList<Integer> samples = new ArrayList<Integer>();
 			for(int i = 0; i<supportVector.length(); i++)
@@ -211,7 +233,8 @@ public class VisualizationPrep {
 				}
 				for(int i = 0; i<ids.size()-1 && i < samples.size()-1; i++)
 				{
-					if(rev) res.add(new Merge(ids.get(i), ids.get(i+1), samples.get(samples.size()-1-i), samples.get(samples.size()-1-(i+1)), line));
+					if(rev) res.add(new Merge(ids.get(i+1), ids.get(i), sampleCount - 1 - samples.get(i+1), sampleCount - 1 - samples.get(i), line));
+					//if(rev) res.add(new Merge(ids.get(i), ids.get(i+1), samples.get(samples.size()-1-i), samples.get(samples.size()-1-(i+1)), line));
 					else res.add(new Merge(ids.get(i), ids.get(i+1), samples.get(i), samples.get(i+1), line));
 				}
 				
@@ -221,7 +244,8 @@ public class VisualizationPrep {
 				String[] ids = entry.getInfo("IDLIST").split(",");
 				for(int i = 0; i<ids.length-1 && i < samples.size()-1; i++)
 				{
-					res.add(new Merge(ids[i], ids[i+1], samples.get(i), samples.get(i+1), line));
+					if(rev) res.add(new Merge(ids[i+1], ids[i], sampleCount - 1 - samples.get(i+1), sampleCount - 1 - samples.get(i), line));
+					else res.add(new Merge(ids[i], ids[i+1], samples.get(i), samples.get(i+1), line));
 				}
 			}
 			
