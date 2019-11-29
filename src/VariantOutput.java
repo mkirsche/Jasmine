@@ -33,13 +33,15 @@ public class VariantOutput {
 	/*
 	 * Given a list of VCF files and merging results, output an updated VCF file
 	 */
-	public void writeMergedVariants(String fileList, String outFile, int minSupport) throws Exception
+	public void writeMergedVariants(String fileList, String outFile) throws Exception
 	{
 		Scanner listInput = new Scanner(new FileInputStream(new File(fileList)));
 		PrintWriter out = new PrintWriter(new File(outFile));
 		int sample = 0;
 		
 		VcfHeader header = new VcfHeader();
+		
+		boolean printedHeader = false;
 		
 		// Go through one VCF file at a time
 		while(listInput.hasNext())
@@ -77,6 +79,19 @@ public class VariantOutput {
 				else
 				{
 					// Update the consensus variant in the appropriate graph
+					if(sample == 0 && !printedHeader)
+					{
+						printedHeader = true;
+						header.addInfoField("SUPP_VEC", "1", "String", "Vector of supporting samples");
+						header.addInfoField("SUPP", "1", "String", "Number of samples supporting the variant");
+						header.addInfoField("IDLIST", ".", "String", "Variant IDs of variants merged to make this call");
+						header.addInfoField("SVMETHOD", "1", "String", "");
+						header.addInfoField("STARTVARIANCE", "1", "String", "Variance of start position for variants merged into this one");
+						header.addInfoField("ENDVARIANCE", "1", "String", "Variance of end position for variants merged into this one");
+						header.addInfoField("END", "1", "String", "The end position of the variant");
+						header.addInfoField("SVLEN", "1", "String", "The length (in bp) of the variant");
+						header.print(out);
+					}
 					VcfEntry entry = new VcfEntry(line);
 					String graphID = entry.getGraphID();
 					groups.get(graphID).processVariant(entry, sample, out);
@@ -84,44 +99,6 @@ public class VariantOutput {
 			}
 			input.close();
 			sample++;
-		}
-		
-		
-		header.addInfoField("SUPP_VEC", "1", "String", "Vector of supporting samples");
-		header.addInfoField("SUPP", "1", "String", "Number of samples supporting the variant");
-		header.addInfoField("IDLIST", ".", "String", "Variant IDs of variants merged to make this call");
-		header.addInfoField("SVMETHOD", "1", "String", "");
-		header.addInfoField("STARTVARIANCE", "1", "String", "Variance of start position for variants merged into this one");
-		header.addInfoField("ENDVARIANCE", "1", "String", "Variance of end position for variants merged into this one");
-		header.addInfoField("END", "1", "String", "The end position of the variant");
-		header.addInfoField("SVLEN", "1", "String", "The length (in bp) of the variant");
-		
-		// Actually print the header and variants
-		header.print(out);
-		
-		// Go through the graphs and add all the consensus variants to a big list
-		ArrayList<VcfEntry> allEntries = new ArrayList<VcfEntry>();
-		for(String graphID : groups.keySet())
-		{
-			VariantGraph graph = groups.get(graphID);
-			for(int i = 0; i<graph.consensus.length; i++)
-			{
-				if(graph.consensus[i] == null)
-				{
-					continue;
-				}
-				if(graph.supportCounts[i] >= minSupport)
-				{
-					allEntries.add(graph.consensus[i]);
-				}
-			}
-		}
-		
-		for(VcfEntry entry : allEntries)
-		{
-			String oldId = entry.getId();
-			entry.setId(oldId.substring(1 + oldId.indexOf('_')));
-			out.println(entry);
 		}
 		
 		out.close();
@@ -202,6 +179,12 @@ public class VariantOutput {
 			}
 			
 			int groupNumber = varToGroup.get(fullId);
+			
+			// Don't even store the components with too little support to be output
+			if(supportCounts[groupNumber] < Settings.MIN_SUPPORT)
+			{
+				return;
+			}
 			
 			// If this is the first variant in the group, initialize the consensus entry
 			if(used[groupNumber] == 0)
@@ -300,7 +283,10 @@ public class VariantOutput {
 				String varId = entry.getId();
 				varId = varId.substring(varId.indexOf('_') + 1);
 				consensus[groupNumber].setId(varId);
-				out.println(consensus[groupNumber]);
+				if(supportCounts[groupNumber] >= Settings.MIN_SUPPORT)
+				{
+					out.println(consensus[groupNumber]);
+				}
 				consensus[groupNumber] = null;
 			}
 		}

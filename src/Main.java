@@ -52,7 +52,7 @@ public static void main(String[] args) throws Exception
 	System.out.println("Merging complete - outputting results");
 	
 	// Print the merged variants to a file if they have enough support
-	output.writeMergedVariants(currentInputFile, Settings.OUT_FILE, Settings.MIN_SUPPORT);
+	output.writeMergedVariants(currentInputFile, Settings.OUT_FILE);
 	
 	System.out.println("Number of sets with multiple variants: " + pm.totalMerged.get()); 
 	
