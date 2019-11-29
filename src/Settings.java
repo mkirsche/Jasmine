@@ -19,6 +19,7 @@ public class Settings {
 	static boolean USE_EDIT_DISTANCE = false;
 	static int K_JACCARD = 9;
 	static int MAX_DUP_LEN = 10000;
+	static int KD_TREE_NORM = 2;
 	
 	static String SAMTOOLS_PATH = "samtools";
 	
@@ -49,6 +50,7 @@ public class Settings {
 		System.out.println("Optional args:");
 		System.out.println("  max_dist        (int)    [1000]     - the maximum distance variants can be apart when being merged");
 		System.out.println("  max_dist_linear (float)  [0]        - make max_dist this proportion of the length of each variant (overrides max_dost)");
+		System.out.println("  kd_tree_norm    (int)    [2]        - the power to use in kd-tree distances (1 is Manhattan, 2 is Euclidean, etc.)");
 		System.out.println("  min_seq_id      (float)  [0]        - the minimum sequence identity for two insertions to be merged");
 		System.out.println("  k_jaccard       (int)    [9]        - the kmer size to use when computing Jaccard similarity of insertions");
 		System.out.println("  max_dup_length  (int)    [10k]      - the maximum length of duplication that can be converted to an insertion");
@@ -156,6 +158,9 @@ public class Settings {
 					break;
 				case "max_dist_linear":
 					MAX_DIST_LINEAR = Double.parseDouble(val);
+					break;
+				case "kd_tree_norm":
+					KD_TREE_NORM = parseInt(val);
 					break;
 				case "min_seq_id":
 					MIN_SEQUENCE_SIMILARITY = Double.parseDouble(val);
