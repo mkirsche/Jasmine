@@ -10,7 +10,7 @@ This tool is used to merge structural variants (SVs) across samples.  Each sampl
 
 ## Instructions for running
 
-java -cp PATHTOJASMINE/src:PATHTOJSAMINE/Iris/src Main
+java -cp PATHTOJASMINE/src:PATHTOJASMINE/Iris/src Main
 
 Running this without parameters will provide a menu describing the necessary parameters.
 
