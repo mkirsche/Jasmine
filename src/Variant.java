@@ -37,7 +37,16 @@ public class Variant
 	{
 		double dStart = start - v.start;
 		double dEnd = end - v.end;
-		return Math.sqrt(dStart * dStart + dEnd * dEnd); 
+		int norm = Settings.KD_TREE_NORM;
+		if(norm == 2)
+		{
+			return Math.sqrt(dStart * dStart + dEnd * dEnd); 
+		}
+		else
+		{
+			double powSum = Math.abs(Math.pow(dStart, norm)) + Math.abs(Math.pow(dEnd, norm));
+			return Math.pow(powSum, 1.0 / norm);
+		}
 	}
 	double stringSimilarity(Variant v)
 	{
