@@ -2,12 +2,17 @@
  * Converts duplications to insertions
  * Usage: java DuplicationsToInsertions input_vcf reference_genome output_vcf
  */
-import java.util.*;
-import java.io.*;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Scanner;
+
 public class DuplicationsToInsertions {
-	static String inputFile = "/home/mkirsche/crossstitch/ENC0003.spes.rck.vcf";
-	static String genomeFile = "/home/mkirsche/references/genome.fa";
-	static String outputFile = "/home/mkirsche/crossstitch/ENC0003.spes.rck.no_dups.vcf";
+	static String inputFile = "";
+	static String genomeFile = "";
+	static String outputFile = "";
 	public static void main(String[] args) throws Exception
 	{
 		if(args.length != 3)
@@ -20,11 +25,14 @@ public class DuplicationsToInsertions {
 			inputFile = args[0];
 			genomeFile = args[1];
 			outputFile = args[2];
-		}
-		
-		convertFile(inputFile, genomeFile, outputFile);
+			convertFile(inputFile, genomeFile, outputFile);
+		}		
 	}
 	
+	/*
+	 * Convert duplications in inputFile to insertions and write updated VCF to outputFile.
+	 * A genome file is needed to get the insertion sequences based on the duplication position
+	 */
 	static void convertFile(String inputFile, String genomeFile, String outputFile) throws Exception
 	{
 		Scanner input = new Scanner(new FileInputStream(new File(inputFile)));
@@ -76,7 +84,6 @@ public class DuplicationsToInsertions {
 					}
 					else
 					{
-						//System.out.println(line);
 						ve.setInfo("OLDTYPE", "DUP");
 					}
 					ve.setType("INS");

@@ -1,3 +1,10 @@
+/*
+ * A utility for managing pipeline steps for multiple VCF files
+ * Most of the pre-processing and post-processing steps are done on a per-VCF basis,
+ * so this manager performs them for all files and updates the filelist to point to a
+ * list of updated files instead of the original ones
+ */
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
@@ -44,6 +51,10 @@ static String convertDuplicationsToInsertions(String fileList) throws Exception
 	return newFileList;
 }
 
+/*
+ * Run Iris on all VCF files and update the filelist
+ * Returns a path to the new filelist
+ */
 static String runIris(String fileList) throws Exception
 {
 	String refinedInput = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(fileList), "irisRefined");
@@ -118,7 +129,8 @@ static String runIris(String fileList) throws Exception
 }
 
 /*
- * Mark all specific calls in the input VCFs
+ * Mark all specific calls in the input VCFs and update the filelist
+ * Returns a path to the new filelist
  */
 static String markSpecificCalls(String fileList) throws Exception
 {
@@ -153,7 +165,7 @@ String newFileList = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUt
 }
 
 /*
- * Converts insertions in the output file which used to include a duplication back to their original types
+ * Reverts insertions in the output which were formerly duplications back to duplication calls 
  * Moves the old output file and replaces it with the updated one
  */
 static void convertInsertionsBackToDuplications() throws Exception

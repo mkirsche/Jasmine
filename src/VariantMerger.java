@@ -2,15 +2,23 @@
  * Main interface for merging variants.  This assumes all variants are on the
  * same chromosome, and have the same type/strand if that separation is desired.
  */
+
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
-public class VariantMerger {
+public class VariantMerger
+{
+	// An array of all of the variants to be considered
+	Variant[] data;
 	
-	Variant[] data; // An array of all of the variants to be considered
-	int n; // The number of total variants
-	Forest forest; // A forest in which connected components will represent merged groups
-	KDTree knn; // A KD-tree data structure for fast k-nearest-neighbors queries
+	// The number of total variants
+	int n;
+	
+	// A forest in which connected components will represent merged groups
+	Forest forest;
+	
+	// A KD-tree data structure for fast k-nearest-neighbors queries
+	KDTree knn;
 
 	public VariantMerger(Variant[] data)
 	{
@@ -82,7 +90,7 @@ public class VariantMerger {
 			boolean valid = forest.union(e.from, e.to);
 			if(valid)
 			{
-				// Two variants are being merged here - nothing needs to be done but might need to do some logging
+				// Two variants are being merged here - nothing needs to be done
 			}
 			
 			while(true)

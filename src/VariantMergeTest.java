@@ -1,26 +1,5 @@
 /*
-
-	Class for testing variant merging.
-
-	Current output of this (only prints merged variants):
-	
-	Variant:
-	id: var1, sample: 0, start: 10, end: 5
-	id: var5, sample: 1, start: 10, end: 5
-	
-	Variant:
-	id: var6, sample: 1, start: 30, end: 30
-	id: var11, sample: 2, start: 28, end: 28
-	id: var12, sample: 3, start: 25, end: 25
-	
-	Variant:
-	id: var4, sample: 1, start: 12, end: 7
-	id: var8, sample: 2, start: 12, end: 12
-	
-	Variant:
-	id: var10, sample: 2, start: 20, end: 20
-	id: var13, sample: 4, start: 22, end: 22
-
+ * Class for testing variant merging
 */
 
 import java.util.ArrayList;

@@ -1,13 +1,16 @@
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 /*
  * Utility for handling command line parameters and the usage message 
  */
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class Settings {
-	
+
+	/*
+	 * Command line parameters - see the usage menu for what can be changed and how
+	 */
 	static boolean USE_STRAND = true;
 	static boolean USE_TYPE = true;
 	static String FILE_LIST = "";
@@ -37,6 +40,9 @@ public class Settings {
 	static int SPECIFIC_MIN_RCOUNT = 10;
 	static int SPECIFIC_MIN_LENGTH = 30;
 	
+	/*
+	 * Print the usage menu
+	 */
 	static void usage()
 	{
 		System.out.println();

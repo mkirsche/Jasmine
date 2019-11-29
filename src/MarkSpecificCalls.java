@@ -1,9 +1,14 @@
 /*
  * Program for marking calls which fall in a specific callset, given the sensitive callset
- * Takes parameters for read support and SV length required for the specific callset
+ * Takes parameters for read support and SV length required for a variant to be specific
  */
-import java.util.*;
-import java.io.*;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Scanner;
+
 public class MarkSpecificCalls {
 public static void main(String[] args) throws Exception
 {
@@ -17,20 +22,24 @@ public static void main(String[] args) throws Exception
 		ofn = args[1];
 		minReadSupport = Integer.parseInt(args[2]);
 		minLength = Integer.parseInt(args[3]);
+		convertFile(fn, ofn, minReadSupport, minLength);
 	}
 	else
 	{
 		System.out.println("Usage: java MarkSpecificCalls vcffile outfile minreadsupport minlength");
 		return;
-	}
-	
-	convertFile(fn, ofn, minReadSupport, minLength);
-	
+	}	
 }
-static void convertFile(String fn, String ofn, int minReadSupport, int minLength) throws Exception
+
+/*
+ * Marks specific calls in inputFile and outputs updated VCF to outputFile
+ * A variant will be specific if its number of supporting reads is at least
+ * minReadSupport (or unspecified) and its length (absolute value) is at least minLength
+ */
+static void convertFile(String inputFile, String outputFile, int minReadSupport, int minLength) throws Exception
 {
-	Scanner input = new Scanner(new FileInputStream(new File(fn)));
-	PrintWriter out = new PrintWriter(new File(ofn));
+	Scanner input = new Scanner(new FileInputStream(new File(inputFile)));
+	PrintWriter out = new PrintWriter(new File(outputFile));
 	
 	VcfHeader header = new VcfHeader();
 	ArrayList<VcfEntry> entries = new ArrayList<VcfEntry>();
@@ -67,7 +76,7 @@ static void convertFile(String fn, String ofn, int minReadSupport, int minLength
 		}
 	}
 	
-	header.addInfoField("IN_SPECIFIC", "1", "String", "");
+	header.addInfoField("IN_SPECIFIC", "1", "String", "Whether or not a variant has enough read support and length to be specific");
 	header.print(out);
 	
 	for(VcfEntry entry : entries)
