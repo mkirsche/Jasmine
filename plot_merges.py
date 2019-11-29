@@ -1,5 +1,5 @@
 '''
-A simple visualization for comparing THRIVER results to those of SURVIVOR on human chr1
+A simple visualization for comparing Jasmine results to those of SURVIVOR on human chr1
 It assumes that the exact lines and points to plot, along with their colors, have already
 been determined with the companion program src/VisualizationPrep.java.
 
@@ -136,7 +136,7 @@ custom_lines = [Line2D([0], [0], color=colors[2], lw=4),
                 Line2D([0], [0], color=colors[6], lw=4)]
 
 # Add legend for merging software colors
-legend1 = plt.legend(custom_lines, ['THRIVER', 'SURVIVOR', 'BOTH'], bbox_to_anchor=(.3, 1.05), ncol = 3)
+legend1 = plt.legend(custom_lines, ['Jasmine', 'SURVIVOR', 'BOTH'], bbox_to_anchor=(.3, 1.05), ncol = 3)
 ax.add_artist(legend1)
 
 # Add legend for variant type colors

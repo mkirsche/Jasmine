@@ -293,7 +293,7 @@ public class VariantOutput {
 				// Fill the support-related fields
 				consensus[groupNumber].setInfo("SUPP_VEC", supportVectors[groupNumber]);
 				consensus[groupNumber].setInfo("SUPP", supportCounts[groupNumber]+"");
-				consensus[groupNumber].setInfo("SVMETHOD", "THRIVER");
+				consensus[groupNumber].setInfo("SVMETHOD", "JASMINE");
 				consensus[groupNumber].setInfo("IDLIST", idLists[groupNumber].toString());
 				
 				// Remove the sample number from the variant ID (copied over from the first sample which is a part of this merged set)
