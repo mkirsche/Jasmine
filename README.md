@@ -16,5 +16,5 @@ Running this without parameters will provide a menu describing the necessary par
 
 ## User Manual
 
-The user manual with detailed information about input/output files and command line arguments can be found here: https://github.com/mkirsche/Jasmine/wiki/User-Manual
+The user manual with detailed information about input/output files and command line arguments can be found here: https://github.com/mkirsche/Jasmine/wiki/Jasmine-User-Manual
 
