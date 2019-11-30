@@ -30,7 +30,6 @@ public class KDTree
 		K = 2;
 		LinkedList<Node> list = new LinkedList<Node>();
 		for (Variant q : p) list.add(new Node(q));
-		Collections.shuffle(list);
 		root = build(list, 0);
 	}
 	
@@ -131,6 +130,7 @@ public class KDTree
 		public int compareTo(Candidate o)
 		{
 			if(Math.abs(dist - o.dist) > 1e-9) return Double.compare(o.dist, dist);
+			if(v.hash != o.v.hash) return o.v.hash - v.hash;
 			return o.v.id.compareTo(v.id);
 			
 		}

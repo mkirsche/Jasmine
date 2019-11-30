@@ -160,6 +160,8 @@ public class VariantInput {
 			minSeqId = Double.parseDouble(minIdInfo);
 		}
 		
-		return new Variant(sample, entry.getId(), start, end, id, seq, maxDist, minSeqId);
+		Variant res = new Variant(sample, entry.getId(), start, end, id, seq, maxDist, minSeqId);
+		res.hash = Variant.hash(entry.tabTokens[7]);
+		return res;
 	}
 }

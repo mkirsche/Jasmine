@@ -17,10 +17,10 @@ public class VisualizationPrep {
 	static String chrToPlot = "1";
 	
 	 // True iff we did one of the two with the samples in reverse order
-	static boolean secondRev = true;
+	static boolean secondRev = false;
 	
 	// Whether or not each file was produced by SURVIVOR and needs to be parsed differently
-	static boolean firstSurvivor = false;
+	static boolean firstSurvivor = true;
 	static boolean secondSurvivor = false;
 	
 	// Whether or not to print merges unique to one output file
@@ -35,8 +35,8 @@ public class VisualizationPrep {
 		String fileList = "/home/mkirsche/eichler/filelist.txt";
 		
 		// The resulting merged VCF files from both Jasmine and SURVIVOR
-		String firstOutput = "/home/mkirsche/eichler/merged.vcf";
-		String secondOutput = "/home/mkirsche/eichler/revmerged.vcf";
+		String firstOutput = "/home/mkirsche/eichler/survmerged.vcf";
+		String secondOutput = "/home/mkirsche/eichler/merged.vcf";
 		Scanner fileNameReader = new Scanner(new FileInputStream(new File(fileList)));
 		
 		// Get the list of VCF files
@@ -231,21 +231,26 @@ public class VisualizationPrep {
 					String val = entry.tabTokens[i].split(":")[7];
 					if(!val.equalsIgnoreCase("nan")) ids.add(val);
 				}
-				for(int i = 0; i<ids.size()-1 && i < samples.size()-1; i++)
+				for(int i = 0; i < ids.size()-1 && i < samples.size()-1; i++)
 				{
-					if(rev) res.add(new Merge(ids.get(i+1), ids.get(i), sampleCount - 1 - samples.get(i+1), sampleCount - 1 - samples.get(i), line));
-					//if(rev) res.add(new Merge(ids.get(i), ids.get(i+1), samples.get(samples.size()-1-i), samples.get(samples.size()-1-(i+1)), line));
-					else res.add(new Merge(ids.get(i), ids.get(i+1), samples.get(i), samples.get(i+1), line));
+					for(int j = i+1; j < ids.size() && j < samples.size(); j++)
+					{
+						if(rev) res.add(new Merge(ids.get(j), ids.get(i), sampleCount - 1 - samples.get(j), sampleCount - 1 - samples.get(i), line));
+						else res.add(new Merge(ids.get(i), ids.get(j), samples.get(i), samples.get(j), line));
+					}
 				}
 				
 			}
 			else
 			{
 				String[] ids = entry.getInfo("IDLIST").split(",");
-				for(int i = 0; i<ids.length-1 && i < samples.size()-1; i++)
+				for(int i = 0; i < ids.length-1 && i < samples.size()-1; i++)
 				{
-					if(rev) res.add(new Merge(ids[i+1], ids[i], sampleCount - 1 - samples.get(i+1), sampleCount - 1 - samples.get(i), line));
-					else res.add(new Merge(ids[i], ids[i+1], samples.get(i), samples.get(i+1), line));
+					for(int j = i+1; j < ids.length && j < samples.size(); j++)
+					{
+						if(rev) res.add(new Merge(ids[j], ids[i], sampleCount - 1 - samples.get(j), sampleCount - 1 - samples.get(i), line));
+						else res.add(new Merge(ids[i], ids[j], samples.get(i), samples.get(j), line));
+					}
 				}
 			}
 			
