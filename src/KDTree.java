@@ -9,7 +9,6 @@
  * https://courses.cs.washington.edu/courses/cse599c1/13wi/slides/lsh-hashkernels-annotated.pdf
  */
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 

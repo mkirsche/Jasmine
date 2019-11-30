@@ -23,6 +23,8 @@ public class Settings {
 	static int K_JACCARD = 9;
 	static int MAX_DUP_LEN = 10000;
 	static int KD_TREE_NORM = 2;
+	static boolean CHANGE_VAR_IDS = true;
+	static boolean USE_END = false;
 	
 	static String SAMTOOLS_PATH = "samtools";
 	
@@ -76,6 +78,8 @@ public class Settings {
 		System.out.println("  --run_iris                          - run Iris before merging for refining the sequences of insertions");
 		System.out.println("  --use_edit_dist                     - use edit distance for comparing insertion sequences instead of Jaccard");
 		System.out.println("  --preprocess_only                   - only run the preprocessing and not the actual merging or post-processing");
+		System.out.println("  --keep_var_ids                      - don't change variant IDs (should only be used if input IDs are unique across samples)");
+		System.out.println("  --use_end                           - use the end coordinate as the second coordinate instead of the variant length");
 		System.out.println();
 		System.out.println("Notes:");
 		System.out.println("  genome_file is required if the dup_to_ins option or the run_iris option is used.");
@@ -147,6 +151,14 @@ public class Settings {
 				else if(args[i].endsWith("preprocess_only"))
 				{
 					PREPROCESS_ONLY = true;
+				}
+				else if(args[i].endsWith("keep_var_ids"))
+				{
+					CHANGE_VAR_IDS = false;
+				}
+				else if(args[i].endsWith("use_end"))
+				{
+					USE_END = true;
 				}
 				continue;
 			}
@@ -224,6 +236,7 @@ public class Settings {
 			usage();
 			System.exit(1);
 		}
+		
 		if(BAM_FILE_LIST.length() == 0 && RUN_IRIS)
 		{
 			usage();

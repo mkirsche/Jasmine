@@ -190,8 +190,11 @@ public class VariantOutput {
 			if(used[groupNumber] == 0)
 			{
 				consensus[groupNumber] = entry;
+				consensus[groupNumber].setId(fullId);
+				
 				String varId = entry.getId();
 				varId = varId.substring(varId.indexOf('_') + 1);
+				
 				idLists[groupNumber].append(varId);
 				consensus[groupNumber].setInfo("END", entry.getEnd() + "");
 				consensus[groupNumber].setInfo("SVLEN", entry.getLength() + "");
@@ -280,9 +283,13 @@ public class VariantOutput {
 				consensus[groupNumber].setInfo("IDLIST", idLists[groupNumber].toString());
 				
 				// Remove the sample number from the variant ID (copied over from the first sample which is a part of this merged set)
-				String varId = entry.getId();
-				varId = varId.substring(varId.indexOf('_') + 1);
-				consensus[groupNumber].setId(varId);
+				if(!Settings.CHANGE_VAR_IDS)
+				{
+					String varId = consensus[groupNumber].getId();
+					varId = varId.substring(varId.indexOf('_') + 1);
+					consensus[groupNumber].setId(varId);
+				}
+				
 				if(supportCounts[groupNumber] >= Settings.MIN_SUPPORT)
 				{
 					out.println(consensus[groupNumber]);
