@@ -2,7 +2,7 @@
  * Minimum set of info we need to store for a variant
  */
 
-public class Variant
+public class Variant implements Comparable<Variant>
 {
 	// Which sample number the variant came from
 	int sample; 
@@ -28,6 +28,19 @@ public class Variant
 	// The minimum sequence similarity another variant needs to merge with this one if both are insertions
 	double minSeqId;
 	
+	int hash;
+	static int hash(String infoString)
+	{
+		long res = 0;
+		int mod = (int)(1e9+7);
+		char[] cs = infoString.toCharArray();
+		for(char c : cs)
+		{
+			res = ((res * 17) + c)%mod;
+		}
+		return (int)res;
+	}
+	
 	Variant(int sample, String id, int start, int end, String graphID, String seq, int maxDist, double minSeqId)
 	{
 		this.sample = sample;
@@ -38,7 +51,9 @@ public class Variant
 		if(minSeqId > 0) this.seq = seq;
 		this.maxDist = maxDist;
 		this.minSeqId = minSeqId;
+		hash = 0;
 	}
+	
 	Variant(int sample, String id, int start, int end, String graphID, String seq)
 	{
 		this.sample = sample;
@@ -50,6 +65,11 @@ public class Variant
 		this.maxDist = Settings.MAX_DIST;
 		this.minSeqId = Settings.MIN_SEQUENCE_SIMILARITY;
 	}
+	
+	/*
+	 * The distance between two variants based on differences in their start/end coordinates
+	 * The metric used is a generalization of Euclidean distance
+	 */
 	double distance(Variant v)
 	{
 		double dStart = start - v.start;
@@ -124,5 +144,12 @@ public class Variant
 	public String toString()
 	{
 		return "id: " + id + ", sample: " + sample + ", start: " + start + ", end: " + end;
+	}
+
+	public int compareTo(Variant o) 
+	{
+		if(hash != o.hash) return hash - o.hash;
+		if(start != o.start) return start - o.start;
+		return id.compareTo(o.id);
 	}
 }

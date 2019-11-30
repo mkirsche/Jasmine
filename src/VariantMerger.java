@@ -23,11 +23,12 @@ public class VariantMerger
 	public VariantMerger(Variant[] data)
 	{
 		n = data.length;
-		for(int i = 0; i<n; i++) data[i].index = i;
-		this.data = data;
 		
 		forest = new Forest(data);
 		knn = new KDTree(data);
+		
+		for(int i = 0; i<n; i++) data[i].index = i;
+		this.data = data;
 	}
 	
 	/*
@@ -187,6 +188,8 @@ public class VariantMerger
 			{
 				return Double.compare(dist, o.dist);
 			}
+			if(data[from].hash != data[o.from].hash) return data[from].hash - (data[o.from].hash);
+			if(data[to].hash != data[o.to].hash) return data[to].hash - (data[o.to].hash);
 			if(from != o.from) return data[from].id.compareTo(data[o.from].id);
 			return data[to].id.compareTo(data[o.to].id);
 		}

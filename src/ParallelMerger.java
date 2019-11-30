@@ -8,6 +8,7 @@
  */
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.TreeMap;
@@ -84,6 +85,7 @@ public class ParallelMerger {
 				String graphID = todo.poll();
 				System.out.println("Merging graph ID: " + graphID);
 				ArrayList<Variant> variantList = allVariants.get(graphID);
+				Collections.sort(variantList);
 				VariantMerger vm = new VariantMerger(variantList);
 				vm.runMerging();
 				ArrayList<Variant>[] res = vm.getGroups();
