@@ -122,6 +122,11 @@ public class VariantInput {
 		int start = (int)entry.getPos();
 		int end = Math.abs(entry.getLength());
 		
+		if(Settings.USE_END)
+		{
+			end = (int)entry.getEnd();
+		}
+		
 		entry.setId(sample + "_" + entry.getId());
 		
 		String id = entry.getGraphID();
