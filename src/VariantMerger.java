@@ -112,7 +112,8 @@ public class VariantMerger
 				
 				// This edge was invalid because of distance from the query, so stop looking at any edges 
 				// since they'll only get farther away
-				if(data[e.from].distance(candidateTo) > Settings.MAX_DIST + 1e-9)
+				int maxDistAllowed = Math.max(data[e.from].maxDist, candidateTo.maxDist);
+				if(data[e.from].distance(candidateTo) > maxDistAllowed + 1e-9)
 				{
 					break;
 				}
