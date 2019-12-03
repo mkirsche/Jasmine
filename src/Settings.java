@@ -50,6 +50,7 @@ public class Settings {
 	static void usage()
 	{
 		System.out.println();
+		System.out.println("Jasmine version 1.0.0");
 		System.out.println("Usage: java -cp src Main [args]");
 		System.out.println("  Example: java -cp src Main file_list=filelist.txt out_file=out.vcf");
 		System.out.println();
@@ -124,6 +125,11 @@ public class Settings {
 	 */
 	static void parseArgs(String[] args) throws Exception
 	{
+		if(args.length == 1 && (args[0].equalsIgnoreCase("--version") || args[0].equalsIgnoreCase("-v")))
+		{
+			System.out.println("Jasmine version 1.0.0");
+			System.exit(0);
+		}
 		for(int i = 0; i<args.length; i++)
 		{
 			if(args[i].indexOf('=') == -1)
