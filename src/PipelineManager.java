@@ -180,4 +180,20 @@ static void convertInsertionsBackToDuplications() throws Exception
 	InsertionsToDuplications.convertFile(unconvertedOutput, Settings.OUT_FILE);
 }
 
+/*
+ * Adds genotypes to the merged VCF based on the genotypes in individual samples
+ * Moves the old output file and replaces it with the updated one
+ */
+static void addGenotypes(String fileList) throws Exception
+{
+	String unconvertedOutput = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(Settings.OUT_FILE), "noGenotypes");
+	File f;
+	if((f = new File(unconvertedOutput)).exists())
+	{
+		f.delete();
+	}
+	Files.move(Paths.get(Settings.OUT_FILE), Paths.get(unconvertedOutput));
+	AddGenotypes.addGenotypes(unconvertedOutput, fileList, Settings.OUT_FILE);
+}
+
 }

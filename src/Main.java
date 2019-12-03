@@ -61,5 +61,11 @@ public static void main(String[] args) throws Exception
 	{
 		PipelineManager.convertInsertionsBackToDuplications();
 	}
+	
+	// Add genotypes
+	if(Settings.OUTPUT_GENOTYPES)
+	{
+		PipelineManager.addGenotypes(currentInputFile);
+	}
 }
 }
