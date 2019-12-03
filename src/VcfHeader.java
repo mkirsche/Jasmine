@@ -28,12 +28,31 @@ public class VcfHeader {
 	/*
 	 * Print all lines of the header
 	 */
+	void print(PrintWriter out, String[] sampleNames)
+	{
+		for(int i = 0; i<lines.size(); i++)
+		{
+			String s = lines.get(i);
+			if(sampleNames.length > 0 && i == lines.size() - 1)
+			{
+				// Lists the VCF fields
+				String toPrint = "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT";
+				for(String name : sampleNames)
+				{
+					toPrint += "\t" + name;
+				}
+				out.println(toPrint);
+			}
+			else
+			{
+				out.println(s);
+			}
+		}
+	}
+	
 	void print(PrintWriter out)
 	{
-		for(String s : lines)
-		{
-			out.println(s);
-		}
+		print(out, new String[0]);
 	}
 	
 	/*

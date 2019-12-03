@@ -26,6 +26,7 @@ public class Settings {
 	static boolean CHANGE_VAR_IDS = true;
 	static boolean USE_END = false;
 	static boolean MAX_DIST_SET = false;
+	static boolean OUTPUT_GENOTYPES = false;
 	
 	static String SAMTOOLS_PATH = "samtools";
 	
@@ -81,6 +82,7 @@ public class Settings {
 		System.out.println("  --preprocess_only                   - only run the preprocessing and not the actual merging or post-processing");
 		System.out.println("  --keep_var_ids                      - don't change variant IDs (should only be used if input IDs are unique across samples)");
 		System.out.println("  --use_end                           - use the end coordinate as the second coordinate instead of the variant length");
+		System.out.println("  --output_genotypes                  - print the genotypes of the consensus variants in all of the samples they came from");
 		System.out.println();
 		System.out.println("Notes:");
 		System.out.println("  genome_file is required if the dup_to_ins option or the run_iris option is used.");
@@ -161,6 +163,10 @@ public class Settings {
 				else if(args[i].endsWith("use_end"))
 				{
 					USE_END = true;
+				}
+				else if(args[i].endsWith("output_genotypes"))
+				{
+					OUTPUT_GENOTYPES = true;
 				}
 				continue;
 			}
