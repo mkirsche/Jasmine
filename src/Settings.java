@@ -25,6 +25,7 @@ public class Settings {
 	static int KD_TREE_NORM = 2;
 	static boolean CHANGE_VAR_IDS = true;
 	static boolean USE_END = false;
+	static boolean MAX_DIST_SET = false;
 	
 	static String SAMTOOLS_PATH = "samtools";
 	
@@ -84,6 +85,7 @@ public class Settings {
 		System.out.println("Notes:");
 		System.out.println("  genome_file is required if the dup_to_ins option or the run_iris option is used.");
 		System.out.println("  bam_list is required if the run_iris option is used.");
+		System.out.println("  Setting both max_dist_linear and max_dist sets thresholds to minimum of max_dist and max_dist_linear * sv_length");
 		System.out.println();
 		
 	}
@@ -173,6 +175,7 @@ public class Settings {
 			{
 				case "max_dist":
 					MAX_DIST = parseInt(val);
+					MAX_DIST_SET = true;
 					break;
 				case "max_dist_linear":
 					MAX_DIST_LINEAR = Double.parseDouble(val);

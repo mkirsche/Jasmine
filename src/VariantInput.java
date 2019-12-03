@@ -155,7 +155,11 @@ public class VariantInput {
 		// Next, check if there is a length-based threshold
 		else if(Settings.MAX_DIST_LINEAR > 0)
 		{
-			maxDist = (int)(Settings.MAX_DIST_LINEAR * entry.getLength() + 0.5);
+			maxDist = (int)(Settings.MAX_DIST_LINEAR * Math.abs(entry.getLength()) + 0.5);
+			if(Settings.MAX_DIST_SET)
+			{
+				maxDist = Math.min(maxDist, Settings.MAX_DIST);
+			}
 		}
 		
 		// Check for per-variant sequence ID thresholds
