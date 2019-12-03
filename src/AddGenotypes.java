@@ -106,18 +106,19 @@ public class AddGenotypes {
 						else
 						{
 							// Not in this sample, so print NA for every value
-							int countColons = 0;
-							for(int c = 0; c<entry.tabTokens[8].length(); c++)
+							String[] formatNames = entry.tabTokens[8].split(":");
+							for(int c = 0; c<formatNames.length; c++)
 							{
-								if(entry.tabTokens[8].charAt(c) == ':')
+								if(c == 0) out.print("\t");
+								else out.print(":");
+								if(formatNames[c].equalsIgnoreCase("GT"))
 								{
-									countColons++;
+									out.print("./.");
 								}
-							}
-							out.print("\t" + "NA");
-							for(int c = 0; c<countColons; c++)
-							{
-								out.print(":NA");
+								else
+								{
+									out.print("NA");
+								}
 							}
 						}
 					}
@@ -143,9 +144,9 @@ public class AddGenotypes {
 		
 		// Get the name for GT columns from this file based on the filename
 		String curColName = StringUtils.fileBaseName(vcfFile);
-		if(curColName.indexOf('.') != -1)
+		if(curColName.endsWith(".vcf") || curColName.endsWith(".VCF"))
 		{
-			curColName = curColName.substring(0, curColName.indexOf('.'));
+			curColName = curColName.substring(0, curColName.length() - 4);
 		}
 		
 		// Some bookkeeping variables for getting and parsing the last header line

@@ -1,5 +1,5 @@
 /*
- * Converts insertions which were originally duplications back to their original SV
+ * Converts insertions which were originally duplications back to their original SV calls
  * Usage: java InsertionsToDuplications input_vcf output_vcf
  */
 
