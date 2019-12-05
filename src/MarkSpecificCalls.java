@@ -59,14 +59,11 @@ static void convertFile(String inputFile, String outputFile, int minReadSupport,
 		{
 			VcfEntry entry = new VcfEntry(line);
 			boolean inSpecific = false;
-			int readSupport = 0;
-			String[] rnamesField = entry.getRnames();
-			if(rnamesField.length > 0)
-			{
-				readSupport = rnamesField.length;
-			}
+			int readSupport = entry.getReadSupport();
 			
-			if(readSupport >= minReadSupport && Math.abs(entry.getLength()) >= minLength) 
+			boolean longEnough = Math.abs(entry.getLength()) >= minLength || entry.getLength() == 0;
+			
+			if(readSupport >= minReadSupport && longEnough)
 			{
 				inSpecific = true;
 			}

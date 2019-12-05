@@ -101,7 +101,7 @@ public class VisualizationPrep {
 				if(chrToPlot.length() > 0 && !entry.getChromosome().equals(chrToPlot)) continue;
 				
 				// Below is an example of how to restrict the plot to certain positions
-				//if(entry.getPos() > 10000000) continue;
+				if(entry.getPos() > 10000000) continue;
 				
 				int pos = (int)entry.getPos();
 				positions[i].add(pos);
@@ -233,7 +233,8 @@ public class VisualizationPrep {
 				}
 				for(int i = 0; i < ids.size()-1 && i < samples.size()-1; i++)
 				{
-					for(int j = i+1; j < ids.size() && j < samples.size(); j++)
+					int j = i+1;
+					//for(int j = i+1; j < ids.size() && j < samples.size(); j++)
 					{
 						if(rev) res.add(new Merge(ids.get(j), ids.get(i), sampleCount - 1 - samples.get(j), sampleCount - 1 - samples.get(i), line));
 						else res.add(new Merge(ids.get(i), ids.get(j), samples.get(i), samples.get(j), line));
@@ -246,7 +247,8 @@ public class VisualizationPrep {
 				String[] ids = entry.getInfo("IDLIST").split(",");
 				for(int i = 0; i < ids.length-1 && i < samples.size()-1; i++)
 				{
-					for(int j = i+1; j < ids.length && j < samples.size(); j++)
+					int j = i+1;
+					//for(int j = i+1; j < ids.length && j < samples.size(); j++)
 					{
 						if(rev) res.add(new Merge(ids[j], ids[i], sampleCount - 1 - samples.get(j), sampleCount - 1 - samples.get(i), line));
 						else res.add(new Merge(ids[i], ids[j], samples.get(i), samples.get(j), line));

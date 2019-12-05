@@ -317,6 +317,23 @@ public class VcfEntry {
 	}
 	
 	/*
+	 * Get the number of supporting reads
+	 */
+	public int getReadSupport() throws Exception
+	{
+		String[] reads = getRnames();
+		if(reads.length > 0)
+		{
+			return reads.length;
+		}
+		if(hasInfoField("RE"))
+		{
+			return Integer.parseInt(getInfo("RE"));
+		}
+		return 0;
+	}
+	
+	/*
 	 * Get list of supporting read names - first check for RNAMES field, and then anything containing RNAMES
 	 */
 	public String[] getRnames() throws Exception
