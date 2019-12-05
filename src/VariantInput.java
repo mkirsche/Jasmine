@@ -160,6 +160,10 @@ public class VariantInput {
 			{
 				maxDist = Math.min(maxDist, Settings.MAX_DIST);
 			}
+			if(Settings.MIN_DIST != -1)
+			{
+				maxDist = Math.max(maxDist, Settings.MIN_DIST);
+			}
 		}
 		
 		// Check for per-variant sequence ID thresholds

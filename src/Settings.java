@@ -26,6 +26,7 @@ public class Settings {
 	static boolean CHANGE_VAR_IDS = true;
 	static boolean USE_END = false;
 	static boolean MAX_DIST_SET = false;
+	static int MIN_DIST = -1; // -1 means no minimum
 	static boolean OUTPUT_GENOTYPES = false;
 	
 	static String SAMTOOLS_PATH = "samtools";
@@ -60,6 +61,7 @@ public class Settings {
 		System.out.println();
 		System.out.println("Optional args:");
 		System.out.println("  max_dist        (int)    [1000]     - the maximum distance variants can be apart when being merged");
+		System.out.println("  min_dist        (int)    [-1]       - the minimum distance threshold a variant can have when using max_dist_linear");
 		System.out.println("  max_dist_linear (float)  [0]        - make max_dist this proportion of the length of each variant (overrides max_dost)");
 		System.out.println("  kd_tree_norm    (int)    [2]        - the power to use in kd-tree distances (1 is Manhattan, 2 is Euclidean, etc.)");
 		System.out.println("  min_seq_id      (float)  [0]        - the minimum sequence identity for two insertions to be merged");
@@ -188,6 +190,9 @@ public class Settings {
 				case "max_dist":
 					MAX_DIST = parseInt(val);
 					MAX_DIST_SET = true;
+					break;
+				case "min_dist":
+					MIN_DIST = parseInt(val);
 					break;
 				case "max_dist_linear":
 					MAX_DIST_LINEAR = Double.parseDouble(val);
