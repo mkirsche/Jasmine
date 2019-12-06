@@ -30,12 +30,13 @@ public class AddGenotypes {
 	/*
 	 * To add other FORMAT fields, add their details here and add the logic to initialize them in reformatVariantFormat
 	 */
-	static String[] newFieldNames = {"GT", "IS"};
-	static String[] newFieldNums = {"1", "1"};
-	static String[] newFieldTypes = {"String", "String", "String", "String"};
+	static String[] newFieldNames = {"GT", "IS", "OT"};
+	static String[] newFieldNums = {"1", "1", "1"};
+	static String[] newFieldTypes = {"String", "String", "String", "String", "String"};
 	static String[] newFieldDescs = new String[] {
 			"The genotype of the variant",
-			"Whether or not the variant call was marked as specific due to high read support and length"
+			"Whether or not the variant call was marked as specific due to high read support and length",
+			"The original type of the variant"
 	};
 	
 	/*
@@ -269,6 +270,25 @@ public class AddGenotypes {
 					else
 					{
 						res.sampleFieldValues[j][i] = ".";
+					}
+				}
+				else if(field.equals("OT"))
+				{
+					if(entry.hasInfoField("OLDTYPE"))
+					{
+						res.sampleFieldValues[j][i] = entry.getInfo("OLDTYPE");
+					}
+					else
+					{
+						String type = entry.getType();
+						if(type.length() > 0)
+						{
+							res.sampleFieldValues[j][i] = type;
+						}
+						else
+						{
+							res.sampleFieldValues[j][i] = ".";
+						}
 					}
 				}
 			}
