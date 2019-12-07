@@ -56,7 +56,7 @@ public class VcfEntry {
 	}
 	
 	/*
-	 * Get hte POS field
+	 * Get the POS field
 	 */
 	public long getPos() throws Exception
 	{
