@@ -86,6 +86,7 @@ public class VariantOutput {
 						header.addInfoField("SUPP_VEC", "1", "String", "Vector of supporting samples");
 						header.addInfoField("SUPP_VEC_EXT", "1", "String", "Vector of supporting samples, potentially extended across multiple merges");
 						header.addInfoField("SUPP", "1", "String", "Number of samples supporting the variant");
+						header.addInfoField("SUPP_EXT", "1", "String", "Number of samples supporting the variant, potentially extended across multiple merges");
 						header.addInfoField("IDLIST", ".", "String", "Variant IDs of variants merged to make this call");
 						header.addInfoField("IDLIST_EXT", ".", "String", "Variant IDs of variants merged, potentially extended across multiple merges");
 						header.addInfoField("SVMETHOD", "1", "String", "");
@@ -239,6 +240,18 @@ public class VariantOutput {
 				}
 
 				consensus[groupNumber].setInfo("IDLIST_EXT", idListExt);
+				
+				// Update extended support count
+				int extendedSupport = 1;
+				if(entry.hasInfoField("SUPP_EXT"))
+				{
+					extendedSupport = Integer.parseInt(entry.getInfo("SUPP_EXT"));
+				}
+				else if(entry.hasInfoField("SUPP"))
+				{
+					extendedSupport = Integer.parseInt(entry.getInfo("SUPP"));
+				}
+				consensus[groupNumber].setInfo("SUPP_EXT", extendedSupport + "");
 			}
 			
 			// Otherwise, update the consensus to include info from this variant
@@ -314,6 +327,28 @@ public class VariantOutput {
 				String oldIdListExt = consensus[groupNumber].getInfo("IDLIST_EXT");
 				
 				consensus[groupNumber].setInfo("IDLIST_EXT", oldIdListExt + "," + idListExt);
+				
+				// Update specific marker
+				if(consensus[groupNumber].hasInfoField("IS_SPECIFIC") && entry.hasInfoField("IS_SPECIFIC"))
+				{
+					if(consensus[groupNumber].getInfo("IS_SPECIFIC").equals("0") && entry.getInfo("IS_SPECIFIC").equals("1"))
+					{
+						consensus[groupNumber].setInfo("IS_SPECIFIC", "1");
+					}
+				}
+				
+				// Update extended support count
+				int extendedSupport = 1;
+				int oldExtendedSupport = Integer.parseInt(consensus[groupNumber].getInfo("SUPP_EXT"));
+				if(entry.hasInfoField("SUPP_EXT"))
+				{
+					extendedSupport = Integer.parseInt(entry.getInfo("SUPP_EXT"));
+				}
+				else if(entry.hasInfoField("SUPP"))
+				{
+					extendedSupport = Integer.parseInt(entry.getInfo("SUPP"));
+				}
+				consensus[groupNumber].setInfo("SUPP_EXT", (extendedSupport + oldExtendedSupport) + "");
 			}
 			
 			used[groupNumber]++;
