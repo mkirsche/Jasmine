@@ -6,10 +6,14 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.TreeMap;
 
 public class VariantInput {
+	
+	// How many samples were merged to produce each input file
+	static HashMap<Integer, Integer> previouslyMergedSamples = new HashMap<Integer, Integer>();
 	
 	/*
 	 * Count the number of VCF files in a list
@@ -86,7 +90,24 @@ public class VariantInput {
 			{
 				continue;
 			}
-			allVariants.add(fromVcfEntry(new VcfEntry(line), sample));
+			VcfEntry entry = new VcfEntry(line);
+			if(!previouslyMergedSamples.containsKey(sample))
+			{
+				if(entry.getInfo("SUPP_VEC_EXT").length() > 0)
+				{
+					previouslyMergedSamples.put(sample, entry.getInfo("SUPP_VEC_EXT").length());
+				}
+				else if(entry.getInfo("SUPP_VEC").length() > 0)
+				{
+					previouslyMergedSamples.put(sample, entry.getInfo("SUPP_VEC").length());
+				}
+				else
+				{
+					previouslyMergedSamples.put(sample, 1);
+				}
+			}
+			allVariants.add(fromVcfEntry(entry, sample));
+			
 		}
 		
 		System.out.println(filename + " has " + allVariants.size() + " variants");

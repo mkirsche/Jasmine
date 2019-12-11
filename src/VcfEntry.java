@@ -10,6 +10,7 @@ public class VcfEntry {
 
 	String originalLine;
 	String[] tabTokens;
+	String oldId;
 	
 	public VcfEntry(String line) throws Exception
 	{
@@ -20,6 +21,7 @@ public class VcfEntry {
 			throw new Exception("VCF line had too few entries: "
 					+ Arrays.toString(tabTokens));
 		}
+		oldId = getId();
 	}
 	
 	/*

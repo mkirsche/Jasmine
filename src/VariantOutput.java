@@ -17,12 +17,8 @@ public class VariantOutput {
 	
 	TreeMap<String, VariantGraph> groups;
 	
-	// For each input sample, how many samples were merged into it, or 1 if it's an unmerged VCF
-	HashMap<Integer, Integer> previouslyMergedSamples;
-	
 	VariantOutput()
 	{
-		previouslyMergedSamples = new HashMap<Integer, Integer>();
 		groups = new TreeMap<String, VariantGraph>();
 	}
 	
@@ -100,17 +96,6 @@ public class VariantOutput {
 						header.print(out);
 					}
 					VcfEntry entry = new VcfEntry(line);
-					if(!previouslyMergedSamples.containsKey(sample))
-					{
-						if(entry.getInfo("SUPP_VEC").length() > 0)
-						{
-							previouslyMergedSamples.put(sample, entry.getInfo("SUPP_VEC").length());
-						}
-						else
-						{
-							previouslyMergedSamples.put(sample, 1);
-						}
-					}
 					String graphID = entry.getGraphID();
 					groups.get(graphID).processVariant(entry, sample, out);
 				}
@@ -210,8 +195,7 @@ public class VariantOutput {
 				consensus[groupNumber] = entry;
 				consensus[groupNumber].setId(fullId);
 				
-				String varId = entry.getId();
-				varId = varId.substring(varId.indexOf('_') + 1);
+				String varId = entry.oldId;
 				
 				idLists[groupNumber].append(varId);
 				consensus[groupNumber].setInfo("END", entry.getEnd() + "");
@@ -234,13 +218,27 @@ public class VariantOutput {
 				// Add zeroes for any absent sample before this
 				for(int i = 0; i<sample; i++)
 				{
-					int previouslyMergedCount = previouslyMergedSamples.get(i);
+					int previouslyMergedCount = VariantInput.previouslyMergedSamples.get(i);
 					for(int j = 0; j<previouslyMergedCount; j++)
 					{
 						suppVecExt = "0" + suppVecExt;
 					}
 				}
 				consensus[groupNumber].setInfo("SUPP_VEC_EXT", suppVecExt);
+				
+				// Set the extended ID List
+				// First look for extended IDList fields, then regular IDList fields
+				String idListExt = entry.getInfo("IDLIST_EXT");
+				if(idListExt.length() == 0)
+				{
+					idListExt = entry.getInfo("IDLIST");
+				}
+				if(idListExt.length() == 0)
+				{
+					idListExt = entry.oldId;
+				}
+
+				consensus[groupNumber].setInfo("IDLIST_EXT", idListExt);
 			}
 			
 			// Otherwise, update the consensus to include info from this variant
@@ -293,7 +291,7 @@ public class VariantOutput {
 					{
 						break;
 					}
-					int previouslyMergedCount = previouslyMergedSamples.get(i);
+					int previouslyMergedCount = VariantInput.previouslyMergedSamples.get(i);
 					for(int j = 0; j<previouslyMergedCount; j++)
 					{
 						suppVecExt = "0" + suppVecExt;
@@ -301,6 +299,21 @@ public class VariantOutput {
 				}
 				suppVecExt = consensus[groupNumber].getInfo("SUPP_VEC_EXT") + suppVecExt;
 				consensus[groupNumber].setInfo("SUPP_VEC_EXT", suppVecExt);
+				
+				// Update the extended ID List
+				String idListExt = entry.getInfo("IDLIST_EXT");
+				if(idListExt.length() == 0)
+				{
+					idListExt = entry.getInfo("IDLIST");
+				}
+				if(idListExt.length() == 0)
+				{
+					idListExt = entry.oldId;
+				}
+				
+				String oldIdListExt = consensus[groupNumber].getInfo("IDLIST_EXT");
+				
+				consensus[groupNumber].setInfo("IDLIST_EXT", oldIdListExt + "," + idListExt);
 			}
 			
 			used[groupNumber]++;
@@ -350,12 +363,20 @@ public class VariantOutput {
 				consensus[groupNumber].setInfo("SVMETHOD", "JASMINE");
 				consensus[groupNumber].setInfo("IDLIST", idLists[groupNumber].toString());
 				
+				// Add zeroes to SUPP_VEC_EXT as needed
+				for(int i = sample+1; i < supportVectors[groupNumber].length(); i++)
+				{
+					int previouslyMergedCount = VariantInput.previouslyMergedSamples.get(i);
+					for(int j = 0; j<previouslyMergedCount; j++)
+					{
+						consensus[groupNumber].setInfo("SUPP_VEC_EXT", consensus[groupNumber].getInfo("SUPP_VEC_EXT") + "0");
+					}
+				}
+				
 				// Remove the sample number from the variant ID (copied over from the first sample which is a part of this merged set)
 				if(!Settings.CHANGE_VAR_IDS)
 				{
-					String varId = consensus[groupNumber].getId();
-					varId = varId.substring(varId.indexOf('_') + 1);
-					consensus[groupNumber].setId(varId);
+					consensus[groupNumber].setId(consensus[groupNumber].oldId);
 				}
 				
 				if(supportCounts[groupNumber] >= Settings.MIN_SUPPORT)
