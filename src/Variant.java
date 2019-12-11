@@ -148,7 +148,7 @@ public class Variant implements Comparable<Variant>
 
 	public int compareTo(Variant o) 
 	{
-		if(hash != o.hash) return hash - o.hash;
+		if(hash != o.hash) return Long.compare(hash, o.hash);
 		if(start != o.start) return start - o.start;
 		return id.compareTo(o.id);
 	}

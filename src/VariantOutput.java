@@ -17,8 +17,12 @@ public class VariantOutput {
 	
 	TreeMap<String, VariantGraph> groups;
 	
+	// For each input sample, how many samples were merged into it, or 1 if it's an unmerged VCF
+	HashMap<Integer, Integer> previouslyMergedSamples;
+	
 	VariantOutput()
 	{
+		previouslyMergedSamples = new HashMap<Integer, Integer>();
 		groups = new TreeMap<String, VariantGraph>();
 	}
 	
@@ -78,13 +82,16 @@ public class VariantOutput {
 				}
 				else
 				{
+					
 					// Update the consensus variant in the appropriate graph
 					if(sample == 0 && !printedHeader)
 					{
 						printedHeader = true;
 						header.addInfoField("SUPP_VEC", "1", "String", "Vector of supporting samples");
+						header.addInfoField("SUPP_VEC_EXT", "1", "String", "Vector of supporting samples, potentially extended across multiple merges");
 						header.addInfoField("SUPP", "1", "String", "Number of samples supporting the variant");
 						header.addInfoField("IDLIST", ".", "String", "Variant IDs of variants merged to make this call");
+						header.addInfoField("IDLIST_EXT", ".", "String", "Variant IDs of variants merged, potentially extended across multiple merges");
 						header.addInfoField("SVMETHOD", "1", "String", "");
 						header.addInfoField("STARTVARIANCE", "1", "String", "Variance of start position for variants merged into this one");
 						header.addInfoField("ENDVARIANCE", "1", "String", "Variance of end position for variants merged into this one");
@@ -93,6 +100,17 @@ public class VariantOutput {
 						header.print(out);
 					}
 					VcfEntry entry = new VcfEntry(line);
+					if(!previouslyMergedSamples.containsKey(sample))
+					{
+						if(entry.getInfo("SUPP_VEC").length() > 0)
+						{
+							previouslyMergedSamples.put(sample, entry.getInfo("SUPP_VEC").length());
+						}
+						else
+						{
+							previouslyMergedSamples.put(sample, 1);
+						}
+					}
 					String graphID = entry.getGraphID();
 					groups.get(graphID).processVariant(entry, sample, out);
 				}
@@ -109,7 +127,7 @@ public class VariantOutput {
 	 * A graph of variants which are all on the same chromosome, and have the same type and/or strand as specified by the user
 	 * This class has login for storing and updating the connected components of the graph as consensus variants
 	 */
-	static class VariantGraph
+	class VariantGraph
 	{
 		// Number of variants in each group
 		int[] sizes;
@@ -200,6 +218,29 @@ public class VariantOutput {
 				consensus[groupNumber].setInfo("SVLEN", entry.getLength() + "");
 				consensus[groupNumber].setInfo("STARTVARIANCE", (entry.getPos() * entry.getPos()) + "");
 				consensus[groupNumber].setInfo("ENDVARIANCE", (entry.getEnd() * entry.getEnd()) + "");
+				
+				// Set the extended support vector
+				// First look for extended suppVec fields, then regular suppVec fields, then just use a single "1"
+				String suppVecExt = entry.getInfo("SUPP_VEC_EXT");
+				if(suppVecExt.length() == 0)
+				{
+					suppVecExt = entry.getInfo("SUPP_VEC");
+				}
+				if(suppVecExt.length() == 0)
+				{
+					suppVecExt = "1";
+				}
+				
+				// Add zeroes for any absent sample before this
+				for(int i = 0; i<sample; i++)
+				{
+					int previouslyMergedCount = previouslyMergedSamples.get(i);
+					for(int j = 0; j<previouslyMergedCount; j++)
+					{
+						suppVecExt = "0" + suppVecExt;
+					}
+				}
+				consensus[groupNumber].setInfo("SUPP_VEC_EXT", suppVecExt);
 			}
 			
 			// Otherwise, update the consensus to include info from this variant
@@ -233,6 +274,33 @@ public class VariantOutput {
 				String varId = entry.getId();
 				varId = varId.substring(varId.indexOf('_') + 1);
 				idLists[groupNumber].append("," + varId);
+				
+				// Update the extended support vector
+				String suppVecExt = entry.getInfo("SUPP_VEC_EXT");
+				if(suppVecExt.length() == 0)
+				{
+					suppVecExt = entry.getInfo("SUPP_VEC");
+				}
+				if(suppVecExt.length() == 0)
+				{
+					suppVecExt = "1";
+				}
+				
+				// Add zeroes for any absent sample before this
+				for(int i = sample-1; i>=0; i--)
+				{
+					if(supportVectors[groupNumber].charAt(i) == '1')
+					{
+						break;
+					}
+					int previouslyMergedCount = previouslyMergedSamples.get(i);
+					for(int j = 0; j<previouslyMergedCount; j++)
+					{
+						suppVecExt = "0" + suppVecExt;
+					}
+				}
+				suppVecExt = consensus[groupNumber].getInfo("SUPP_VEC_EXT") + suppVecExt;
+				consensus[groupNumber].setInfo("SUPP_VEC_EXT", suppVecExt);
 			}
 			
 			used[groupNumber]++;
