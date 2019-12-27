@@ -323,14 +323,14 @@ public class VcfEntry {
 	 */
 	public int getReadSupport() throws Exception
 	{
+		if(hasInfoField("RE"))
+		{
+			return Integer.parseInt(getInfo("RE"));
+		}
 		String[] reads = getRnames();
 		if(reads.length > 0)
 		{
 			return reads.length;
-		}
-		if(hasInfoField("RE"))
-		{
-			return Integer.parseInt(getInfo("RE"));
 		}
 		return 0;
 	}
