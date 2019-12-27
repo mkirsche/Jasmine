@@ -79,6 +79,7 @@ public class DuplicationsToInsertions {
 							ve.setAlt("<INS>");
 						}
 						ve.setInfo("END", nend+"");
+						ve.setInfo("STRANDS", "+-");
 						ve.setPos(nstart);
 						ve.setInfo("OLDTYPE", "DUP");
 					}
@@ -100,6 +101,7 @@ public class DuplicationsToInsertions {
 		System.out.println("Number of duplications converted to insertions: " + countDup + " out of " + entries.size() + " total variants");
 		
 		header.addInfoField("OLDTYPE", "1", "String", "");
+		header.addInfoField("STRANDS", "1", "String", "");
 		header.print(out);
 		
 		for(VcfEntry ve : entries)

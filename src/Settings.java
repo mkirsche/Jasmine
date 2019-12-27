@@ -32,6 +32,7 @@ public class Settings {
 	static String SAMTOOLS_PATH = "samtools";
 	
 	static boolean PREPROCESS_ONLY = false;
+	static boolean POSTPROCESS_ONLY = false;
 	static boolean CONVERT_DUPLICATIONS = false;
 	static boolean MARK_SPECIFIC = false;
 	static boolean RUN_IRIS = false;
@@ -83,6 +84,7 @@ public class Settings {
 		System.out.println("  --run_iris                          - run Iris before merging for refining the sequences of insertions");
 		System.out.println("  --use_edit_dist                     - use edit distance for comparing insertion sequences instead of Jaccard");
 		System.out.println("  --preprocess_only                   - only run the preprocessing and not the actual merging or post-processing");
+		System.out.println("  --postprocess_only                  - only run the postprocessing and not the actual merging or pre-processing");
 		System.out.println("  --keep_var_ids                      - don't change variant IDs (should only be used if input IDs are unique across samples)");
 		System.out.println("  --use_end                           - use the end coordinate as the second coordinate instead of the variant length");
 		System.out.println("  --output_genotypes                  - print the genotypes of the consensus variants in all of the samples they came from");
@@ -163,6 +165,10 @@ public class Settings {
 				else if(args[i].endsWith("preprocess_only"))
 				{
 					PREPROCESS_ONLY = true;
+				}
+				else if(args[i].endsWith("postprocess_only"))
+				{
+					POSTPROCESS_ONLY = true;
 				}
 				else if(args[i].endsWith("keep_var_ids"))
 				{
