@@ -5,6 +5,8 @@
  */
 
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class VcfEntry {
 
@@ -304,11 +306,11 @@ public class VcfEntry {
 				// Special case if this is the first INFO field
 				if(tabTokens[7].startsWith(semitoken))
 				{
-					tabTokens[7] = tabTokens[7].replaceFirst(semitoken, updatedToken);
+					tabTokens[7] = tabTokens[7].replaceFirst(Pattern.quote(semitoken), Matcher.quoteReplacement(updatedToken));
 				}
 				else
 				{
-					tabTokens[7] = tabTokens[7].replaceAll(";" + semitoken, ";" + updatedToken);
+					tabTokens[7] = tabTokens[7].replace(";" + semitoken, ";" + updatedToken);
 				}
 				return;
 			}
