@@ -61,7 +61,7 @@ static void convertFile(String inputFile, String outputFile, int minReadSupport,
 			boolean inSpecific = false;
 			int readSupport = entry.getReadSupport();
 			
-			boolean longEnough = Math.abs(entry.getLength()) >= minLength || entry.getLength() == 0;
+			boolean longEnough = entry.getType().equals("TRA") || entry.getType().equals("BND") || Math.abs(entry.getLength()) >= minLength || entry.getLength() == 0;
 			
 			if(readSupport >= minReadSupport && longEnough)
 			{
