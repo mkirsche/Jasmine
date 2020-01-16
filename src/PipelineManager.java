@@ -156,7 +156,7 @@ String newFileList = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUt
 		String vcfFile = vcfFiles.get(i);
 		String newVcfFile = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(vcfFile), "markedSpec");
 		newFileListOut.println(newVcfFile);
-		MarkSpecificCalls.convertFile(vcfFile, newVcfFile, 10, 30);
+		MarkSpecificCalls.convertFile(vcfFile, newVcfFile, Settings.SPECIFIC_MIN_RCOUNT, Settings.SPECIFIC_MIN_LENGTH);
 	}
 	vcfListInput.close();
 	newFileListOut.close();
