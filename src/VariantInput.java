@@ -20,19 +20,7 @@ public class VariantInput {
 	 */
 	public static int countFiles(String fileList) throws Exception
 	{
-		Scanner input = new Scanner(new FileInputStream(new File(fileList)));
-		int count = 0;
-		while(input.hasNext())
-		{
-			String line = input.nextLine();
-			if(line.length() == 0)
-			{
-				continue;
-			}
-			count++;
-		}
-		input.close();
-		return count;
+		return PipelineManager.getFilesFromList(fileList).size();
 	}
 	
 	/*
@@ -41,17 +29,8 @@ public class VariantInput {
 	@SuppressWarnings("unchecked")
 	public static TreeMap<String, ArrayList<Variant>> readAllFiles(String fileList) throws Exception
 	{
-		Scanner input = new Scanner(new FileInputStream(new File(fileList)));
-		ArrayList<String> fileNames = new ArrayList<String>();
-		while(input.hasNext())
-		{
-			String line = input.nextLine();
-			if(line.length() == 0)
-			{
-				continue;
-			}
-			fileNames.add(line);
-		}
+		ArrayList<String> fileNames = PipelineManager.getFilesFromList(fileList);
+		
 		TreeMap<String, ArrayList<Variant>>[] variantsPerFile = new TreeMap[fileNames.size()];
 		for(int i = 0; i<fileNames.size(); i++)
 		{
@@ -72,7 +51,6 @@ public class VariantInput {
 				}
 			}
 		}
-		input.close();
 		return res;
 	}
 	

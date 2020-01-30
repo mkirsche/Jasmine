@@ -37,17 +37,9 @@ public class VisualizationPrep {
 		// The resulting merged VCF files from both Jasmine and SURVIVOR
 		String firstOutput = "/home/mkirsche/eichler/survmerged.vcf";
 		String secondOutput = "/home/mkirsche/eichler/merged.vcf";
-		Scanner fileNameReader = new Scanner(new FileInputStream(new File(fileList)));
 		
 		// Get the list of VCF files
-		ArrayList<String> vcfsAsList = new ArrayList<String>();
-		while(fileNameReader.hasNext())
-		{
-			String line = fileNameReader.nextLine();
-			if(line.length() == 0) continue;
-			vcfsAsList.add(line);
-		}
-		fileNameReader.close();
+		ArrayList<String> vcfsAsList = PipelineManager.getFilesFromList(fileList);
 		String[] vcfs = new String[vcfsAsList.size()];
 		for(int i = 0; i<vcfs.length; i++)
 		{

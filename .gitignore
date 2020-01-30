@@ -9,3 +9,4 @@ bin/
 # IDEA setup
 .idea/
 *.iml
+src/FixStrands.java

@@ -51,23 +51,16 @@ public class AddGenotypes {
 		// The names of the samples present across all input files
 		ArrayList<String> allSampleNamesList = new ArrayList<String>();
 		
-		// Get the FORMAT fields of input VCFs by going through the file list
-		Scanner input = new Scanner(new FileInputStream(new File(fileList)));
-		while(input.hasNext())
+		ArrayList<String> vcfFiles = PipelineManager.getFilesFromList(fileList);
+		for(String vcfFile : vcfFiles)
 		{
-			String line = input.nextLine();
-			if(line.length() == 0)
-			{
-				continue;
-			}
-			FileFormatField fileFormats = new FileFormatField(line, true);
+			FileFormatField fileFormats = new FileFormatField(vcfFile, true);
 			for(String sampleName : fileFormats.sampleNames)
 			{
 				allSampleNamesList.add(inputFormats.size() + "_" + sampleName);
 			}
 			inputFormats.add(fileFormats);
 		}
-		input.close();
 		
 		// Get the number of samples per file to know how much to skip in samples where a variant is absent
 		int[] sampleCounts = new int[inputFormats.size()];
@@ -84,7 +77,7 @@ public class AddGenotypes {
 		}
 				
 		// Now scan through merged VCF and combine FORMAT fields as needed, printing the updated file at the same time
-		input = new Scanner(new FileInputStream(new File(inputFile)));
+		Scanner input = new Scanner(new FileInputStream(new File(inputFile)));
 		PrintWriter out = new PrintWriter(new File(outputFile));
 		VcfHeader header = new VcfHeader();
 		boolean headerPrinted = false;

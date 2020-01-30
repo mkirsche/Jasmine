@@ -35,7 +35,6 @@ public class VariantOutput {
 	 */
 	public void writeMergedVariants(String fileList, String outFile) throws Exception
 	{
-		Scanner listInput = new Scanner(new FileInputStream(new File(fileList)));
 		PrintWriter out = new PrintWriter(new File(outFile));
 		int sample = 0;
 		
@@ -43,14 +42,9 @@ public class VariantOutput {
 		
 		boolean printedHeader = false;
 		
-		// Go through one VCF file at a time
-		while(listInput.hasNext())
+		ArrayList<String> filenames = PipelineManager.getFilesFromList(fileList);
+		for(String filename : filenames)
 		{
-			String filename = listInput.nextLine();
-			if(filename.length() == 0)
-			{
-				continue;
-			}
 			Scanner input = new Scanner(new FileInputStream(new File(filename)));
 			
 			// Iterate over the variants in that file
@@ -106,7 +100,6 @@ public class VariantOutput {
 		}
 		
 		out.close();
-		listInput.close();
 	}
 	
 	/*
