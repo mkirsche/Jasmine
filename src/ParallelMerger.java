@@ -9,15 +9,14 @@
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ParallelMerger {
 	
 	// IDs of graphs left to process
-	Queue<String> todo;
+	ConcurrentLinkedQueue<String> todo;
 	
 	// the variant graphs on which merging will be performed
 	TreeMap<String, ArrayList<Variant>> allVariants;
@@ -40,7 +39,7 @@ public class ParallelMerger {
 		this.numThreads = Settings.THREADS;
 		System.out.println("Nummber of threads: " + numThreads);
 		this.sampleCount = sampleCount;
-		todo = new LinkedList<String>();
+		todo = new ConcurrentLinkedQueue<String>();
 		for(String s : allVariants.keySet())
 		{
 			todo.add(s);
