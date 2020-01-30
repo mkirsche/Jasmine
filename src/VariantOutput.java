@@ -127,6 +127,11 @@ public class VariantOutput {
 		// For each variant ID, the group number it is in
 		HashMap<String, Integer> varToGroup;
 		
+		// For each group, the start, end, and length of its first variant
+		HashMap<Integer, Long> firstStart;
+		HashMap<Integer, Long> firstEnd;
+		HashMap<Integer, Integer> firstLength;
+		
 		// For each group, the support vector of samples it's in
 		String[] supportVectors;
 		
@@ -146,6 +151,14 @@ public class VariantOutput {
 			supportCounts = new int[n];
 			idLists = new StringBuilder[n];
 			varToGroup = new HashMap<String, Integer>();
+			
+			// Initialize information about first variant in each group if using it
+			if(Settings.KEEP_FIRST_POS)
+			{
+				firstStart = new HashMap<Integer, Long>();
+				firstEnd = new HashMap<Integer, Long>();
+				firstLength = new HashMap<Integer, Integer>();
+			}
 			
 			// Scan through groups and map variant IDs to group numbers
 			for(int i = 0; i<n; i++)
@@ -204,54 +217,64 @@ public class VariantOutput {
 				consensus[groupNumber].setInfo("STARTVARIANCE", (entry.getPos() * entry.getPos()) + "");
 				consensus[groupNumber].setInfo("ENDVARIANCE", (entry.getEnd() * entry.getEnd()) + "");
 				
-				// Set the extended support vector
-				// First look for extended suppVec fields, then regular suppVec fields, then just use a single "1"
-				String suppVecExt = entry.getInfo("SUPP_VEC_EXT");
-				if(suppVecExt.length() == 0)
+				if(Settings.KEEP_FIRST_POS)
 				{
-					suppVecExt = entry.getInfo("SUPP_VEC");
-				}
-				if(suppVecExt.length() == 0)
-				{
-					suppVecExt = "1";
+					firstStart.put(groupNumber, entry.getPos());
+					firstEnd.put(groupNumber, entry.getEnd());
+					firstLength.put(groupNumber, entry.getLength());
 				}
 				
-				// Add zeroes for any absent sample before this
-				for(int i = 0; i<sample; i++)
+				if(Settings.INPUTS_MERGED)
 				{
-					int previouslyMergedCount = VariantInput.previouslyMergedSamples.get(i);
-					for(int j = 0; j<previouslyMergedCount; j++)
+					// Set the extended support vector
+					// First look for extended suppVec fields, then regular suppVec fields, then just use a single "1"
+					String suppVecExt = entry.getInfo("SUPP_VEC_EXT");
+					if(suppVecExt.length() == 0)
 					{
-						suppVecExt = "0" + suppVecExt;
+						suppVecExt = entry.getInfo("SUPP_VEC");
 					}
+					if(suppVecExt.length() == 0)
+					{
+						suppVecExt = "1";
+					}
+					
+					// Add zeroes for any absent sample before this
+					for(int i = 0; i<sample; i++)
+					{
+						int previouslyMergedCount = VariantInput.previouslyMergedSamples.get(i);
+						for(int j = 0; j<previouslyMergedCount; j++)
+						{
+							suppVecExt = "0" + suppVecExt;
+						}
+					}
+					consensus[groupNumber].setInfo("SUPP_VEC_EXT", suppVecExt);
+					
+					// Set the extended ID List
+					// First look for extended IDList fields, then regular IDList fields
+					String idListExt = entry.getInfo("IDLIST_EXT");
+					if(idListExt.length() == 0)
+					{
+						idListExt = entry.getInfo("IDLIST");
+					}
+					if(idListExt.length() == 0)
+					{
+						idListExt = entry.oldId;
+					}
+	
+					consensus[groupNumber].setInfo("IDLIST_EXT", idListExt);
+					
+					// Update extended support count
+					int extendedSupport = 1;
+					if(entry.hasInfoField("SUPP_EXT"))
+					{
+						extendedSupport = Integer.parseInt(entry.getInfo("SUPP_EXT"));
+					}
+					else if(entry.hasInfoField("SUPP"))
+					{
+						extendedSupport = Integer.parseInt(entry.getInfo("SUPP"));
+					}
+					consensus[groupNumber].setInfo("SUPP_EXT", extendedSupport + "");
 				}
-				consensus[groupNumber].setInfo("SUPP_VEC_EXT", suppVecExt);
-				
-				// Set the extended ID List
-				// First look for extended IDList fields, then regular IDList fields
-				String idListExt = entry.getInfo("IDLIST_EXT");
-				if(idListExt.length() == 0)
-				{
-					idListExt = entry.getInfo("IDLIST");
-				}
-				if(idListExt.length() == 0)
-				{
-					idListExt = entry.oldId;
-				}
-
-				consensus[groupNumber].setInfo("IDLIST_EXT", idListExt);
-				
-				// Update extended support count
-				int extendedSupport = 1;
-				if(entry.hasInfoField("SUPP_EXT"))
-				{
-					extendedSupport = Integer.parseInt(entry.getInfo("SUPP_EXT"));
-				}
-				else if(entry.hasInfoField("SUPP"))
-				{
-					extendedSupport = Integer.parseInt(entry.getInfo("SUPP"));
-				}
-				consensus[groupNumber].setInfo("SUPP_EXT", extendedSupport + "");
 			}
 			
 			// Otherwise, update the consensus to include info from this variant
@@ -286,70 +309,74 @@ public class VariantOutput {
 				varId = varId.substring(varId.indexOf('_') + 1);
 				idLists[groupNumber].append("," + varId);
 				
-				// Update the extended support vector
-				String suppVecExt = entry.getInfo("SUPP_VEC_EXT");
-				if(suppVecExt.length() == 0)
+				if(Settings.INPUTS_MERGED)
 				{
-					suppVecExt = entry.getInfo("SUPP_VEC");
-				}
-				if(suppVecExt.length() == 0)
-				{
-					suppVecExt = "1";
-				}
-				
-				// Add zeroes for any absent sample before this
-				for(int i = sample-1; i>=0; i--)
-				{
-					if(supportVectors[groupNumber].charAt(i) == '1')
+					// Update the extended support vector
+					String suppVecExt = entry.getInfo("SUPP_VEC_EXT");
+					if(suppVecExt.length() == 0)
 					{
-						break;
+						suppVecExt = entry.getInfo("SUPP_VEC");
 					}
-					int previouslyMergedCount = VariantInput.previouslyMergedSamples.get(i);
-					for(int j = 0; j<previouslyMergedCount; j++)
+					if(suppVecExt.length() == 0)
 					{
-						suppVecExt = "0" + suppVecExt;
+						suppVecExt = "1";
 					}
-				}
-				suppVecExt = consensus[groupNumber].getInfo("SUPP_VEC_EXT") + suppVecExt;
-				consensus[groupNumber].setInfo("SUPP_VEC_EXT", suppVecExt);
-				
-				// Update the extended ID List
-				String idListExt = entry.getInfo("IDLIST_EXT");
-				if(idListExt.length() == 0)
-				{
-					idListExt = entry.getInfo("IDLIST");
-				}
-				if(idListExt.length() == 0)
-				{
-					idListExt = entry.oldId;
-				}
-				
-				String oldIdListExt = consensus[groupNumber].getInfo("IDLIST_EXT");
-				
-				consensus[groupNumber].setInfo("IDLIST_EXT", oldIdListExt + "," + idListExt);
-				
-				// Update specific marker
-				if(consensus[groupNumber].hasInfoField("IS_SPECIFIC") && entry.hasInfoField("IS_SPECIFIC"))
-				{
-					if(consensus[groupNumber].getInfo("IS_SPECIFIC").equals("0") && entry.getInfo("IS_SPECIFIC").equals("1"))
+					
+					// Add zeroes for any absent sample before this
+					for(int i = sample-1; i>=0; i--)
 					{
-						consensus[groupNumber].setInfo("IS_SPECIFIC", "1");
+						if(supportVectors[groupNumber].charAt(i) == '1')
+						{
+							break;
+						}
+						int previouslyMergedCount = VariantInput.previouslyMergedSamples.get(i);
+						for(int j = 0; j<previouslyMergedCount; j++)
+						{
+							suppVecExt = "0" + suppVecExt;
+						}
 					}
+					suppVecExt = consensus[groupNumber].getInfo("SUPP_VEC_EXT") + suppVecExt;
+					consensus[groupNumber].setInfo("SUPP_VEC_EXT", suppVecExt);
+					
+					// Update the extended ID List
+					String idListExt = entry.getInfo("IDLIST_EXT");
+					if(idListExt.length() == 0)
+					{
+						idListExt = entry.getInfo("IDLIST");
+					}
+					if(idListExt.length() == 0)
+					{
+						idListExt = entry.oldId;
+					}
+					
+					String oldIdListExt = consensus[groupNumber].getInfo("IDLIST_EXT");
+					
+					consensus[groupNumber].setInfo("IDLIST_EXT", oldIdListExt + "," + idListExt);
+					
+					// Update specific marker
+					if(consensus[groupNumber].hasInfoField("IS_SPECIFIC") && entry.hasInfoField("IS_SPECIFIC"))
+					{
+						if(consensus[groupNumber].getInfo("IS_SPECIFIC").equals("0") && entry.getInfo("IS_SPECIFIC").equals("1"))
+						{
+							consensus[groupNumber].setInfo("IS_SPECIFIC", "1");
+						}
+					}
+					
+					// Update extended support count
+					int extendedSupport = 1;
+					int oldExtendedSupport = Integer.parseInt(consensus[groupNumber].getInfo("SUPP_EXT"));
+					if(entry.hasInfoField("SUPP_EXT"))
+					{
+						extendedSupport = Integer.parseInt(entry.getInfo("SUPP_EXT"));
+					}
+					else if(entry.hasInfoField("SUPP"))
+					{
+						extendedSupport = Integer.parseInt(entry.getInfo("SUPP"));
+					}
+					consensus[groupNumber].setInfo("SUPP_EXT", (extendedSupport + oldExtendedSupport) + "");
 				}
-				
-				// Update extended support count
-				int extendedSupport = 1;
-				int oldExtendedSupport = Integer.parseInt(consensus[groupNumber].getInfo("SUPP_EXT"));
-				if(entry.hasInfoField("SUPP_EXT"))
-				{
-					extendedSupport = Integer.parseInt(entry.getInfo("SUPP_EXT"));
-				}
-				else if(entry.hasInfoField("SUPP"))
-				{
-					extendedSupport = Integer.parseInt(entry.getInfo("SUPP"));
-				}
-				consensus[groupNumber].setInfo("SUPP_EXT", (extendedSupport + oldExtendedSupport) + "");
 			}
+			
 			
 			used[groupNumber]++;
 			
@@ -398,16 +425,25 @@ public class VariantOutput {
 				consensus[groupNumber].setInfo("SVMETHOD", "JASMINE");
 				consensus[groupNumber].setInfo("IDLIST", idLists[groupNumber].toString());
 				
-				// Add zeroes to SUPP_VEC_EXT as needed
-				for(int i = sample+1; i < supportVectors[groupNumber].length(); i++)
+				if(Settings.KEEP_FIRST_POS)
 				{
-					int previouslyMergedCount = VariantInput.previouslyMergedSamples.get(i);
-					for(int j = 0; j<previouslyMergedCount; j++)
-					{
-						consensus[groupNumber].setInfo("SUPP_VEC_EXT", consensus[groupNumber].getInfo("SUPP_VEC_EXT") + "0");
-					}
+					consensus[groupNumber].setPos(firstStart.get(groupNumber));
+					consensus[groupNumber].setInfo("END", firstEnd.get(groupNumber) + "");
+					consensus[groupNumber].setInfo("SVLEN", firstLength.get(groupNumber) + "");
 				}
 				
+				if(Settings.INPUTS_MERGED)
+				{
+					// Add zeroes to SUPP_VEC_EXT as needed
+					for(int i = sample+1; i < supportVectors[groupNumber].length(); i++)
+					{
+						int previouslyMergedCount = VariantInput.previouslyMergedSamples.get(i);
+						for(int j = 0; j<previouslyMergedCount; j++)
+						{
+							consensus[groupNumber].setInfo("SUPP_VEC_EXT", consensus[groupNumber].getInfo("SUPP_VEC_EXT") + "0");
+						}
+					}
+				}
 				// Remove the sample number from the variant ID (copied over from the first sample which is a part of this merged set)
 				if(!Settings.CHANGE_VAR_IDS)
 				{

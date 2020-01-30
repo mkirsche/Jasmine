@@ -28,6 +28,8 @@ public class Settings {
 	static boolean MAX_DIST_SET = false;
 	static int MIN_DIST = -1; // -1 means no minimum
 	static boolean OUTPUT_GENOTYPES = false;
+	static boolean INPUTS_MERGED = false;
+	static boolean KEEP_FIRST_POS = false;
 	
 	static String SAMTOOLS_PATH = "samtools";
 	
@@ -88,6 +90,8 @@ public class Settings {
 		System.out.println("  --keep_var_ids                      - don't change variant IDs (should only be used if input IDs are unique across samples)");
 		System.out.println("  --use_end                           - use the end coordinate as the second coordinate instead of the variant length");
 		System.out.println("  --output_genotypes                  - print the genotypes of the consensus variants in all of the samples they came from");
+		System.out.println("  --inputs_merged                     - keep merging info which is already present in the inputs");
+		System.out.println("  --keep_first_pos                    - use the position and length from the first vcf in a merge instead of averaging");
 		System.out.println();
 		System.out.println("Notes:");
 		System.out.println("  genome_file is required if the dup_to_ins option or the run_iris option is used.");
@@ -181,6 +185,14 @@ public class Settings {
 				else if(args[i].endsWith("output_genotypes"))
 				{
 					OUTPUT_GENOTYPES = true;
+				}
+				else if(args[i].endsWith("inputs_merged"))
+				{
+					INPUTS_MERGED = true;
+				}
+				else if(args[i].endsWith("keep_first_pos"))
+				{
+					KEEP_FIRST_POS = true;
 				}
 				continue;
 			}
