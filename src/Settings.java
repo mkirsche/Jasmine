@@ -95,6 +95,8 @@ public class Settings {
 		System.out.println("  --output_genotypes                  - print the genotypes of the consensus variants in all of the samples they came from");
 		System.out.println("  --inputs_merged                     - keep merging info which is already present in the inputs");
 		System.out.println("  --keep_first_pos                    - use the position and length from the first vcf in a merge instead of averaging");
+		System.out.println("  --centroid_merging                  - require every group to have a centroid which is within the distance threshold of each variant");
+		System.out.println("  --clique_merging                    - require every group to have each pair within in it be mergeable");
 		System.out.println();
 		System.out.println("Notes:");
 		System.out.println("  genome_file is required if the dup_to_ins option or the run_iris option is used.");
@@ -196,6 +198,14 @@ public class Settings {
 				else if(args[i].endsWith("keep_first_pos"))
 				{
 					KEEP_FIRST_POS = true;
+				}
+				else if(args[i].endsWith("centroid_merging"))
+				{
+					CENTROID_MERGE = true;
+				}
+				else if(args[i].endsWith("clique_merging"))
+				{
+					CLIQUE_MERGE = true;
 				}
 				continue;
 			}

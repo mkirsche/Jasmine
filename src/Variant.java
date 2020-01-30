@@ -41,6 +41,25 @@ public class Variant implements Comparable<Variant>
 		return (int)res;
 	}
 	
+	/*
+	 * Returns the distance from the variant's (start, end) pair to a given (x, y) point
+	 */
+	double distFromPoint(double x, double y)
+	{
+		double dStart = start - x;
+		double dEnd = end - y;
+		int norm = Settings.KD_TREE_NORM;
+		if(norm == 2)
+		{
+			return Math.sqrt(dStart * dStart + dEnd * dEnd); 
+		}
+		else
+		{
+			double powSum = Math.abs(Math.pow(dStart, norm)) + Math.abs(Math.pow(dEnd, norm));
+			return Math.pow(powSum, 1.0 / norm);
+		}
+	}
+	
 	Variant(int sample, String id, int start, int end, String graphID, String seq, int maxDist, double minSeqId)
 	{
 		this.sample = sample;
@@ -72,18 +91,7 @@ public class Variant implements Comparable<Variant>
 	 */
 	double distance(Variant v)
 	{
-		double dStart = start - v.start;
-		double dEnd = end - v.end;
-		int norm = Settings.KD_TREE_NORM;
-		if(norm == 2)
-		{
-			return Math.sqrt(dStart * dStart + dEnd * dEnd); 
-		}
-		else
-		{
-			double powSum = Math.abs(Math.pow(dStart, norm)) + Math.abs(Math.pow(dEnd, norm));
-			return Math.pow(powSum, 1.0 / norm);
-		}
+		return distFromPoint(v.start, v.end);
 	}
 	
 	/*
