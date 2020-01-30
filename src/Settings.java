@@ -17,7 +17,7 @@ public class Settings {
 	static String OUT_FILE = "";
 	static int MAX_DIST = 1000;
 	static double MAX_DIST_LINEAR = 0.0;
-	static int MIN_SUPPORT = 2;
+	static int MIN_SUPPORT = 1;
 	static double MIN_SEQUENCE_SIMILARITY = 0;
 	static boolean USE_EDIT_DISTANCE = false;
 	static int K_JACCARD = 9;
@@ -48,6 +48,9 @@ public class Settings {
 	static int SPECIFIC_MIN_RCOUNT = 10;
 	static int SPECIFIC_MIN_LENGTH = 30;
 	
+	static boolean CENTROID_MERGE = false;
+	static boolean CLIQUE_MERGE = false; // TODO initialize these two flags
+	
 	/*
 	 * Print the usage menu
 	 */
@@ -70,7 +73,7 @@ public class Settings {
 		System.out.println("  min_seq_id      (float)  [0]        - the minimum sequence identity for two insertions to be merged");
 		System.out.println("  k_jaccard       (int)    [9]        - the kmer size to use when computing Jaccard similarity of insertions");
 		System.out.println("  max_dup_length  (int)    [10k]      - the maximum length of duplication that can be converted to an insertion");
-		System.out.println("  min_support     (int)    [2]        - the minimum number of callsets a variant must be in to be output");
+		System.out.println("  min_support     (int)    [1]        - the minimum number of callsets a variant must be in to be output");
 		System.out.println("  threads         (int)    [2]        - the number of threads to use for merging the variants");
 		System.out.println("  spec_reads      (int)    [10]       - the minimum number of reads a variant needs to be in the specific callset");
 		System.out.println("  spec_len        (int)    [30]       - the minimum length a variant needs to be in the specific callset");
