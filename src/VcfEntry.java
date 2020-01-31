@@ -14,6 +14,16 @@ public class VcfEntry {
 	String[] tabTokens;
 	String oldId;
 	
+	public static VcfEntry fromLine(String line) throws Exception
+	{
+		VcfEntry res = new VcfEntry(line);
+		if(res.getType().equals("BND"))
+		{
+			return new BndVcfEntry(line);
+		}
+		return res;
+	}
+	
 	public VcfEntry(String line) throws Exception
 	{
 		originalLine = line;
@@ -24,6 +34,10 @@ public class VcfEntry {
 					+ Arrays.toString(tabTokens));
 		}
 		oldId = getId();
+		if(Settings.NORMALIZE_TYPE && !getType().equals("BND"))
+		{
+			setType(getNormalizedType());
+		}
 	}
 	
 	/*
@@ -410,6 +424,9 @@ public class VcfEntry {
 		return false;
 	}
 	
+	/*
+	 * Ge tthe second value to use for merging, which depends on the settings
+	 */
 	public int getSecondCoord() throws Exception
 	{
 		if(Settings.USE_END)
@@ -421,6 +438,47 @@ public class VcfEntry {
 		{
 			return Math.abs(getLength());
 		}
+	}
+	
+	/*
+	 * Get one of five types: INS, DEL, DUP, INV, or TRA (or "" if none of them fit)
+	 */
+	public String getNormalizedType() throws Exception
+	{
+		String type = getType();
+		if(type.equals("TRA") || type.equals("BND"))
+		{
+			return "TRA";
+		}
+		if(type.equals("INS") || type.equals("DEL") || type.equals("DUP") || type.equals("INV"))
+		{
+			return type;
+		}
+		if(hasInfoField("CHR2") && !getInfo("CHR2").equals(getChromosome()))
+		{
+			return "TRA";
+		}
+		if(hasInfoField("STRANDS"))
+		{
+			String strand = getInfo("STRANDS");
+			if(strand.equals("++") || strand.equals("--"))
+			{
+				return "INV";
+			}
+			else if(strand.equals("-+"))
+			{
+				return "DUP";
+			}
+			else if(strand.equals("+-"))
+			{
+				int length = getLength();
+				if(length > 0) return "INS";
+				else if(length < 0) return "DEL";
+				else return "";
+			}
+			else return "";
+		}
+		return "";
 	}
 	
 }

@@ -68,11 +68,7 @@ public class VariantInput {
 			{
 				continue;
 			}
-			VcfEntry entry = new VcfEntry(line);
-			if(entry.getType().equals("BND"))
-			{
-				entry = new BndVcfEntry(line);
-			}
+			VcfEntry entry = VcfEntry.fromLine(line);
 			if(!previouslyMergedSamples.containsKey(sample))
 			{
 				if(entry.getInfo("SUPP_VEC_EXT").length() > 0)
