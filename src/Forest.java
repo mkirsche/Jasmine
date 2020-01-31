@@ -97,6 +97,10 @@ public class Forest
 	 */
 	private boolean okayEdge(int rootA, int rootB)
 	{
+		if(Settings.ALLOW_INTRASAMPLE)
+		{
+			return true;
+		}
 		for(int j = 0; j<sampleMask.length; j++)
 		{
 			if((sampleMask[j][rootA] & sampleMask[j][rootB]) != 0)

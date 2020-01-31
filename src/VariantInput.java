@@ -69,6 +69,10 @@ public class VariantInput {
 				continue;
 			}
 			VcfEntry entry = new VcfEntry(line);
+			if(entry.getType().equals("BND"))
+			{
+				entry = new BndVcfEntry(line);
+			}
 			if(!previouslyMergedSamples.containsKey(sample))
 			{
 				if(entry.getInfo("SUPP_VEC_EXT").length() > 0)
@@ -119,12 +123,7 @@ public class VariantInput {
 	public static Variant fromVcfEntry(VcfEntry entry, int sample) throws Exception
 	{
 		int start = (int)entry.getPos();
-		int end = Math.abs(entry.getLength());
-		
-		if(Settings.USE_END)
-		{
-			end = (int)entry.getEnd();
-		}
+		int end = entry.getSecondCoord();
 		
 		entry.setId(sample + "_" + entry.getId());
 		
