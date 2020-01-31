@@ -409,5 +409,18 @@ public class VcfEntry {
 		}
 		return false;
 	}
-
+	
+	public int getSecondCoord() throws Exception
+	{
+		if(Settings.USE_END)
+		{
+			return (int)getEnd();
+		}
+		
+		else
+		{
+			return Math.abs(getLength());
+		}
+	}
+	
 }
