@@ -1,11 +1,10 @@
-
 public class BndVcfEntry extends VcfEntry {
 	
 	String[] altTokens;
 	public BndVcfEntry(String line) throws Exception
 	{
 		super(line);
-		altTokens =  getAlt().split("([)|(])");
+		altTokens =  getAlt().split("[\\[\\]]");
 	}
 	
 	/*

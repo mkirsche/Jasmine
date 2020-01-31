@@ -90,7 +90,7 @@ public class VariantOutput {
 						header.addInfoField("SVLEN", "1", "String", "The length (in bp) of the variant");
 						header.print(out);
 					}
-					VcfEntry entry = new VcfEntry(line);
+					VcfEntry entry = VcfEntry.fromLine(line);
 					String graphID = entry.getGraphID();
 					groups.get(graphID).processVariant(entry, sample, out);
 				}

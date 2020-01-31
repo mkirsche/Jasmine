@@ -43,7 +43,7 @@ public class Settings {
 	static String IRIS_ARGS = "";
 	
 	static String OUT_DIR = "output";
-	static int THREADS = 2;
+	static int THREADS = 1;
 	
 	static int SPECIFIC_MIN_RCOUNT = 10;
 	static int SPECIFIC_MIN_LENGTH = 30;
@@ -52,6 +52,7 @@ public class Settings {
 	static boolean CLIQUE_MERGE = false;
 	
 	static boolean ALLOW_INTRASAMPLE = false;
+	static boolean NORMALIZE_TYPE = false;
 	
 	/*
 	 * Print the usage menu
@@ -100,6 +101,7 @@ public class Settings {
 		System.out.println("  --centroid_merging                  - require every group to have a centroid which is within the distance threshold of each variant");
 		System.out.println("  --clique_merging                    - require every group to have each pair within in it be mergeable");
 		System.out.println("  --allow_intrasample                 - allow variants in the same sample to be merged");
+		System.out.println("  --normalize_type                    - convert all variants to INS/DEL/DUP/INV/TRA");
 		System.out.println();
 		System.out.println("Notes:");
 		System.out.println("  genome_file is required if the dup_to_ins option or the run_iris option is used.");
@@ -209,6 +211,14 @@ public class Settings {
 				else if(args[i].endsWith("clique_merging"))
 				{
 					CLIQUE_MERGE = true;
+				}
+				else if(args[i].endsWith("allow_intrasample"))
+				{
+					ALLOW_INTRASAMPLE = true;
+				}
+				else if(args[i].endsWith("normalize_type"))
+				{
+					NORMALIZE_TYPE = true;
 				}
 				continue;
 			}
