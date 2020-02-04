@@ -57,7 +57,7 @@ static void convertFile(String inputFile, String outputFile, int minReadSupport,
 		}
 		else
 		{
-			VcfEntry entry = new VcfEntry(line);
+			VcfEntry entry = VcfEntry.fromLine(line);
 			boolean inSpecific = false;
 			int readSupport = entry.getReadSupport();
 			

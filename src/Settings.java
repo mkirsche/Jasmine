@@ -60,7 +60,7 @@ public class Settings {
 	static void usage()
 	{
 		System.out.println();
-		System.out.println("Jasmine version 1.0.0");
+		System.out.println("Jasmine version 1.0.1");
 		System.out.println("Usage: java -cp src Main [args]");
 		System.out.println("  Example: java -cp src Main file_list=filelist.txt out_file=out.vcf");
 		System.out.println();
@@ -96,7 +96,7 @@ public class Settings {
 		System.out.println("  --keep_var_ids                      - don't change variant IDs (should only be used if input IDs are unique across samples)");
 		System.out.println("  --use_end                           - use the end coordinate as the second coordinate instead of the variant length");
 		System.out.println("  --output_genotypes                  - print the genotypes of the consensus variants in all of the samples they came from");
-		System.out.println("  --ignore_merged_inputs              - ignore merging info which is already present in the inputs");
+		System.out.println("  --ignore_merged_inputs              - ignore merging info such as support vectors which is already present in the inputs");
 		System.out.println("  --keep_first_pos                    - use the position and length from the first vcf in a merge instead of averaging");
 		System.out.println("  --centroid_merging                  - require every group to have a centroid which is within the distance threshold of each variant");
 		System.out.println("  --clique_merging                    - require every group to have each pair within in it be mergeable");
@@ -290,7 +290,12 @@ public class Settings {
 					break;
 			}
 		}
-		if(FILE_LIST.length() == 0 || OUT_FILE.length() == 0)
+		if(FILE_LIST.length() == 0 && !POSTPROCESS_ONLY)
+		{
+			usage();
+			System.exit(1);
+		}
+		if(OUT_FILE.length() == 0 && !PREPROCESS_ONLY)
 		{
 			usage();
 			System.exit(1);

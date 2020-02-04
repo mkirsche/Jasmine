@@ -1,3 +1,7 @@
+/*
+ * A VCF entry where the ALT field contains most of the SV information in BND format
+ * It is assumed that all such SVs are translocations and that each entry encodes its own variant
+ */
 public class BndVcfEntry extends VcfEntry {
 	
 	String[] altTokens;
@@ -5,6 +9,18 @@ public class BndVcfEntry extends VcfEntry {
 	{
 		super(line);
 		altTokens =  getAlt().split("[\\[\\]]");
+	}
+	
+	/*
+	 * Fall back on the length being zero if the SVLEN field is not there
+	 */
+	public int getLength() throws Exception
+	{
+		if(hasInfoField("SVLEN"))
+		{
+			return Integer.parseInt(getInfo("SVLEN"));
+		}
+		return 0;
 	}
 	
 	/*
