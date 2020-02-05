@@ -68,12 +68,12 @@ static void convertFile(String inputFile, String outputFile, int minReadSupport,
 				inSpecific = true;
 			}
 			
-			entry.setInfo("IN_SPECIFIC", inSpecific ? "1" : "0");
+			entry.setInfo("IS_SPECIFIC", inSpecific ? "1" : "0");
 			entries.add(entry);
 		}
 	}
 	
-	header.addInfoField("IN_SPECIFIC", "1", "String", "Whether or not a variant has enough read support and length to be specific");
+	header.addInfoField("IS_SPECIFIC", "1", "String", "Whether or not a variant has enough read support and length to be specific");
 	header.print(out);
 	
 	for(VcfEntry entry : entries)

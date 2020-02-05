@@ -20,6 +20,7 @@ public class VariantMerger
 	// A KD-tree data structure for fast k-nearest-neighbors queries
 	KDTree knn;
 	
+	// Indices of variants in each group, used for more advanced distance checks like clique and centroid
 	ArrayList<Integer>[] merged;
 
 	@SuppressWarnings("unchecked")
