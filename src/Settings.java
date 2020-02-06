@@ -29,7 +29,6 @@ public class Settings {
 	static int MIN_DIST = -1; // -1 means no minimum
 	static boolean OUTPUT_GENOTYPES = false;
 	static boolean INPUTS_MERGED = true;
-	static boolean KEEP_FIRST_POS = false;
 	
 	static String SAMTOOLS_PATH = "samtools";
 	
@@ -38,6 +37,7 @@ public class Settings {
 	static boolean CONVERT_DUPLICATIONS = false;
 	static boolean MARK_SPECIFIC = false;
 	static boolean RUN_IRIS = false;
+	static boolean FIX_ENDS = true;
 	static String GENOME_FILE = "";
 	static String BAM_FILE_LIST = "";
 	static String IRIS_ARGS = "";
@@ -97,11 +97,11 @@ public class Settings {
 		System.out.println("  --use_end                           - use the end coordinate as the second coordinate instead of the variant length");
 		System.out.println("  --output_genotypes                  - print the genotypes of the consensus variants in all of the samples they came from");
 		System.out.println("  --ignore_merged_inputs              - ignore merging info such as support vectors which is already present in the inputs");
-		System.out.println("  --keep_first_pos                    - use the position and length from the first vcf in a merge instead of averaging");
 		System.out.println("  --centroid_merging                  - require every group to have a centroid which is within the distance threshold of each variant");
 		System.out.println("  --clique_merging                    - require every group to have each pair within in it be mergeable");
 		System.out.println("  --allow_intrasample                 - allow variants in the same sample to be merged");
 		System.out.println("  --normalize_type                    - convert all variants to INS/DEL/DUP/INV/TRA");
+		System.out.println("  --leave_breakpoints                 - leave breakpoints as they are even if they are inconsistent");
 		System.out.println();
 		System.out.println("Notes:");
 		System.out.println("  genome_file is required if the dup_to_ins option or the run_iris option is used.");
@@ -200,10 +200,6 @@ public class Settings {
 				{
 					INPUTS_MERGED = false;
 				}
-				else if(args[i].endsWith("keep_first_pos"))
-				{
-					KEEP_FIRST_POS = true;
-				}
 				else if(args[i].endsWith("centroid_merging"))
 				{
 					CENTROID_MERGE = true;
@@ -219,6 +215,10 @@ public class Settings {
 				else if(args[i].endsWith("normalize_type"))
 				{
 					NORMALIZE_TYPE = true;
+				}
+				else if(args[i].endsWith("leave_breakpoints"))
+				{
+					FIX_ENDS = false;
 				}
 				continue;
 			}
