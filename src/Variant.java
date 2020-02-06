@@ -11,7 +11,7 @@ public class Variant implements Comparable<Variant>
 	String id; 
 	
 	// End should be start+length for insertion
-	int start, end;
+	double start, end;
 	
 	// Store chromosome, and optionally type and strand
 	String graphID;
@@ -60,7 +60,7 @@ public class Variant implements Comparable<Variant>
 		}
 	}
 	
-	Variant(int sample, String id, int start, int end, String graphID, String seq, int maxDist, double minSeqId)
+	Variant(int sample, String id, double start, double end, String graphID, String seq, int maxDist, double minSeqId)
 	{
 		this.sample = sample;
 		this.id = id;
@@ -73,7 +73,7 @@ public class Variant implements Comparable<Variant>
 		hash = 0;
 	}
 	
-	Variant(int sample, String id, int start, int end, String graphID, String seq)
+	Variant(int sample, String id, double start, double end, String graphID, String seq)
 	{
 		this.sample = sample;
 		this.id = id;
@@ -157,7 +157,7 @@ public class Variant implements Comparable<Variant>
 	public int compareTo(Variant o) 
 	{
 		if(hash != o.hash) return Long.compare(hash, o.hash);
-		if(start != o.start) return start - o.start;
+		if(start != o.start) return Double.compare(start, o.start);
 		return id.compareTo(o.id);
 	}
 }

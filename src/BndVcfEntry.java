@@ -113,8 +113,12 @@ public class BndVcfEntry extends VcfEntry {
 	/*
 	 * Since length is undefined, get the second coord instead
 	 */
-	public int getSecondCoord() throws Exception
+	public double getSecondCoord() throws Exception
 	{
-		return (int)getEnd();
+		if(hasInfoField("AVG_END"))
+		{
+			return Double.parseDouble("AVG_END");
+		}
+		return getEnd();
 	}
 }

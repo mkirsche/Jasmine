@@ -118,8 +118,8 @@ public class VariantInput {
 	 */
 	public static Variant fromVcfEntry(VcfEntry entry, int sample) throws Exception
 	{
-		int start = (int)entry.getPos();
-		int end = entry.getSecondCoord();
+		double start = entry.hasInfoField("AVG_START") ? Double.parseDouble(entry.getInfo("AVG_START")) : entry.getPos();
+		double end = entry.getSecondCoord();
 		
 		entry.setId(sample + "_" + entry.getId());
 		
