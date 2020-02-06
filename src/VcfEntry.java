@@ -41,6 +41,28 @@ public class VcfEntry {
 	}
 	
 	/*
+	 * Update the breakpoint and length fields to be consistent
+	 */
+	void fixImprecision() throws Exception
+	{
+		String normalizedType = getNormalizedType();
+		
+		if(!normalizedType.equals("TRA") && !getAlt().contains("<"))
+		{
+			setInfo("SVLEN", getRef().length() - getAlt().length() + "");
+		}
+		
+		if(normalizedType.equals("INS"))
+		{
+			setInfo("END", getPos()+"");
+		}
+		else if(normalizedType.equals("DEL"))
+		{
+			setInfo("END", getPos() + Math.abs(getLength())+"");
+		}
+	}
+	
+	/*
 	 * Reconstruct the VCF line by concatenating and tab-separating the fields
 	 */
 	public String toString()
@@ -425,7 +447,7 @@ public class VcfEntry {
 	}
 	
 	/*
-	 * Ge tthe second value to use for merging, which depends on the settings
+	 * Get the second value to use for merging, which depends on the settings
 	 */
 	public int getSecondCoord() throws Exception
 	{
