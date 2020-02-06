@@ -63,7 +63,14 @@ public class VcfEntry {
 			{
 				if(hasInfoField("END"))
 				{
-					setInfo("SVLEN", Long.parseLong(getInfo("END")) - getPos() + "");
+					if(normalizedType.equals("DEL"))
+					{
+						setInfo("SVLEN", getPos() - Long.parseLong(getInfo("END")) + "");
+					}
+					else
+					{
+						setInfo("SVLEN", Long.parseLong(getInfo("END")) - getPos() + "");
+					}
 				}
 			}
 			
