@@ -467,15 +467,23 @@ public class VcfEntry {
 	/*
 	 * Get the second value to use for merging, which depends on the settings
 	 */
-	public int getSecondCoord() throws Exception
+	public double getSecondCoord() throws Exception
 	{
-		if(Settings.USE_END)
+		if(Settings.USE_END || getType().equals("TRA"))
 		{
+			if(hasInfoField("AVG_END"))
+			{
+				return Double.parseDouble("AVG_END");
+			}
 			return (int)getEnd();
 		}
 		
 		else
 		{
+			if(hasInfoField("AVG_LEN"))
+			{
+				return Double.parseDouble("AVG_LEN");
+			}
 			return Math.abs(getLength());
 		}
 	}
