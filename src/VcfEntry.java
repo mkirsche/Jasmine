@@ -49,7 +49,7 @@ public class VcfEntry {
 		
 		if(!normalizedType.equals("TRA") && !getAlt().contains("<"))
 		{
-			setInfo("SVLEN", getRef().length() - getAlt().length() + "");
+			setInfo("SVLEN", getAlt().length() - getRef().length() + "");
 		}
 		
 		if(normalizedType.equals("INS"))
