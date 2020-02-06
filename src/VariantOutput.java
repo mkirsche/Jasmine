@@ -431,6 +431,11 @@ public class VariantOutput {
 			// If this is the first variant in the group, initialize the consensus entry
 			if(used[groupNumber] == 0)
 			{
+				// If requiring the first sample, check for that here
+				if(Settings.REQUIRE_FIRST_SAMPLE && sample != 0)
+				{
+					return;
+				}
 				initializeOutputVariant(sample, fullId, groupNumber, entry);
 			}
 			

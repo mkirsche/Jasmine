@@ -53,6 +53,7 @@ public class Settings {
 	
 	static boolean ALLOW_INTRASAMPLE = false;
 	static boolean NORMALIZE_TYPE = false;
+	static boolean REQUIRE_FIRST_SAMPLE = false;
 	
 	/*
 	 * Print the usage menu
@@ -102,6 +103,7 @@ public class Settings {
 		System.out.println("  --allow_intrasample                 - allow variants in the same sample to be merged");
 		System.out.println("  --normalize_type                    - convert all variants to INS/DEL/DUP/INV/TRA");
 		System.out.println("  --leave_breakpoints                 - leave breakpoints as they are even if they are inconsistent");
+		System.out.println("  --require_first_sample              - only output merged variants which include a variant from the first sample");
 		System.out.println();
 		System.out.println("Notes:");
 		System.out.println("  genome_file is required if the dup_to_ins option or the run_iris option is used.");
@@ -219,6 +221,10 @@ public class Settings {
 				else if(args[i].endsWith("leave_breakpoints"))
 				{
 					FIX_ENDS = false;
+				}
+				else if(args[i].endsWith("require_first_sample"))
+				{
+					REQUIRE_FIRST_SAMPLE = true;
 				}
 				continue;
 			}
