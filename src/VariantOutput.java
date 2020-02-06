@@ -373,9 +373,9 @@ public class VariantOutput {
 			long totalLength = Long.parseLong(consensus[groupNumber].getInfo("AVG_LEN"));
 			
 			// Set the average INFO fields
-			consensus[groupNumber].setInfo("AVG_LEN", String.format("%.6f", (totalLength * 1.0 + .5) / groupSize));
-			consensus[groupNumber].setInfo("AVG_START", String.format("%.6f", (totalStart * 1.0 + .5) / groupSize));
-			consensus[groupNumber].setInfo("AVG_END", String.format("%.6f", (totalEnd * 1.0 + .5) / groupSize));
+			consensus[groupNumber].setInfo("AVG_LEN", String.format("%.6f", totalLength * 1.0 / groupSize));
+			consensus[groupNumber].setInfo("AVG_START", String.format("%.6f", totalStart * 1.0 / groupSize));
+			consensus[groupNumber].setInfo("AVG_END", String.format("%.6f", totalEnd * 1.0 / groupSize));
 			
 			// Fill the support-related fields
 			consensus[groupNumber].setInfo("SUPP_VEC", supportVectors[groupNumber]);
