@@ -56,9 +56,22 @@ public class VcfEntry {
 		{
 			setInfo("END", getPos()+"");
 		}
-		else if(normalizedType.equals("DEL"))
+		else if(normalizedType.equals("DEL") || normalizedType.equals("INV") || normalizedType.equals("DUP"))
 		{
-			setInfo("END", getPos() + Math.abs(getLength())+"");
+			// If no indicator of length, try using the end to fill it
+			if(getAlt().contains("<") && !hasInfoField("SVLEN") && !hasInfoField("SEQ"))
+			{
+				if(hasInfoField("END"))
+				{
+					setInfo("SVLEN", Long.parseLong(getInfo("END")) - getPos() + "");
+				}
+			}
+			
+			// If there is a length indicator, use it to set/fix end if necessary
+			else
+			{
+				setInfo("END", getPos() + Math.abs(getLength())+"");
+			}
 		}
 	}
 	
@@ -270,6 +283,11 @@ public class VcfEntry {
 			return "";
 		}
 		String type = getType();
+		
+		if(type.equals("BND") || type.equals("TRA"))
+		{
+			return "";
+		}
 		
 		// If the SV is a deletion, swap REF and ALT and treat as an insertion
 		if(type.equals("DEL"))
