@@ -211,6 +211,12 @@ public class VariantMerger
 				// If edge was invalid because of coming from the same sample, ignore it and try the next one
 				else if(data[e.from].sample == candidateTo.sample)
 				{
+					if(Settings.ALLOW_INTRASAMPLE)
+					{
+						toProcess.add(new Edge(e.from, candidateTo.index, data[e.from].distance(candidateTo)));
+						countEdgesProcessed[e.from]++;
+						break;
+					}
 					countEdgesProcessed[e.from]++;
 					continue;
 				}
