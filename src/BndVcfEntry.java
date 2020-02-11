@@ -117,7 +117,7 @@ public class BndVcfEntry extends VcfEntry {
 	{
 		if(hasInfoField("AVG_END"))
 		{
-			return Double.parseDouble("AVG_END");
+			return Double.parseDouble(getInfo("AVG_END"));
 		}
 		return getEnd();
 	}

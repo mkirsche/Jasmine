@@ -120,6 +120,10 @@ public class VcfEntry {
 	 */
 	public long getPos() throws Exception
 	{
+		if(hasInfoField("AVG_START"))
+		{
+			return (long)(.5 + Double.parseDouble(getInfo("AVG_START")));
+		}
 		return Long.parseLong(tabTokens[1]);
 	}
 	
@@ -480,7 +484,7 @@ public class VcfEntry {
 		{
 			if(hasInfoField("AVG_END"))
 			{
-				return Double.parseDouble("AVG_END");
+				return Double.parseDouble(getInfo("AVG_END"));
 			}
 			return (int)getEnd();
 		}
@@ -489,7 +493,7 @@ public class VcfEntry {
 		{
 			if(hasInfoField("AVG_LEN"))
 			{
-				return Double.parseDouble("AVG_LEN");
+				return Double.parseDouble(getInfo("AVG_LEN"));
 			}
 			return Math.abs(getLength());
 		}
