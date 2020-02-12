@@ -248,6 +248,26 @@ public class VariantOutput {
 				consensus[groupNumber].setInfo("OLDTYPE", "DUP");
 			}
 			
+			/*
+			 * If this variant is precise, set the merged variant to also be precise
+			 */
+			boolean precise = true;
+			if(entry.tabTokens[7].contains(";IMPRECISE;") || entry.tabTokens[7].startsWith("IMPRECISE;"))
+			{
+				precise = false;
+			}
+			if(precise)
+			{
+				if(consensus[groupNumber].tabTokens[7].contains(";IMPRECISE;"))
+				{
+					consensus[groupNumber].tabTokens[7] = consensus[groupNumber].tabTokens[7].replaceAll(";IMPRECISE;", ";PRECISE;");
+				}
+				else if(consensus[groupNumber].tabTokens[7].startsWith("IMPRECISE;"))
+				{
+					consensus[groupNumber].tabTokens[7] = consensus[groupNumber].tabTokens[7].substring(2);
+				}
+			}
+			
 			// Update average (storing the sums for now and saving division for the end
 			consensus[groupNumber].setInfo("AVG_LEN", Long.parseLong(consensus[groupNumber].getInfo("AVG_LEN")) + entry.getLength() + "");
 			consensus[groupNumber].setInfo("AVG_START", Long.parseLong(consensus[groupNumber].getInfo("AVG_START")) + entry.getPos() + "");
