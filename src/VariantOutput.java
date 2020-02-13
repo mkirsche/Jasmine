@@ -93,7 +93,7 @@ public class VariantOutput {
 						header.addInfoField("SVLEN", "1", "String", "The length (in bp) of the variant");
 						if(Settings.ALLOW_INTRASAMPLE)
 						{
-							//header.addInfoField("VARCALLS", "1", "String", "The number of variant calls supporting this variant");
+							header.addInfoField("VARCALLS", "1", "String", "The number of variant calls supporting this variant");
 						}
 						header.print(out);
 					}
@@ -133,6 +133,9 @@ public class VariantOutput {
 		// For each group, the number of sample it's in
 		int[] supportCounts;
 		
+		// For each group, the sample ID of the variant which was last processed for it
+		int[] lastAdded;
+		
 		// The list of variant IDs in each merged variant
 		StringBuilder[] idLists;
 		
@@ -144,12 +147,14 @@ public class VariantOutput {
 			consensus = new VcfEntry[n];
 			supportVectors = new String[n];
 			supportCounts = new int[n];
+			lastAdded = new int[n];
 			idLists = new StringBuilder[n];
 			varToGroup = new HashMap<String, Integer>();
 			
 			// Scan through groups and map variant IDs to group numbers
 			for(int i = 0; i<n; i++)
 			{
+				lastAdded[i] = -1;
 				sizes[i] = groups[i].size();
 				consensus[i] = null;
 				idLists[i] = new StringBuilder("");
@@ -178,6 +183,8 @@ public class VariantOutput {
 			consensus[groupNumber] = entry;
 			consensus[groupNumber].setId(fullId);
 			
+			lastAdded[groupNumber] = sample;
+			
 			String varId = entry.oldId;
 			
 			idLists[groupNumber].append(varId);
@@ -189,10 +196,10 @@ public class VariantOutput {
 			consensus[groupNumber].setInfo("AVG_START", entry.getPos() + "");
 			consensus[groupNumber].setInfo("AVG_END", entry.getEnd() + "");
 			
-			/*if(Settings.ALLOW_INTRASAMPLE)
+			if(Settings.ALLOW_INTRASAMPLE)
 			{
 				consensus[groupNumber].setInfo("VARCALLS", "1");
-			}*/
+			}
 			
 			if(Settings.INPUTS_MERGED)
 			{
@@ -299,10 +306,14 @@ public class VariantOutput {
 			// Get the ID and add it to the list for this group
 			String varId = entry.getId();
 			varId = varId.substring(varId.indexOf('_') + 1);
-			idLists[groupNumber].append("," + varId);
+			
+			if(lastAdded[groupNumber] != sample)
+			{
+				idLists[groupNumber].append("," + varId);
+			}
 			
 			// Update cascaded information from previous merges, if any.
-			if(Settings.INPUTS_MERGED)
+			if(Settings.INPUTS_MERGED && lastAdded[groupNumber] != sample)
 			{
 				// Update the extended support vector
 				String suppVecExt = entry.getInfo("SUPP_VEC_EXT");
@@ -369,6 +380,8 @@ public class VariantOutput {
 				}
 				consensus[groupNumber].setInfo("SUPP_EXT", (extendedSupport + oldExtendedSupport) + "");
 			}
+			
+			lastAdded[groupNumber] = sample;
 		}
 		
 		/*
