@@ -512,6 +512,26 @@ public class VcfEntry {
 	}
 	
 	/*
+	 * Get the first value to use for merging, which is the start in all cases but translocations with chr1 > chr2.
+	 */
+	public double getFirstCoord() throws Exception
+	{
+		if(getType().equals("TRA") && getChromosome().compareTo(getChr2()) > 0)
+		{
+			if(hasInfoField("AVG_END"))
+			{
+				return Double.parseDouble(getInfo("AVG_END"));
+			}
+			return getEnd();
+		}
+		if(hasInfoField("AVG_START"))
+		{
+			return Double.parseDouble(getInfo("AVG_START"));
+		}
+		return getPos();
+	}
+	
+	/*
 	 * Get the second value to use for merging, which depends on the settings
 	 */
 	public double getSecondCoord() throws Exception
