@@ -269,15 +269,23 @@ public class VariantOutput {
 			}
 			
 			// Update average (storing the sums for now and saving division for the end
+			double curPos = entry.getPos();
+			double curEnd = entry.getEnd();
+			if(!entry.getChromosome().equals(consensus[groupNumber].getChromosome()))
+			{
+				double tmp = curPos;
+				curPos = curEnd;
+				curEnd = tmp;
+			}
 			consensus[groupNumber].setInfo("AVG_LEN", Long.parseLong(consensus[groupNumber].getInfo("AVG_LEN")) + entry.getLength() + "");
-			consensus[groupNumber].setInfo("AVG_START", Long.parseLong(consensus[groupNumber].getInfo("AVG_START")) + entry.getPos() + "");
-			consensus[groupNumber].setInfo("AVG_END", Long.parseLong(consensus[groupNumber].getInfo("AVG_END")) + entry.getEnd() + "");
+			consensus[groupNumber].setInfo("AVG_START", Long.parseLong(consensus[groupNumber].getInfo("AVG_START")) + curPos + "");
+			consensus[groupNumber].setInfo("AVG_END", Long.parseLong(consensus[groupNumber].getInfo("AVG_END")) + curEnd + "");
 			
 			// Update start/end variance (stored as sum of squares of start/end - variance is computed at the end)
 			long oldStartVar = Long.parseLong(consensus[groupNumber].getInfo("STARTVARIANCE"));
 			long oldEndVar = Long.parseLong(consensus[groupNumber].getInfo("ENDVARIANCE"));
-			consensus[groupNumber].setInfo("STARTVARIANCE", (oldStartVar + entry.getPos() * entry.getPos()) + "");
-			consensus[groupNumber].setInfo("ENDVARIANCE", (oldEndVar + entry.getEnd() * entry.getEnd()) + "");
+			consensus[groupNumber].setInfo("STARTVARIANCE", (oldStartVar + curPos * curPos) + "");
+			consensus[groupNumber].setInfo("ENDVARIANCE", (oldEndVar + curEnd * curEnd) + "");
 			
 			// Get the ID and add it to the list for this group
 			String varId = entry.getId();
