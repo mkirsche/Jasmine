@@ -267,6 +267,10 @@ public class VcfEntry {
 	 */
 	public String getGraphID() throws Exception
 	{
+		if(getType().equals("TRA"))
+		{
+			return getTranslocationGraphID();
+		}
 		String id = getChromosome();
 		if(Settings.USE_TYPE)
 		{
@@ -277,6 +281,38 @@ public class VcfEntry {
 			id += "_" + getStrand();
 		}
 		return id;
+	}
+	
+	/*
+	 * Gets the graph ID for a translocation, which relies on the chr2 field as well
+	 */
+	public String getTranslocationGraphID() throws Exception
+	{
+		String first = getChromosome(), second = getChr2();
+		if(first.compareTo(second) > 0)
+		{
+			String tmp = first;
+			first = second;
+			second = tmp;
+		}
+		String id = first + "_" + second;
+		if(Settings.USE_TYPE)
+		{
+			id += "_" + getType();
+		}
+		if(Settings.USE_STRAND)
+		{
+			id += "_" + getStrand();
+		}
+		return id;
+	}
+	
+	/*
+	 * Gets the second chromosome of a translocation from the CHR2 INFO field
+	 */
+	public String getChr2() throws Exception
+	{
+		return getInfo("CHR2");
 	}
 	
 	/*
@@ -482,6 +518,10 @@ public class VcfEntry {
 	{
 		if(Settings.USE_END || getType().equals("TRA"))
 		{
+			if(getType().equals("TRA"))
+			{
+				
+			}
 			if(hasInfoField("AVG_END"))
 			{
 				return Double.parseDouble(getInfo("AVG_END"));

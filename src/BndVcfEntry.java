@@ -48,16 +48,7 @@ public class BndVcfEntry extends VcfEntry {
 	 */
 	public String getGraphId() throws Exception
 	{
-		String id = getChromosome() + "_" + getChr2();
-		if(Settings.USE_TYPE)
-		{
-			id += "_" + getType();
-		}
-		if(Settings.USE_STRAND)
-		{
-			id += "_" + getStrand();
-		}
-		return id;
+		return getTranslocationGraphID();
 	}
 	
 	/*
@@ -111,10 +102,38 @@ public class BndVcfEntry extends VcfEntry {
 	}
 	
 	/*
+	 * Gets the first coordinate of the variant
+	 */
+	public double getFirstCoord() throws Exception
+	{
+		if(getChromosome().compareTo(getChr2()) > 0)
+		{
+			if(hasInfoField("AVG_END"))
+			{
+				return Double.parseDouble(getInfo("AVG_END"));
+			}
+			return getEnd();
+		}
+		if(hasInfoField("AVG_START"))
+		{
+			return Double.parseDouble(getInfo("AVG_START"));
+		}
+		return getPos();
+	}
+	
+	/*
 	 * Since length is undefined, get the second coord instead
 	 */
 	public double getSecondCoord() throws Exception
 	{
+		if(getChromosome().compareTo(getChr2()) > 0)
+		{
+			if(hasInfoField("AVG_START"))
+			{
+				return Double.parseDouble(getInfo("AVG_START"));
+			}
+			return getPos();
+		}
 		if(hasInfoField("AVG_END"))
 		{
 			return Double.parseDouble(getInfo("AVG_END"));
