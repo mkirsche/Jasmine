@@ -91,6 +91,10 @@ public class VariantOutput {
 						header.addInfoField("AVG_LEN", "1", "String", "Average length for variants merged into this one");
 						header.addInfoField("END", "1", "String", "The end position of the variant");
 						header.addInfoField("SVLEN", "1", "String", "The length (in bp) of the variant");
+						if(Settings.ALLOW_INTRASAMPLE)
+						{
+							//header.addInfoField("VARCALLS", "1", "String", "The number of variant calls supporting this variant");
+						}
 						header.print(out);
 					}
 					VcfEntry entry = VcfEntry.fromLine(line);
@@ -185,6 +189,11 @@ public class VariantOutput {
 			consensus[groupNumber].setInfo("AVG_START", entry.getPos() + "");
 			consensus[groupNumber].setInfo("AVG_END", entry.getEnd() + "");
 			
+			/*if(Settings.ALLOW_INTRASAMPLE)
+			{
+				consensus[groupNumber].setInfo("VARCALLS", "1");
+			}*/
+			
 			if(Settings.INPUTS_MERGED)
 			{
 				// Set the extended support vector
@@ -269,11 +278,11 @@ public class VariantOutput {
 			}
 			
 			// Update average (storing the sums for now and saving division for the end
-			double curPos = entry.getPos();
-			double curEnd = entry.getEnd();
+			long curPos = entry.getPos();
+			long curEnd = entry.getEnd();
 			if(!entry.getChromosome().equals(consensus[groupNumber].getChromosome()))
 			{
-				double tmp = curPos;
+				long tmp = curPos;
 				curPos = curEnd;
 				curEnd = tmp;
 			}
@@ -292,7 +301,7 @@ public class VariantOutput {
 			varId = varId.substring(varId.indexOf('_') + 1);
 			idLists[groupNumber].append("," + varId);
 			
-			// Update cascaded information from previous merges, if any
+			// Update cascaded information from previous merges, if any.
 			if(Settings.INPUTS_MERGED)
 			{
 				// Update the extended support vector
@@ -319,6 +328,7 @@ public class VariantOutput {
 						suppVecExt = "0" + suppVecExt;
 					}
 				}
+					
 				suppVecExt = consensus[groupNumber].getInfo("SUPP_VEC_EXT") + suppVecExt;
 				consensus[groupNumber].setInfo("SUPP_VEC_EXT", suppVecExt);
 				
