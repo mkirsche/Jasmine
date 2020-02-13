@@ -48,7 +48,23 @@ public class BndVcfEntry extends VcfEntry {
 	 */
 	public String getGraphId() throws Exception
 	{
-		return getTranslocationGraphID();
+		String first = getChromosome(), second = getChr2();
+		if(first.compareTo(second) > 0)
+		{
+			String tmp = first;
+			first = second;
+			second = tmp;
+		}
+		String id = first + "_" + second;
+		if(Settings.USE_TYPE)
+		{
+			id += "_" + getType();
+		}
+		if(Settings.USE_STRAND)
+		{
+			id += "_" + getStrand();
+		}
+		return id;
 	}
 	
 	/*
@@ -73,7 +89,7 @@ public class BndVcfEntry extends VcfEntry {
 		{
 			return strandsFromAltFormat();
 		}
-		return "";
+		return res;
 	}
 	
 	/*
