@@ -264,6 +264,11 @@ public class VariantOutput {
 				consensus[groupNumber].setInfo("OLDTYPE", "DUP");
 			}
 			
+			if(Settings.ALLOW_INTRASAMPLE)
+			{
+				consensus[groupNumber].setInfo("VARCALLS", 1 + Integer.parseInt(consensus[groupNumber].getInfo("VARCALLS")) + "");
+			}
+			
 			/*
 			 * If this variant is precise, set the merged variant to also be precise
 			 */
