@@ -312,7 +312,16 @@ public class VcfEntry {
 	 */
 	public String getChr2() throws Exception
 	{
-		return getInfo("CHR2");
+		if(hasInfoField("CHR2"))
+		{
+			return getInfo("CHR2");
+		}
+		String alt = getAlt();
+		if(alt.contains("[") || alt.contains("]"))
+		{
+			return alt.split("[\\[\\]]")[1].split(":")[0];
+		}
+		return "";
 	}
 	
 	/*
