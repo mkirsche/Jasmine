@@ -21,6 +21,12 @@ public class VcfEntry {
 		{
 			return new BndVcfEntry(line);
 		}
+		
+		// Adding this for reverse compatibility
+		if(res.hasInfoField("IN_SPECIFIC"))
+		{
+			res.setInfo("IS_SPECIFIC", res.getInfo("IN_SPECIFIC"));
+		}
 		return res;
 	}
 	
