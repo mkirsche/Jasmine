@@ -36,7 +36,7 @@ public class BndVcfEntry extends VcfEntry {
 	}
 	
 	/*
-	 * Always call the type of a BND-style VCF translocation to ensure consistently with different formats
+	 * Always call the type of a BND-style VCF translocation to ensure consistency with different formats
 	 */
 	public String getType()
 	{
