@@ -58,7 +58,7 @@ public class InsertionsToDuplications {
 					
 				long start = ve.getPos();
 				int length = ve.getLength();
-				long nstart = start - length, nend = nstart;
+				long nstart = start - length + 1, nend = nstart + length;
 				String refinedAlt = ve.getAlt();
 				ve.setPos(nstart);
 				ve.setInfo("END", nend+"");
