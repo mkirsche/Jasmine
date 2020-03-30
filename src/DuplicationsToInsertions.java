@@ -62,7 +62,7 @@ public class DuplicationsToInsertions {
 					
 					long start = ve.getPos(), end = Long.parseLong(ve.getInfo("END"));
 					int length = ve.getLength();
-					long nstart = start + length, nend = nstart+1;
+					long nstart = start + length - 1, nend = nstart+1;
 
 					if(ve.getAlt().equals("<DUP>"))
 					{
