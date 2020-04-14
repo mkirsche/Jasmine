@@ -27,32 +27,41 @@ public class StringUtils {
 		}
 		return 1.0 * editDistance[n][m] / Math.max(n, m);
 	}
-	
+
 	/*
-	 * The sequence identity of two strings based on their kmer Jaccard distance
+	 * Gets the frequency of each k-mer in a string, skipping over non-base characters
 	 */
-	static double jaccardSimilarity(String s, String t)
+	static HashMap<Integer, Integer> countKmers(String s, int k)
 	{
-		int k = Settings.K_JACCARD;
 		HashMap<Integer, Integer> kmerCount = new HashMap<Integer, Integer>();
 		
-		// Scan through s and count its kmers
+		// The number of basepair characters (ACGT) we have seen so far
 		int baseCount = 0;
-		int n = s.length();
+		
+		// The encoded (2 bits per character) value of the current kmer so far
 		int kmer = 0;
-		for(int i = 0; i<n; i++)
+		
+		// Use a sliding window to get all of the kmer codes and add them to the frequency map
+		for(int i = 0; i<s.length(); i++)
 		{
 			char c = s.charAt(i);
+			
+			// The value of the current character
 			int base = -1;
 			if(c == 'a' || c == 'A') base = 0;
 			if(c == 'c' || c == 'C') base = 1;
 			if(c == 'g' || c == 'G') base = 2;
 			if(c == 't' || c == 'T') base = 3;
+			
+			// ONly consider basepair characters
 			if(base != -1)
 			{
+				// Remove the base from the window that just left the sliding window and add the new base
 				int allButTwoHighest = ((1 << (2*k-2)) - 1) & kmer;
 				kmer = (allButTwoHighest << 2) | base;
 				baseCount++;
+				
+				// If we have seen at least k bases, add the current kmer value to the map
 				if(baseCount >= k)
 				{
 					if(kmerCount.containsKey(kmer))
@@ -66,53 +75,53 @@ public class StringUtils {
 				}
 			}
 		}
+		return kmerCount;
+	}
+	
+	/*
+	 * The sequence identity of two strings based on their kmer Jaccard distance
+	 */
+	static double jaccardSimilarity(String s, String t)
+	{
+		int k = Settings.K_JACCARD;
 		
-		int totalS = baseCount - (k - 1);
-		if(totalS <= 0)
+		// Get the frequencies of kmers in s
+		HashMap<Integer, Integer> sKmerFreq = countKmers(s, k);
+		if(sKmerFreq.size() <= 0)
 		{
 			return 1.0;
 		}
 		
-		// Scan through t and counts its kmers and its intersection with the kmer set of s
-		baseCount = 0;
-		int intersect = 0;
-		int m = t.length();
-		for(int i = 0; i<m; i++)
+		// Get the frequencies of kmer in t
+		HashMap<Integer, Integer> tKmerFreq = countKmers(t, k);
+		if(tKmerFreq.size() <= 0)
 		{
-			char c = t.charAt(i);
-			int base = -1;
-			if(c == 'a' || c == 'A') base = 0;
-			if(c == 'c' || c == 'C') base = 1;
-			if(c == 'g' || c == 'G') base = 2;
-			if(c == 't' || c == 'T') base = 3;
-			if(base != -1)
+			return 1.0;
+		}
+		
+		// Compute the min and max count of each kmer to get the intersection and union, respectively 
+		int intersection = 0, union = 0;
+		
+		// Iterate over everything in s - this includes both kmers distinct to s and kmers in both
+		for(int sKmer : sKmerFreq.keySet())
+		{
+			int sFrequency = sKmerFreq.get(sKmer);
+			int tFrequency = tKmerFreq.getOrDefault(sKmer, 0);
+			intersection += Math.min(sFrequency,  tFrequency);
+			union += Math.max(sFrequency,  tFrequency);
+		}
+		
+		// Add the kmers unique to t to the union
+		for(int tKmer : tKmerFreq.keySet())
+		{
+			if(!sKmerFreq.containsKey(tKmer))
 			{
-				int allButTwoHighest = ((1 << (2*k-2)) - 1) & kmer;
-				kmer = (allButTwoHighest << 2) | base;
-				baseCount++;
-				if(baseCount >= k)
-				{
-					if(kmerCount.containsKey(kmer))
-					{
-						intersect++;
-						kmerCount.put(kmer, kmerCount.get(kmer)-1);
-						if(kmerCount.get(kmer) == 0)
-						{
-							kmerCount.remove(kmer);
-						}
-					}
-				}
+				union += tKmerFreq.get(tKmer);
 			}
 		}
 		
-		int totalT = baseCount - (k - 1);
-		
-		if(totalT <= 0)
-		{
-			return 1.0;
-		}
-		
-		return 1.0 * intersect / Math.max(totalS, totalT);
+		// Compute the Jaccard similarity as the intersection size divided by the union size
+		return 1.0 * intersection / union;
 		
 	}
 	
