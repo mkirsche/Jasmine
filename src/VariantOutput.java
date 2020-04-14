@@ -11,15 +11,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public class VariantOutput {
 	
-	TreeMap<String, VariantGraph> groups;
+	ConcurrentSkipListMap<String, VariantGraph> groups;
 	
 	VariantOutput()
 	{
-		groups = new TreeMap<String, VariantGraph>();
+		groups = new ConcurrentSkipListMap<String, VariantGraph>();
 	}
 	
 	/*
