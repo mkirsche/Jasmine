@@ -196,7 +196,15 @@ public class VcfEntry {
 	{
 		try {
 			String s = getInfo("SVLEN");
-			return (int)(.5 + Double.parseDouble(s));
+			double val = Double.parseDouble(s);
+			if(val < 0)
+			{
+				return (int)(val - .5);
+			}
+			else
+			{
+				return (int)(val + .5);
+			}
 		} catch(Exception e) {
             String seq = getSeq();
             String type = getType();
