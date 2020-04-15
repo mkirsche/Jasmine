@@ -72,7 +72,7 @@ public class Settings {
 		System.out.println("Optional args:");
 		System.out.println("  max_dist        (int)    [1000]     - the maximum distance variants can be apart when being merged");
 		System.out.println("  min_dist        (int)    [-1]       - the minimum distance threshold a variant can have when using max_dist_linear");
-		System.out.println("  max_dist_linear (float)  [0]        - make max_dist this proportion of the length of each variant (overrides max_dost)");
+		System.out.println("  max_dist_linear (float)  [0]        - make max_dist this proportion of the length of each variant (overrides max_dist)");
 		System.out.println("  kd_tree_norm    (int)    [2]        - the power to use in kd-tree distances (1 is Manhattan, 2 is Euclidean, etc.)");
 		System.out.println("  min_seq_id      (float)  [0]        - the minimum sequence identity for two insertions to be merged");
 		System.out.println("  k_jaccard       (int)    [9]        - the kmer size to use when computing Jaccard similarity of insertions");
