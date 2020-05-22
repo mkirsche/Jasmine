@@ -47,6 +47,12 @@ static String preprocess(String currentInputFile) throws Exception
 		currentInputFile = PipelineManager.runIris(currentInputFile);
 	}
 	
+	// Run iris if the user specifies that they want to run it
+	if(Settings.PRE_NORMALIZE)
+	{
+		currentInputFile = PipelineManager.normalizeTypes(currentInputFile);
+	}
+	
 	return currentInputFile;
 }
 static void runJasmine(String currentInputFile) throws Exception

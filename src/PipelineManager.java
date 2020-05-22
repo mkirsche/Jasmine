@@ -40,6 +40,32 @@ static String convertDuplicationsToInsertions(String fileList) throws Exception
 }
 
 /*
+ * Normalize types for all VCF files and update filelist
+ * Returns a path to the new filelist
+ */
+static String normalizeTypes(String fileList) throws Exception
+{
+	String newFileList = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(fileList), "normalizeTypes");
+	
+	Scanner vcfListInput = new Scanner(new FileInputStream(new File(fileList)));
+	ArrayList<String> vcfFiles = getFilesFromList(fileList);
+	
+	PrintWriter newFileListOut = new PrintWriter(new File(newFileList));
+	
+	for(int i = 0; i<vcfFiles.size(); i++)
+	{
+		String vcfFile = vcfFiles.get(i);
+		String newVcfFile = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(vcfFile), "normalizeTypes");
+		newFileListOut.println(newVcfFile);
+		NormalizeTypes.convertFile(vcfFile, newVcfFile);
+	}
+	vcfListInput.close();
+	newFileListOut.close();
+		
+	return newFileList;
+}
+
+/*
  * Run Iris on all VCF files and update the filelist
  * Returns a path to the new filelist
  */
