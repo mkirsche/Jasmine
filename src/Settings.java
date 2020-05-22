@@ -37,6 +37,7 @@ public class Settings {
 	static boolean CONVERT_DUPLICATIONS = false;
 	static boolean MARK_SPECIFIC = false;
 	static boolean RUN_IRIS = false;
+	static boolean PRE_NORMALIZE = false;
 	static boolean FIX_ENDS = true;
 	static String GENOME_FILE = "";
 	static String BAM_FILE_LIST = "";
@@ -91,6 +92,7 @@ public class Settings {
 		System.out.println("  --dup_to_ins                        - convert duplications to insertions for SV merging and then convert them back");
 		System.out.println("  --mark_specific                     - mark calls in the original VCF files that have enough support to called specific");
 		System.out.println("  --run_iris                          - run Iris before merging for refining the sequences of insertions");
+		System.out.println("  --pre_normalize                     - run type normalization before merging");
 		System.out.println("  --use_edit_dist                     - use edit distance for comparing insertion sequences instead of Jaccard");
 		System.out.println("  --preprocess_only                   - only run the preprocessing and not the actual merging or post-processing");
 		System.out.println("  --postprocess_only                  - only run the postprocessing and not the actual merging or pre-processing");
@@ -173,6 +175,10 @@ public class Settings {
 				else if(args[i].endsWith("run_iris"))
 				{
 					RUN_IRIS = true;
+				}
+				else if(args[i].endsWith("pre_normalize"))
+				{
+					PRE_NORMALIZE = true;
 				}
 				else if(args[i].endsWith("use_edit_dist"))
 				{
