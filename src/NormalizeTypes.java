@@ -45,6 +45,10 @@ public class NormalizeTypes {
 			{
 				VcfEntry ve = new VcfEntry(line);
 				ve.setType(ve.getNormalizedType());
+				if(ve.getAlt().startsWith("<"))
+				{
+					ve.setAlt("<" + ve.getNormalizedType() + ">");
+				}
 				entries.add(ve);
 			}
 		}
