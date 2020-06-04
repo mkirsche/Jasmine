@@ -124,12 +124,20 @@ public class VcfEntry {
 	/*
 	 * Get the POS field
 	 */
-	public long getPos() throws Exception
+	public long getAvgPos() throws Exception
 	{
 		if(hasInfoField("AVG_START"))
 		{
 			return (long)(.5 + Double.parseDouble(getInfo("AVG_START")));
 		}
+		return getPos();
+	}
+	
+	/*
+	 * Get the POS field
+	 */
+	public long getPos() throws Exception
+	{
 		return Long.parseLong(tabTokens[1]);
 	}
 	
@@ -228,6 +236,18 @@ public class VcfEntry {
 		{
 			return getPos() + Math.abs(getLength());
 		}
+	}
+	
+	/*
+	 * The end position of a variant
+	 */
+	public long getAvgEnd() throws Exception
+	{
+		if(hasInfoField("AVG_END"))
+		{
+			return (long)(.5 + Double.parseDouble(getInfo("AVG_END")));
+		}
+		return getEnd();
 	}
 	
 	/*
@@ -551,7 +571,7 @@ public class VcfEntry {
 		{
 			return Double.parseDouble(getInfo("AVG_START"));
 		}
-		return getPos();
+		return getAvgPos();
 	}
 	
 	/*

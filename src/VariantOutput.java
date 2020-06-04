@@ -290,8 +290,8 @@ public class VariantOutput {
 			}
 			
 			// Update average (storing the sums for now and saving division for the end
-			long curPos = entry.getPos();
-			long curEnd = entry.getEnd();
+			long curPos = entry.getAvgPos();
+			long curEnd = entry.getAvgEnd();
 			if(!entry.getChromosome().equals(consensus[groupNumber].getChromosome()))
 			{
 				long tmp = curPos;
