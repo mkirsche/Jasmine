@@ -47,27 +47,30 @@ public class InsertionsToDuplications {
 			if(line.startsWith("#"))
 			{
 				header.addLine(line);
+				continue;
 			}
-			else if(line.contains("OLDTYPE=DUP"))
+			
+			VcfEntry ve = new VcfEntry(line);
+			
+			if(line.contains("OLDTYPE=DUP") && ve.getType().equals("INS"))
 			{
-				VcfEntry ve = new VcfEntry(line);
 				countDup++;
 					
 				long start = ve.getPos();
 				int length = ve.getLength();
-				long nstart = start - length, nend = nstart;
+				long nstart = start - length + 1, nend = nstart + length;
 				String refinedAlt = ve.getAlt();
 				ve.setPos(nstart);
 				ve.setInfo("END", nend+"");
 				ve.setType("DUP");
 				ve.setInfo("REFINEDALT", refinedAlt);
+				ve.setInfo("STRANDS", "-+");
 				ve.setRef(".");
 				ve.setAlt("<DUP>");
 				entries.add(ve);
 			}
 			else
 			{
-				VcfEntry ve = new VcfEntry(line);
 				ve.setInfo("REFINEDALT", ".");
 				entries.add(ve);
 			}
@@ -76,6 +79,7 @@ public class InsertionsToDuplications {
 		System.out.println("Number of insertions converted back to duplications: " + countDup + " out of " + entries.size() + " total variants");
 		
 		header.addInfoField("REFINEDALT", "1", "String", "For duplications which were changed to insertions and refined, the refined ALT sequence");
+		header.addInfoField("STRANDS", "1", "String", "");
 		header.print(out);
 						
 		for(VcfEntry ve : entries)

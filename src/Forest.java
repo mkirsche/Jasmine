@@ -54,7 +54,7 @@ public class Forest
 	/*
 	 * Add an edge between two variants
 	 */
-	public boolean union(int a, int b)
+	public boolean canUnion(int a, int b)
 	{
 		int roota = find(a), rootb = find(b);
 		if(roota == rootb)
@@ -65,6 +65,13 @@ public class Forest
 		{
 			return false;
 		}
+		
+		return true;
+	}
+	
+	public void union(int a, int b)
+	{
+		int roota = find(a), rootb = find(b);
 		if(map[roota] < map[rootb])
 		{
 			map[roota] += map[rootb]; //add the sizes
@@ -83,7 +90,6 @@ public class Forest
 				sampleMask[j][rootb] |= sampleMask[j][roota];
 			}
 		}
-		return true;
 	}
 	
 	/*
@@ -91,6 +97,10 @@ public class Forest
 	 */
 	private boolean okayEdge(int rootA, int rootB)
 	{
+		if(Settings.ALLOW_INTRASAMPLE)
+		{
+			return true;
+		}
 		for(int j = 0; j<sampleMask.length; j++)
 		{
 			if((sampleMask[j][rootA] & sampleMask[j][rootB]) != 0)

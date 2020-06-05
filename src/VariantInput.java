@@ -6,29 +6,21 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.TreeMap;
 
 public class VariantInput {
+	
+	// How many samples were merged to produce each input file
+	static HashMap<Integer, Integer> previouslyMergedSamples = new HashMap<Integer, Integer>();
 	
 	/*
 	 * Count the number of VCF files in a list
 	 */
 	public static int countFiles(String fileList) throws Exception
 	{
-		Scanner input = new Scanner(new FileInputStream(new File(fileList)));
-		int count = 0;
-		while(input.hasNext())
-		{
-			String line = input.nextLine();
-			if(line.length() == 0)
-			{
-				continue;
-			}
-			count++;
-		}
-		input.close();
-		return count;
+		return PipelineManager.getFilesFromList(fileList).size();
 	}
 	
 	/*
@@ -37,17 +29,8 @@ public class VariantInput {
 	@SuppressWarnings("unchecked")
 	public static TreeMap<String, ArrayList<Variant>> readAllFiles(String fileList) throws Exception
 	{
-		Scanner input = new Scanner(new FileInputStream(new File(fileList)));
-		ArrayList<String> fileNames = new ArrayList<String>();
-		while(input.hasNext())
-		{
-			String line = input.nextLine();
-			if(line.length() == 0)
-			{
-				continue;
-			}
-			fileNames.add(line);
-		}
+		ArrayList<String> fileNames = PipelineManager.getFilesFromList(fileList);
+		
 		TreeMap<String, ArrayList<Variant>>[] variantsPerFile = new TreeMap[fileNames.size()];
 		for(int i = 0; i<fileNames.size(); i++)
 		{
@@ -68,7 +51,6 @@ public class VariantInput {
 				}
 			}
 		}
-		input.close();
 		return res;
 	}
 	
@@ -86,7 +68,24 @@ public class VariantInput {
 			{
 				continue;
 			}
-			allVariants.add(fromVcfEntry(new VcfEntry(line), sample));
+			VcfEntry entry = VcfEntry.fromLine(line);
+			if(!previouslyMergedSamples.containsKey(sample))
+			{
+				if(entry.getInfo("SUPP_VEC_EXT").length() > 0)
+				{
+					previouslyMergedSamples.put(sample, entry.getInfo("SUPP_VEC_EXT").length());
+				}
+				else if(entry.getInfo("SUPP_VEC").length() > 0)
+				{
+					previouslyMergedSamples.put(sample, entry.getInfo("SUPP_VEC").length());
+				}
+				else
+				{
+					previouslyMergedSamples.put(sample, 1);
+				}
+			}
+			allVariants.add(fromVcfEntry(entry, sample));
+			
 		}
 		
 		System.out.println(filename + " has " + allVariants.size() + " variants");
@@ -119,13 +118,8 @@ public class VariantInput {
 	 */
 	public static Variant fromVcfEntry(VcfEntry entry, int sample) throws Exception
 	{
-		int start = (int)entry.getPos();
-		int end = Math.abs(entry.getLength());
-		
-		if(Settings.USE_END)
-		{
-			end = (int)entry.getEnd();
-		}
+		double start = entry.getFirstCoord();
+		double end = entry.getSecondCoord();
 		
 		entry.setId(sample + "_" + entry.getId());
 		
@@ -159,6 +153,10 @@ public class VariantInput {
 			if(Settings.MAX_DIST_SET)
 			{
 				maxDist = Math.min(maxDist, Settings.MAX_DIST);
+			}
+			if(Settings.MIN_DIST != -1)
+			{
+				maxDist = Math.max(maxDist, Settings.MIN_DIST);
 			}
 		}
 		

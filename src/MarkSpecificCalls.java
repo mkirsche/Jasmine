@@ -57,26 +57,23 @@ static void convertFile(String inputFile, String outputFile, int minReadSupport,
 		}
 		else
 		{
-			VcfEntry entry = new VcfEntry(line);
+			VcfEntry entry = VcfEntry.fromLine(line);
 			boolean inSpecific = false;
-			int readSupport = 0;
-			String[] rnamesField = entry.getRnames();
-			if(rnamesField.length > 0)
-			{
-				readSupport = rnamesField.length;
-			}
+			int readSupport = entry.getReadSupport();
 			
-			if(readSupport >= minReadSupport && Math.abs(entry.getLength()) >= minLength) 
+			boolean longEnough = entry.getType().equals("TRA") || entry.getType().equals("BND") || Math.abs(entry.getLength()) >= minLength || entry.getLength() == 0;
+			
+			if(readSupport >= minReadSupport && longEnough)
 			{
 				inSpecific = true;
 			}
 			
-			entry.setInfo("IN_SPECIFIC", inSpecific ? "1" : "0");
+			entry.setInfo("IS_SPECIFIC", inSpecific ? "1" : "0");
 			entries.add(entry);
 		}
 	}
 	
-	header.addInfoField("IN_SPECIFIC", "1", "String", "Whether or not a variant has enough read support and length to be specific");
+	header.addInfoField("IS_SPECIFIC", "1", "String", "Whether or not a variant has enough read support and length to be specific");
 	header.print(out);
 	
 	for(VcfEntry entry : entries)

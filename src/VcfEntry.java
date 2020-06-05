@@ -5,11 +5,30 @@
  */
 
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class VcfEntry {
 
 	String originalLine;
 	String[] tabTokens;
+	String oldId;
+	
+	public static VcfEntry fromLine(String line) throws Exception
+	{
+		VcfEntry res = new VcfEntry(line);
+		if(res.getType().equals("BND"))
+		{
+			return new BndVcfEntry(line);
+		}
+		
+		// Adding this for reverse compatibility
+		if(res.hasInfoField("IN_SPECIFIC"))
+		{
+			res.setInfo("IS_SPECIFIC", res.getInfo("IN_SPECIFIC"));
+		}
+		return res;
+	}
 	
 	public VcfEntry(String line) throws Exception
 	{
@@ -19,6 +38,53 @@ public class VcfEntry {
 		{
 			throw new Exception("VCF line had too few entries: "
 					+ Arrays.toString(tabTokens));
+		}
+		oldId = getId();
+		if(Settings.NORMALIZE_TYPE && !getType().equals("BND"))
+		{
+			setType(getNormalizedType());
+		}
+	}
+	
+	/*
+	 * Update the breakpoint and length fields to be consistent
+	 */
+	void fixImprecision() throws Exception
+	{
+		String normalizedType = getNormalizedType();
+		
+		if(!normalizedType.equals("TRA") && !getAlt().contains("<"))
+		{
+			setInfo("SVLEN", getAlt().length() - getRef().length() + "");
+		}
+		
+		if(normalizedType.equals("INS"))
+		{
+			setInfo("END", getPos()+"");
+		}
+		else if(normalizedType.equals("DEL") || normalizedType.equals("INV") || normalizedType.equals("DUP"))
+		{
+			// If no indicator of length, try using the end to fill it
+			if(getAlt().contains("<") && !hasInfoField("SVLEN") && !hasInfoField("SEQ"))
+			{
+				if(hasInfoField("END"))
+				{
+					if(normalizedType.equals("DEL"))
+					{
+						setInfo("SVLEN", getPos() - Long.parseLong(getInfo("END")) + "");
+					}
+					else
+					{
+						setInfo("SVLEN", Long.parseLong(getInfo("END")) - getPos() + "");
+					}
+				}
+			}
+			
+			// If there is a length indicator, use it to set/fix end if necessary
+			else
+			{
+				setInfo("END", getPos() + Math.abs(getLength())+"");
+			}
 		}
 	}
 	
@@ -56,7 +122,19 @@ public class VcfEntry {
 	}
 	
 	/*
-	 * Get hte POS field
+	 * Get the POS field
+	 */
+	public long getAvgPos() throws Exception
+	{
+		if(hasInfoField("AVG_START"))
+		{
+			return (long)(.5 + Double.parseDouble(getInfo("AVG_START")));
+		}
+		return getPos();
+	}
+	
+	/*
+	 * Get the POS field
 	 */
 	public long getPos() throws Exception
 	{
@@ -126,7 +204,15 @@ public class VcfEntry {
 	{
 		try {
 			String s = getInfo("SVLEN");
-			return (int)(.5 + Double.parseDouble(s));
+			double val = Double.parseDouble(s);
+			if(val < 0)
+			{
+				return (int)(val - .5);
+			}
+			else
+			{
+				return (int)(val + .5);
+			}
 		} catch(Exception e) {
             String seq = getSeq();
             String type = getType();
@@ -150,6 +236,18 @@ public class VcfEntry {
 		{
 			return getPos() + Math.abs(getLength());
 		}
+	}
+	
+	/*
+	 * The end position of a variant
+	 */
+	public long getAvgEnd() throws Exception
+	{
+		if(hasInfoField("AVG_END"))
+		{
+			return (long)(.5 + Double.parseDouble(getInfo("AVG_END")));
+		}
+		return getEnd();
 	}
 	
 	/*
@@ -203,6 +301,10 @@ public class VcfEntry {
 	 */
 	public String getGraphID() throws Exception
 	{
+		if(getType().equals("TRA"))
+		{
+			return getTranslocationGraphID();
+		}
 		String id = getChromosome();
 		if(Settings.USE_TYPE)
 		{
@@ -213,6 +315,47 @@ public class VcfEntry {
 			id += "_" + getStrand();
 		}
 		return id;
+	}
+	
+	/*
+	 * Gets the graph ID for a translocation, which relies on the chr2 field as well
+	 */
+	public String getTranslocationGraphID() throws Exception
+	{
+		String first = getChromosome(), second = getChr2();
+		if(first.compareTo(second) > 0)
+		{
+			String tmp = first;
+			first = second;
+			second = tmp;
+		}
+		String id = first + "_" + second;
+		if(Settings.USE_TYPE)
+		{
+			id += "_" + getType();
+		}
+		if(Settings.USE_STRAND)
+		{
+			id += "_" + getStrand();
+		}
+		return id;
+	}
+	
+	/*
+	 * Gets the second chromosome of a translocation from the CHR2 INFO field
+	 */
+	public String getChr2() throws Exception
+	{
+		if(hasInfoField("CHR2"))
+		{
+			return getInfo("CHR2");
+		}
+		String alt = getAlt();
+		if(alt.contains("[") || alt.contains("]"))
+		{
+			return alt.split("[\\[\\]]")[1].split(":")[0];
+		}
+		return "";
 	}
 	
 	/*
@@ -230,6 +373,11 @@ public class VcfEntry {
 			return "";
 		}
 		String type = getType();
+		
+		if(type.equals("BND") || type.equals("TRA"))
+		{
+			return "";
+		}
 		
 		// If the SV is a deletion, swap REF and ALT and treat as an insertion
 		if(type.equals("DEL"))
@@ -302,11 +450,11 @@ public class VcfEntry {
 				// Special case if this is the first INFO field
 				if(tabTokens[7].startsWith(semitoken))
 				{
-					tabTokens[7] = tabTokens[7].replaceFirst(semitoken, updatedToken);
+					tabTokens[7] = tabTokens[7].replaceFirst(Pattern.quote(semitoken), Matcher.quoteReplacement(updatedToken));
 				}
 				else
 				{
-					tabTokens[7] = tabTokens[7].replaceAll(";" + semitoken, ";" + updatedToken);
+					tabTokens[7] = tabTokens[7].replace(";" + semitoken, ";" + updatedToken);
 				}
 				return;
 			}
@@ -314,6 +462,23 @@ public class VcfEntry {
 		
 		// Field not found, so add it!
 		tabTokens[7] += ";" + field + "=" + val;
+	}
+	
+	/*
+	 * Get the number of supporting reads
+	 */
+	public int getReadSupport() throws Exception
+	{
+		if(hasInfoField("RE"))
+		{
+			return Integer.parseInt(getInfo("RE"));
+		}
+		String[] reads = getRnames();
+		if(reads.length > 0)
+		{
+			return reads.length;
+		}
+		return 0;
 	}
 	
 	/*
@@ -388,5 +553,94 @@ public class VcfEntry {
 		}
 		return false;
 	}
-
+	
+	/*
+	 * Get the first value to use for merging, which is the start in all cases but translocations with chr1 > chr2.
+	 */
+	public double getFirstCoord() throws Exception
+	{
+		if(getType().equals("TRA") && getChromosome().compareTo(getChr2()) > 0)
+		{
+			if(hasInfoField("AVG_END"))
+			{
+				return Double.parseDouble(getInfo("AVG_END"));
+			}
+			return getEnd();
+		}
+		if(hasInfoField("AVG_START"))
+		{
+			return Double.parseDouble(getInfo("AVG_START"));
+		}
+		return getAvgPos();
+	}
+	
+	/*
+	 * Get the second value to use for merging, which depends on the settings
+	 */
+	public double getSecondCoord() throws Exception
+	{
+		if(Settings.USE_END || getType().equals("TRA"))
+		{
+			if(getType().equals("TRA"))
+			{
+				
+			}
+			if(hasInfoField("AVG_END"))
+			{
+				return Double.parseDouble(getInfo("AVG_END"));
+			}
+			return (int)getEnd();
+		}
+		
+		else
+		{
+			if(hasInfoField("AVG_LEN"))
+			{
+				return Double.parseDouble(getInfo("AVG_LEN"));
+			}
+			return Math.abs(getLength());
+		}
+	}
+	
+	/*
+	 * Get one of five types: INS, DEL, DUP, INV, or TRA (or "" if none of them fit)
+	 */
+	public String getNormalizedType() throws Exception
+	{
+		String type = getType();
+		if(type.equals("TRA") || type.equals("BND"))
+		{
+			return "TRA";
+		}
+		if(type.equals("INS") || type.equals("DEL") || type.equals("DUP") || type.equals("INV"))
+		{
+			return type;
+		}
+		if(hasInfoField("CHR2") && !getInfo("CHR2").equals(getChromosome()))
+		{
+			return "TRA";
+		}
+		if(hasInfoField("STRANDS"))
+		{
+			String strand = getInfo("STRANDS");
+			if(strand.equals("++") || strand.equals("--"))
+			{
+				return "INV";
+			}
+			else if(strand.equals("-+"))
+			{
+				return "DUP";
+			}
+			else if(strand.equals("+-"))
+			{
+				int length = getLength();
+				if(length > 0) return "INS";
+				else if(length < 0) return "DEL";
+				else return "";
+			}
+			else return "";
+		}
+		return "";
+	}
+	
 }
