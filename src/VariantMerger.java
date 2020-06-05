@@ -19,7 +19,11 @@ public class VariantMerger
 	
 	// A KD-tree data structure for fast k-nearest-neighbors queries
 	KDTree knn;
+	
+	// Indices of variants in each group, used for more advanced distance checks like clique and centroid
+	ArrayList<Integer>[] merged;
 
+	@SuppressWarnings("unchecked")
 	public VariantMerger(Variant[] data)
 	{
 		n = data.length;
@@ -29,6 +33,16 @@ public class VariantMerger
 		
 		for(int i = 0; i<n; i++) data[i].index = i;
 		this.data = data;
+		
+		if(Settings.CENTROID_MERGE || Settings.CLIQUE_MERGE)
+		{
+			merged = new ArrayList[n];
+			for(int i = 0; i<n; i++)
+			{
+				merged[i] = new ArrayList<Integer>();
+				merged[i].add(i);
+			}
+		}
 	}
 	
 	/*
@@ -88,10 +102,86 @@ public class VariantMerger
 		while(!toProcess.isEmpty())
 		{
 			Edge e = toProcess.poll();
-			boolean valid = forest.union(e.from, e.to);
+			boolean valid = forest.canUnion(e.from, e.to);
 			if(valid)
 			{
+				int fromRoot = forest.find(e.from);
+				int toRoot = forest.find(e.to);
+				if(Settings.CLIQUE_MERGE || Settings.CENTROID_MERGE)
+				{
+					// Makes sure all newly merged variant pairs are within the distance threshold
+					if(Settings.CLIQUE_MERGE)
+					{
+						for(int i = 0; i<merged[fromRoot].size() && valid; i++)
+						{
+							Variant candidateFrom = data[merged[fromRoot].get(i)];
+							for(int j = 0; j<merged[toRoot].size() && valid; j++)
+							{
+								Variant candidateTo = data[merged[toRoot].get(j)];
+								int maxDistAllowed = Math.max(candidateFrom.maxDist, candidateTo.maxDist);
+								if(candidateFrom.distance(candidateTo) > maxDistAllowed + 1e-9)
+								{
+									valid = false;
+								}
+							}
+						}
+					}
+					// Make sure everything being merged can be merged with their overall centroid
+					else if(Settings.CENTROID_MERGE)
+					{
+						double avgStart = 0.0, avgEnd = 0.0;
+						for(int i = 0; i<merged[fromRoot].size(); i++)
+						{
+							Variant v = data[merged[fromRoot].get(i)];
+							avgStart += v.start;
+							avgEnd += v.end;
+						}
+						for(int i = 0; i<merged[toRoot].size(); i++)
+						{
+							Variant v = data[merged[toRoot].get(i)];
+							avgStart += v.start;
+							avgEnd += v.end;
+						}
+						avgStart /= merged[fromRoot].size() + merged[toRoot].size();
+						avgEnd /= merged[fromRoot].size() + merged[toRoot].size();
+						
+						for(int i = 0; i<merged[fromRoot].size() && valid; i++)
+						{
+							Variant v = data[merged[fromRoot].get(i)];
+							valid &= v.distFromPoint(avgStart, avgEnd) <= v.maxDist + 1e-9;
+						}
+						for(int i = 0; i<merged[toRoot].size() && valid; i++)
+						{
+							Variant v = data[merged[toRoot].get(i)];
+							valid &= v.distFromPoint(avgStart, avgEnd) <= v.maxDist + 1e-9;
+						}
+					}
+					if(valid)
+					{
+						forest.union(fromRoot, toRoot);
+						if(forest.map[fromRoot] < 0)
+						{
+							// The first variant is the new root of the union-find component
+							for(int x : merged[toRoot])
+							{
+								merged[fromRoot].add(x);
+							}
+						}
+						else
+						{
+							for(int x : merged[fromRoot])
+							{
+								merged[toRoot].add(x);
+							}
+						}
+					}
+				}
+				
 				// Two variants are being merged here - nothing needs to be done
+				else
+				{
+					forest.union(e.from, e.to);
+				}
 			}
 			
 			while(true)
@@ -121,6 +211,12 @@ public class VariantMerger
 				// If edge was invalid because of coming from the same sample, ignore it and try the next one
 				else if(data[e.from].sample == candidateTo.sample)
 				{
+					if(Settings.ALLOW_INTRASAMPLE)
+					{
+						toProcess.add(new Edge(e.from, candidateTo.index, data[e.from].distance(candidateTo)));
+						countEdgesProcessed[e.from]++;
+						break;
+					}
 					countEdgesProcessed[e.from]++;
 					continue;
 				}

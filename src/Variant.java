@@ -11,7 +11,7 @@ public class Variant implements Comparable<Variant>
 	String id; 
 	
 	// End should be start+length for insertion
-	int start, end;
+	double start, end;
 	
 	// Store chromosome, and optionally type and strand
 	String graphID;
@@ -41,7 +41,26 @@ public class Variant implements Comparable<Variant>
 		return (int)res;
 	}
 	
-	Variant(int sample, String id, int start, int end, String graphID, String seq, int maxDist, double minSeqId)
+	/*
+	 * Returns the distance from the variant's (start, end) pair to a given (x, y) point
+	 */
+	double distFromPoint(double x, double y)
+	{
+		double dStart = start - x;
+		double dEnd = end - y;
+		int norm = Settings.KD_TREE_NORM;
+		if(norm == 2)
+		{
+			return Math.sqrt(dStart * dStart + dEnd * dEnd); 
+		}
+		else
+		{
+			double powSum = Math.abs(Math.pow(dStart, norm)) + Math.abs(Math.pow(dEnd, norm));
+			return Math.pow(powSum, 1.0 / norm);
+		}
+	}
+	
+	Variant(int sample, String id, double start, double end, String graphID, String seq, int maxDist, double minSeqId)
 	{
 		this.sample = sample;
 		this.id = id;
@@ -54,7 +73,7 @@ public class Variant implements Comparable<Variant>
 		hash = 0;
 	}
 	
-	Variant(int sample, String id, int start, int end, String graphID, String seq)
+	Variant(int sample, String id, double start, double end, String graphID, String seq)
 	{
 		this.sample = sample;
 		this.id = id;
@@ -72,18 +91,7 @@ public class Variant implements Comparable<Variant>
 	 */
 	double distance(Variant v)
 	{
-		double dStart = start - v.start;
-		double dEnd = end - v.end;
-		int norm = Settings.KD_TREE_NORM;
-		if(norm == 2)
-		{
-			return Math.sqrt(dStart * dStart + dEnd * dEnd); 
-		}
-		else
-		{
-			double powSum = Math.abs(Math.pow(dStart, norm)) + Math.abs(Math.pow(dEnd, norm));
-			return Math.pow(powSum, 1.0 / norm);
-		}
+		return distFromPoint(v.start, v.end);
 	}
 	
 	/*
@@ -148,8 +156,8 @@ public class Variant implements Comparable<Variant>
 
 	public int compareTo(Variant o) 
 	{
-		if(hash != o.hash) return hash - o.hash;
-		if(start != o.start) return start - o.start;
+		if(hash != o.hash) return Long.compare(hash, o.hash);
+		if(start != o.start) return Double.compare(start, o.start);
 		return id.compareTo(o.id);
 	}
 }

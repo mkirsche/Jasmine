@@ -62,7 +62,7 @@ public class DuplicationsToInsertions {
 					
 					long start = ve.getPos(), end = Long.parseLong(ve.getInfo("END"));
 					int length = ve.getLength();
-					long nstart = start + length, nend = nstart+1;
+					long nstart = start + length - 1, nend = nstart;
 
 					if(ve.getAlt().equals("<DUP>"))
 					{
@@ -79,6 +79,7 @@ public class DuplicationsToInsertions {
 							ve.setAlt("<INS>");
 						}
 						ve.setInfo("END", nend+"");
+						ve.setInfo("STRANDS", "+-");
 						ve.setPos(nstart);
 						ve.setInfo("OLDTYPE", "DUP");
 					}
@@ -100,6 +101,7 @@ public class DuplicationsToInsertions {
 		System.out.println("Number of duplications converted to insertions: " + countDup + " out of " + entries.size() + " total variants");
 		
 		header.addInfoField("OLDTYPE", "1", "String", "");
+		header.addInfoField("STRANDS", "1", "String", "");
 		header.print(out);
 		
 		for(VcfEntry ve : entries)
