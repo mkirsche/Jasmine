@@ -81,7 +81,7 @@ public class VariantOutput {
 						header.addInfoField("SUPP_VEC_EXT", "1", "String", "Vector of supporting samples, potentially extended across multiple merges");
 						header.addInfoField("SUPP", "1", "String", "Number of samples supporting the variant");
 						header.addInfoField("SUPP_EXT", "1", "String", "Number of samples supporting the variant, potentially extended across multiple merges");
-						header.addInfoField("IDLIST", ".", "String", "Variant IDs of variants merged to make this call");
+						header.addInfoField("IDLIST", ".", "String", "Variant IDs of variants merged to make this call (at most 1 per sample)");
 						header.addInfoField("IDLIST_EXT", ".", "String", "Variant IDs of variants merged, potentially extended across multiple merges");
 						header.addInfoField("SVMETHOD", "1", "String", "");
 						header.addInfoField("STARTVARIANCE", "1", "String", "Variance of start position for variants merged into this one");
@@ -93,6 +93,7 @@ public class VariantOutput {
 						header.addInfoField("SVLEN", "1", "String", "The length (in bp) of the variant");
 						if(Settings.ALLOW_INTRASAMPLE)
 						{
+							header.addInfoField("ALLVARS_EXT", "1", "String", "A comma-separated of all variants supporting this call");
 							header.addInfoField("VARCALLS", "1", "String", "The number of variant calls supporting this variant");
 						}
 						header.print(out);
@@ -199,6 +200,21 @@ public class VariantOutput {
 			if(Settings.ALLOW_INTRASAMPLE)
 			{
 				consensus[groupNumber].setInfo("VARCALLS", "1");
+				String allVarsExt = entry.getInfo("ALLVARS_EXT");
+				if(allVarsExt.length() == 0)
+				{
+					allVarsExt = entry.getInfo("IDLIST_EXT");
+				}
+				if(allVarsExt.length() == 0)
+				{
+					allVarsExt = entry.getInfo("IDLIST");
+				}
+				if(allVarsExt.length() == 0)
+				{
+					allVarsExt = entry.oldId;
+				}
+				allVarsExt = "(" + allVarsExt;
+				consensus[groupNumber].setInfo("ALLVARS_EXT", allVarsExt);
 			}
 			
 			if(Settings.INPUTS_MERGED)
@@ -315,6 +331,36 @@ public class VariantOutput {
 			if(lastAdded[groupNumber] != sample)
 			{
 				idLists[groupNumber].append("," + varId);
+			}
+			
+			
+			
+			if(consensus[groupNumber].hasInfoField("ALLVARS_EXT"))
+			{
+				String allVarsExt = entry.getInfo("ALLVARS_EXT");
+				if(allVarsExt.length() == 0)
+				{
+					allVarsExt = entry.getInfo("IDLIST_EXT");
+				}
+				if(allVarsExt.length() == 0)
+				{
+					allVarsExt = entry.getInfo("IDLIST");
+				}
+				if(allVarsExt.length() == 0)
+				{
+					allVarsExt = entry.oldId;
+				}
+				
+				String oldAllVarsExt = consensus[groupNumber].getInfo("ALLVARS_EXT");
+				if(lastAdded[groupNumber] != sample)
+				{
+					oldAllVarsExt += "),(";
+				}
+				else
+				{
+					oldAllVarsExt += ",";
+				}
+				consensus[groupNumber].setInfo("ALLVARS_EXT", oldAllVarsExt + allVarsExt);
 			}
 			
 			// Update cascaded information from previous merges, if any.
@@ -455,6 +501,11 @@ public class VariantOutput {
 						consensus[groupNumber].setInfo("SUPP_VEC_EXT", consensus[groupNumber].getInfo("SUPP_VEC_EXT") + "0");
 					}
 				}
+			}
+			if(consensus[groupNumber].hasInfoField("ALLVARS_EXT"))
+			{
+				String oldAllVarsExt = consensus[groupNumber].getInfo("ALLVARS_EXT");
+				consensus[groupNumber].setInfo("ALLVARS_EXT", oldAllVarsExt + ")");
 			}
 			// Remove the sample number from the variant ID (copied over from the first sample which is a part of this merged set)
 			if(!Settings.CHANGE_VAR_IDS)
