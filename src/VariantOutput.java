@@ -264,11 +264,6 @@ public class VariantOutput {
 				consensus[groupNumber].setInfo("OLDTYPE", "DUP");
 			}
 			
-			if(Settings.ALLOW_INTRASAMPLE)
-			{
-				consensus[groupNumber].setInfo("VARCALLS", 1 + Integer.parseInt(consensus[groupNumber].getInfo("VARCALLS")) + "");
-			}
-			
 			/*
 			 * If this variant is precise, set the merged variant to also be precise
 			 */
@@ -315,6 +310,49 @@ public class VariantOutput {
 			if(lastAdded[groupNumber] != sample)
 			{
 				idLists[groupNumber].append("," + varId);
+			}
+			
+			if(consensus[groupNumber].hasInfoField("VARCALLS"))
+			{
+				int varCallsCount = 1;
+				if(entry.hasInfoField("VARCALLS"))
+				{
+					varCallsCount = Integer.parseInt(entry.getInfo("VARCALLS"));
+				}
+				else if(entry.hasInfoField("SUPP"))
+				{
+					varCallsCount = Integer.parseInt("SUPP");
+				}
+				consensus[groupNumber].setInfo("VARCALLS", 
+						varCallsCount + Integer.parseInt(consensus[groupNumber].getInfo("VARCALLS")) + "");
+			}
+			
+			if(consensus[groupNumber].hasInfoField("ALLVARS_EXT"))
+			{
+				String allVarsExt = entry.getInfo("ALLVARS_EXT");
+				if(allVarsExt.length() == 0)
+				{
+					allVarsExt = entry.getInfo("IDLIST_EXT");
+				}
+				if(allVarsExt.length() == 0)
+				{
+					allVarsExt = entry.getInfo("IDLIST");
+				}
+				if(allVarsExt.length() == 0)
+				{
+					allVarsExt = entry.oldId;
+				}
+				
+				String oldAllVarsExt = consensus[groupNumber].getInfo("ALLVARS_EXT");
+				if(lastAdded[groupNumber] != sample)
+				{
+					oldAllVarsExt += "),(";
+				}
+				else
+				{
+					oldAllVarsExt += ",";
+				}
+				consensus[groupNumber].setInfo("ALLVARS_EXT", oldAllVarsExt + allVarsExt);
 			}
 			
 			// Update cascaded information from previous merges, if any.
