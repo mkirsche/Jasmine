@@ -280,11 +280,6 @@ public class VariantOutput {
 				consensus[groupNumber].setInfo("OLDTYPE", "DUP");
 			}
 			
-			if(Settings.ALLOW_INTRASAMPLE)
-			{
-				consensus[groupNumber].setInfo("VARCALLS", 1 + Integer.parseInt(consensus[groupNumber].getInfo("VARCALLS")) + "");
-			}
-			
 			/*
 			 * If this variant is precise, set the merged variant to also be precise
 			 */
@@ -333,7 +328,20 @@ public class VariantOutput {
 				idLists[groupNumber].append("," + varId);
 			}
 			
-			
+			if(consensus[groupNumber].hasInfoField("VARCALLS"))
+			{
+				int varCallsCount = 1;
+				if(entry.hasInfoField("VARCALLS"))
+				{
+					varCallsCount = Integer.parseInt(entry.getInfo("VARCALLS"));
+				}
+				else if(entry.hasInfoField("SUPP"))
+				{
+					varCallsCount = Integer.parseInt("SUPP");
+				}
+				consensus[groupNumber].setInfo("VARCALLS", 
+						varCallsCount + Integer.parseInt(consensus[groupNumber].getInfo("VARCALLS")) + "");
+			}
 			
 			if(consensus[groupNumber].hasInfoField("ALLVARS_EXT"))
 			{
@@ -571,3 +579,4 @@ public class VariantOutput {
 		
 	}
 }
+
