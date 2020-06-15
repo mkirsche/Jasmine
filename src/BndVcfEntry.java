@@ -32,7 +32,8 @@ public class BndVcfEntry extends VcfEntry {
 		{
 			return Long.parseLong(getInfo("END"));
 		}
-		return Long.parseLong(altTokens[1].split(":")[1]);
+		String chrPosToken = altTokens[1];
+		return Long.parseLong(chrPosToken.substring(1 + chrPosToken.lastIndexOf(':')));
 	}
 	
 	/*
@@ -76,7 +77,8 @@ public class BndVcfEntry extends VcfEntry {
 		{
 			return getInfo("CHR2");
 		}
-		return altTokens[1].split(":")[0];
+		String chrPosToken = altTokens[1];
+		return chrPosToken.substring(0, chrPosToken.lastIndexOf(':'));
 	}
 	
 	/*

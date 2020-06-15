@@ -29,6 +29,7 @@ public class Settings {
 	static int MIN_DIST = -1; // -1 means no minimum
 	static boolean OUTPUT_GENOTYPES = false;
 	static boolean INPUTS_MERGED = true;
+	static boolean USING_FILE_LIST = true;
 	
 	static String SAMTOOLS_PATH = "samtools";
 	
@@ -106,6 +107,8 @@ public class Settings {
 		System.out.println("  --normalize_type                    - convert all variants to INS/DEL/DUP/INV/TRA");
 		System.out.println("  --leave_breakpoints                 - leave breakpoints as they are even if they are inconsistent");
 		System.out.println("  --require_first_sample              - only output merged variants which include a variant from the first sample");
+		System.out.println("  --comma_filelist                    - input VCFs are given comma-separated instead of providing a txt file");
+
 		System.out.println();
 		System.out.println("Notes:");
 		System.out.println("  genome_file is required if the dup_to_ins option or the run_iris option is used.");
@@ -231,6 +234,10 @@ public class Settings {
 				else if(args[i].endsWith("require_first_sample"))
 				{
 					REQUIRE_FIRST_SAMPLE = true;
+				}
+				else if(args[i].endsWith("comma_filelist"))
+				{
+					USING_FILE_LIST = false;
 				}
 				continue;
 			}
