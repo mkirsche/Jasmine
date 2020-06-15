@@ -579,3 +579,4 @@ public class VariantOutput {
 		
 	}
 }
+
