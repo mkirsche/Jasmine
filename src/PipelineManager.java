@@ -21,22 +21,18 @@ public class PipelineManager {
  */
 static String convertDuplicationsToInsertions(String fileList) throws Exception
 {
-	String newFileList = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(fileList), "dupToIns");
-	
 	ArrayList<String> vcfFiles = getFilesFromList(fileList);
-			
-	PrintWriter newFileListOut = new PrintWriter(new File(newFileList));
+	ArrayList<String> newVcfFiles = new ArrayList<String>();	
 	
 	for(int i = 0; i<vcfFiles.size(); i++)
 	{
 		String vcfFile = vcfFiles.get(i);
 		String newVcfFile = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(vcfFile), "dupToIns");
-		newFileListOut.println(newVcfFile);
+		newVcfFiles.add(newVcfFile);
 		DuplicationsToInsertions.convertFile(vcfFile, Settings.GENOME_FILE, newVcfFile);
 	}
-	newFileListOut.close();
 		
-	return newFileList;
+	return buildUpdatedFileList(fileList, "dupToIns", newVcfFiles);
 }
 
 /*
@@ -45,24 +41,22 @@ static String convertDuplicationsToInsertions(String fileList) throws Exception
  */
 static String normalizeTypes(String fileList) throws Exception
 {
-	String newFileList = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(fileList), "normalizeTypes");
 	
-	Scanner vcfListInput = new Scanner(new FileInputStream(new File(fileList)));
 	ArrayList<String> vcfFiles = getFilesFromList(fileList);
-	
-	PrintWriter newFileListOut = new PrintWriter(new File(newFileList));
+	ArrayList<String> newVcfFiles = new ArrayList<String>();
 	
 	for(int i = 0; i<vcfFiles.size(); i++)
 	{
 		String vcfFile = vcfFiles.get(i);
+		
 		String newVcfFile = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(vcfFile), "normalizeTypes");
-		newFileListOut.println(newVcfFile);
+		newVcfFiles.add(newVcfFile);
+		
 		NormalizeTypes.convertFile(vcfFile, newVcfFile);
 	}
-	vcfListInput.close();
-	newFileListOut.close();
-		
-	return newFileList;
+	
+	return buildUpdatedFileList(fileList, "normalizeTypes", newVcfFiles);
+	
 }
 
 /*
@@ -71,10 +65,8 @@ static String normalizeTypes(String fileList) throws Exception
  */
 static String runIris(String fileList) throws Exception
 {
-	String refinedInput = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(fileList), "irisRefined");
 	ArrayList<String> vcfFiles = getFilesFromList(fileList), bamFiles = getFilesFromList(Settings.BAM_FILE_LIST);
-	
-	PrintWriter newFileListOut = new PrintWriter(new File(refinedInput));
+	ArrayList<String> newVcfFiles = new ArrayList<String>();
 	
 	// Get any optional arguments to be passed to Iris that the user specified
 	String[] optionalArgs = Settings.IRIS_ARGS.split(",");
@@ -85,7 +77,7 @@ static String runIris(String fileList) throws Exception
 		String vcfFile = vcfFiles.get(i);
 		String newVcfFile = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(vcfFile), "irisRefined");
 		String bamFile = bamFiles.get(i);
-		newFileListOut.println(newVcfFile);
+		newVcfFiles.add(newVcfFile);
 		
 		// Generate the required Iris arguments based on the filenames
 		String[] requiredArgs = new String[]
@@ -111,10 +103,7 @@ static String runIris(String fileList) throws Exception
 		Iris.runIris(allArgs);
 	}
 	
-	newFileListOut.close();
-	
-	// Update the input filename to be the refined one
-	return refinedInput;
+	return buildUpdatedFileList(fileList, "irisRefined", newVcfFiles);
 }
 
 /*
@@ -123,22 +112,51 @@ static String runIris(String fileList) throws Exception
  */
 static String markSpecificCalls(String fileList) throws Exception
 {
-	String newFileList = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(fileList), "markedSpec");
-	
 	ArrayList<String> vcfFiles = getFilesFromList(fileList);
+	ArrayList<String> newVcfFiles = new ArrayList<String>();
 			
-	PrintWriter newFileListOut = new PrintWriter(new File(newFileList));
+	//PrintWriter newFileListOut = new PrintWriter(new File(newFileList));
 	
 	for(int i = 0; i<vcfFiles.size(); i++)
 	{
 		String vcfFile = vcfFiles.get(i);
 		String newVcfFile = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(vcfFile), "markedSpec");
-		newFileListOut.println(newVcfFile);
+		newVcfFiles.add(newVcfFile);
 		MarkSpecificCalls.convertFile(vcfFile, newVcfFile, Settings.SPECIFIC_MIN_RCOUNT, Settings.SPECIFIC_MIN_LENGTH);
 	}
-	newFileListOut.close();
-		
-	return newFileList;
+	
+	return buildUpdatedFileList(fileList, "markedSpec", newVcfFiles);
+}
+
+/*
+ * Builds an updated file list after running a pre-processing step
+ */
+static String buildUpdatedFileList(String oldFileList, String suffix, ArrayList<String> newVcfFiles) throws Exception
+{
+	if(Settings.USING_FILE_LIST)
+	{
+		String newFileList = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(oldFileList), suffix);
+		PrintWriter newFileListOut = new PrintWriter(new File(newFileList));
+		for(String newVcfFile : newVcfFiles)
+		{
+			newFileListOut.println(newVcfFile);
+		}
+		newFileListOut.close();
+		return newFileList;
+	}
+	else
+	{
+		StringBuilder res = new StringBuilder("");
+		for(int i = 0; i<newVcfFiles.size(); i++)
+		{
+			res.append(newVcfFiles.get(i));
+			if(i < newVcfFiles.size() - 1)
+			{
+				res.append(",");
+			}
+		}
+		return res.toString();
+	}
 }
 
 /*
@@ -180,7 +198,13 @@ static ArrayList<String> getFilesFromList(String fileList) throws Exception
 {
 	ArrayList<String> res = new ArrayList<String>();
 	
-	// TODO fill this and use the method above
+	if(!Settings.USING_FILE_LIST)
+	{
+		String[] fns = fileList.split(",");
+		for(String fn : fns) res.add(fn);
+		return res;
+	}
+	
 	if(new File(fileList).exists())
 	{
 		Scanner vcfListInput = new Scanner(new FileInputStream(new File(fileList)));
@@ -194,12 +218,6 @@ static ArrayList<String> getFilesFromList(String fileList) throws Exception
 			}
 		}
 		vcfListInput.close();
-	}
-	else if(fileList.contains(","))
-	{
-		String[] fns = fileList.split(",");
-		for(String fn : fns) res.add(fn);
-		return res;
 	}
 	
 	return res;
