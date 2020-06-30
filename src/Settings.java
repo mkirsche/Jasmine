@@ -5,6 +5,7 @@
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 
 public class Settings {
 
@@ -31,6 +32,9 @@ public class Settings {
 	static boolean INPUTS_MERGED = true;
 	static boolean USING_FILE_LIST = true;
 	
+	static String CHR_NORM_FILE = "";
+	static boolean DEFAULT_CHR_NORM = false;
+	
 	static String SAMTOOLS_PATH = "samtools";
 	
 	static boolean PREPROCESS_ONLY = false;
@@ -56,6 +60,8 @@ public class Settings {
 	static boolean ALLOW_INTRASAMPLE = false;
 	static boolean NORMALIZE_TYPE = false;
 	static boolean REQUIRE_FIRST_SAMPLE = false;
+	
+	static ChrNameNormalization CHR_NAME_MAP;
 	
 	/*
 	 * Print the usage menu
@@ -88,6 +94,7 @@ public class Settings {
 		System.out.println("  iris_args       (String) []         - a comma-separated list of optional arguments to pass to Iris");
 		System.out.println("  out_dir         (String) [output]   - the directory where intermediate files go");
 		System.out.println("  samtools_path   (String) [samtools] - the path to the samtools executable used for coverting duplications");
+		System.out.println("  chr_norm_file   (String) []         - the path to a file containing chromosome name mappings, if they are being normalized");
 		System.out.println("  --ignore_strand                     - allow variants with different strands to be merged");
 		System.out.println("  --ignore_type                       - allow variants with different types to be merged");
 		System.out.println("  --dup_to_ins                        - convert duplications to insertions for SV merging and then convert them back");
@@ -108,6 +115,8 @@ public class Settings {
 		System.out.println("  --leave_breakpoints                 - leave breakpoints as they are even if they are inconsistent");
 		System.out.println("  --require_first_sample              - only output merged variants which include a variant from the first sample");
 		System.out.println("  --comma_filelist                    - input VCFs are given comma-separated instead of providing a txt file");
+		System.out.println("  --normalize_chrs                    - whether to normalize chromosome names (to NCBI standards - without \"chr\" - by default)");
+
 
 		System.out.println();
 		System.out.println("Notes:");
@@ -239,6 +248,10 @@ public class Settings {
 				{
 					USING_FILE_LIST = false;
 				}
+				else if(args[i].endsWith("normalize_chrs"))
+				{
+					DEFAULT_CHR_NORM = true;
+				}
 				continue;
 			}
 			int equalIdx = args[i].indexOf('=');
@@ -305,6 +318,8 @@ public class Settings {
 				case "max_dup_length":
 					MAX_DUP_LEN = parseInt(val);
 					break;
+				case "chr_norm_file":
+					CHR_NORM_FILE = val;
 				default:
 					break;
 			}
@@ -336,5 +351,6 @@ public class Settings {
 		File f = new File(OUT_DIR);
 		f.mkdir();
 		
+		CHR_NAME_MAP = new ChrNameNormalization();
 	}
 }

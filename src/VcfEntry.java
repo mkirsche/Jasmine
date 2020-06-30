@@ -44,6 +44,7 @@ public class VcfEntry {
 		{
 			setType(getNormalizedType());
 		}
+		setChromosome(Settings.CHR_NAME_MAP.normalize(getChromosome()));
 	}
 	
 	/*
