@@ -1,0 +1,27 @@
+##fileformat=VCFv4.1
+##contig=<ID=1,length=248956422>
+##contig=<ID=2,length=242193529>
+##INFO=<ID=CHR2,Number=1,Type=String,Description="Chromosome for END coordinate in case of a translocation">
+##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the structural variant">
+##INFO=<ID=RE,Number=1,Type=Integer,Description="read support">
+##INFO=<ID=PRECISE,Number=0,Type=Flag,Description="Precise structural variation">
+##INFO=<ID=SVLEN,Number=1,Type=Integer,Description="Length of the SV">
+##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">
+##INFO=<ID=STRANDS,Number=A,Type=String,Description="Strand orientation of the adjacency in BEDPE format (DEL:+-, DUP:-+, INV:++/--)">
+##INFO=<ID=IS_SPECIFIC,Number=1,Type=String,Description="Whether or not a variant has enough read support and length to be specific">
+##INFO=<ID=SUPP_VEC,Number=1,Type=String,Description="Vector of supporting samples">
+##INFO=<ID=SUPP_VEC_EXT,Number=1,Type=String,Description="Vector of supporting samples, potentially extended across multiple merges">
+##INFO=<ID=SUPP,Number=1,Type=String,Description="Number of samples supporting the variant">
+##INFO=<ID=SUPP_EXT,Number=1,Type=String,Description="Number of samples supporting the variant, potentially extended across multiple merges">
+##INFO=<ID=IDLIST,Number=.,Type=String,Description="Variant IDs of variants merged to make this call (at most 1 per sample)">
+##INFO=<ID=IDLIST_EXT,Number=.,Type=String,Description="Variant IDs of variants merged, potentially extended across multiple merges">
+##INFO=<ID=SVMETHOD,Number=1,Type=String,Description="">
+##INFO=<ID=STARTVARIANCE,Number=1,Type=String,Description="Variance of start position for variants merged into this one">
+##INFO=<ID=ENDVARIANCE,Number=1,Type=String,Description="Variance of end position for variants merged into this one">
+##INFO=<ID=AVG_START,Number=1,Type=String,Description="Average start position for variants merged into this one">
+##INFO=<ID=AVG_END,Number=1,Type=String,Description="Average end position for variants merged into this one">
+##INFO=<ID=AVG_LEN,Number=1,Type=String,Description="Average length for variants merged into this one">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+1	1000000	0_1	CACGTACGTACGTACGTACGTACGTACTGACGTACGT	C	.	PASS	PRECISE;CHR2=1;END=1000036;SVTYPE=DEL;SUPTYPE=AL;SVLEN=-36;STRANDS=+-;RE=12;IS_SPECIFIC=1;STARTVARIANCE=0.000000;ENDVARIANCE=4.000000;AVG_LEN=-34.000000;AVG_START=1000000.000000;AVG_END=1000034.000000;SUPP_VEC_EXT=11;IDLIST_EXT=1,1;SUPP_EXT=2;SUPP_VEC=11;SUPP=2;SVMETHOD=JASMINE;IDLIST=1,1	GT	1/1
+1	2000000	0_2	C	CACGTACGTACGTACGTACGTACGTACTGACGTACGT	.	PASS	PRECISE;CHR2=1;END=2000000;SVTYPE=INS;SUPTYPE=AL;SVLEN=36;STRANDS=+-;RE=10;IS_SPECIFIC=1;STARTVARIANCE=6.250000;ENDVARIANCE=6.250000;AVG_LEN=38.000000;AVG_START=2000002.500000;AVG_END=2000002.500000;SUPP_VEC_EXT=11;IDLIST_EXT=2,2;SUPP_EXT=2;SUPP_VEC=11;SUPP=2;SVMETHOD=JASMINE;IDLIST=2,2	GT	1/1
+1	3000000	0_3	N	]2:1000000]N	.	PASS	PRECISE;CHR2=2;END=3000000;SVTYPE=BND;SUPTYPE=AL;SVLEN=1;STRANDS=-+;RE=15;IS_SPECIFIC=1;STARTVARIANCE=0.000000;ENDVARIANCE=0.000000;AVG_LEN=1.000000;AVG_START=3000000.000000;AVG_END=3000000.000000;SUPP_VEC_EXT=11;IDLIST_EXT=3,3;SUPP_EXT=2;SUPP_VEC=11;SUPP=2;SVMETHOD=JASMINE;IDLIST=3,3	GT	1/1
