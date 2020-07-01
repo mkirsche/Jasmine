@@ -1,0 +1,16 @@
+##fileformat=VCFv4.1
+##contig=<ID=1,length=248956422>
+##contig=<ID=2,length=242193529>
+##INFO=<ID=CHR2,Number=1,Type=String,Description="Chromosome for END coordinate in case of a translocation">
+##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the structural variant">
+##INFO=<ID=RE,Number=1,Type=Integer,Description="read support">
+##INFO=<ID=PRECISE,Number=0,Type=Flag,Description="Precise structural variation">
+##INFO=<ID=SVLEN,Number=1,Type=Integer,Description="Length of the SV">
+##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">
+##INFO=<ID=STRANDS,Number=A,Type=String,Description="Strand orientation of the adjacency in BEDPE format (DEL:+-, DUP:-+, INV:++/--)">
+##INFO=<ID=IS_SPECIFIC,Number=1,Type=String,Description="Whether or not a variant has enough read support and length to be specific">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+1	1000000	1	CACGTACGTACGTACGTACGTACGTACTGACGTACGT	C	.	PASS	PRECISE;CHR2=1;END=1000036;SVTYPE=DEL;SUPTYPE=AL;SVLEN=-36;STRANDS=+-;RE=12;IS_SPECIFIC=1	GT	1/1
+1	2000000	2	C	CACGTACGTACGTACGTACGTACGTACTGACGTACGT	.	PASS	PRECISE;CHR2=1;END=2000000;SVTYPE=INS;SUPTYPE=AL;SVLEN=36;STRANDS=+-;RE=10;IS_SPECIFIC=1	GT	1/1
+1	3000000	3	N	]2:1000000]N	.	PASS	PRECISE;CHR2=2;END=3000000;SVTYPE=BND;SUPTYPE=AL;SVLEN=1;STRANDS=-+;RE=15;IS_SPECIFIC=1	GT	1/1
+
