@@ -349,12 +349,12 @@ public class VcfEntry {
 	{
 		if(hasInfoField("CHR2"))
 		{
-			return getInfo("CHR2");
+			return Settings.CHR_NAME_MAP.normalize(getInfo("CHR2"));
 		}
 		String alt = getAlt();
 		if(alt.contains("[") || alt.contains("]"))
 		{
-			return alt.split("[\\[\\]]")[1].split(":")[0];
+			return Settings.CHR_NAME_MAP.normalize(alt.split("[\\[\\]]")[1].split(":")[0]);
 		}
 		return "";
 	}
