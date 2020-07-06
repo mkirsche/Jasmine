@@ -97,7 +97,7 @@ public class VariantInput {
 	/*
 	 * Take a list of variants and bin them by graphID
 	 */
-	private  static TreeMap<String, ArrayList<Variant>> divideIntoGraphs(ArrayList<Variant> data)
+	private static TreeMap<String, ArrayList<Variant>> divideIntoGraphs(ArrayList<Variant> data)
 	{
 		TreeMap<String, ArrayList<Variant>> groups = new TreeMap<String, ArrayList<Variant>>();
 		for(Variant v : data)
