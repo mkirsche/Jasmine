@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Scanner;
 import java.util.TreeMap;
 
@@ -61,6 +62,7 @@ public class VariantInput {
 	{
 		Scanner input = new Scanner(new FileInputStream(new File(filename)));
 		ArrayList<Variant> allVariants = new ArrayList<Variant>();
+		HashSet<String> ids = new HashSet<String>();
 		while(input.hasNext())
 		{
 			String line = input.nextLine();
@@ -84,6 +86,26 @@ public class VariantInput {
 					previouslyMergedSamples.put(sample, 1);
 				}
 			}
+			if(ids.contains(entry.getId()))
+			{
+				String oldId = entry.getId();
+				int index = 1;
+				while(true)
+				{
+					String newId = oldId + "_duplicate" + index;
+					if(!ids.contains(newId))
+					{
+						entry.setId(newId);
+						break;
+					}
+					else
+					{
+						index++;
+					}
+				}
+				System.err.println("Warning: Duplicate variant ID " + oldId + " in " + filename + "; Replacing with " + entry.getId());
+			}
+			ids.add(entry.getId());
 			allVariants.add(fromVcfEntry(entry, sample));
 			
 		}

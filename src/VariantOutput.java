@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -45,6 +46,7 @@ public class VariantOutput {
 		ArrayList<String> filenames = PipelineManager.getFilesFromList(fileList);
 		for(String filename : filenames)
 		{
+			HashSet<String> ids = new HashSet<String>();
 			Scanner input = new Scanner(new FileInputStream(new File(filename)));
 			
 			// Iterate over the variants in that file
@@ -99,6 +101,25 @@ public class VariantOutput {
 						header.print(out);
 					}
 					VcfEntry entry = VcfEntry.fromLine(line);
+					if(ids.contains(entry.getId()))
+					{
+						String oldId = entry.getId();
+						int index = 1;
+						while(true)
+						{
+							String newId = oldId + "_duplicate" + index;
+							if(!ids.contains(newId))
+							{
+								entry.setId(newId);
+								break;
+							}
+							else
+							{
+								index++;
+							}
+						}
+					}
+					ids.add(entry.getId());
 					String graphID = entry.getGraphID();
 					groups.get(graphID).processVariant(entry, sample, out);
 				}
@@ -279,7 +300,7 @@ public class VariantOutput {
 			{
 				consensus[groupNumber].setInfo("OLDTYPE", "DUP");
 			}
-			
+						
 			/*
 			 * If this variant is precise, set the merged variant to also be precise
 			 */
