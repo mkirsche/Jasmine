@@ -333,23 +333,23 @@ public class Settings {
 		if(FILE_LIST.length() == 0 && !POSTPROCESS_ONLY)
 		{
 			usage();
-			System.exit(1);
+			System.exit(0);
 		}
 		if(OUT_FILE.length() == 0 && !PREPROCESS_ONLY)
 		{
 			usage();
-			System.exit(1);
+			System.exit(0);
 		}
 		if(GENOME_FILE.length() == 0 && (RUN_IRIS || CONVERT_DUPLICATIONS))
 		{
 			usage();
-			System.exit(1);
+			System.exit(0);
 		}
 		
 		if(BAM_FILE_LIST.length() == 0 && RUN_IRIS)
 		{
 			usage();
-			System.exit(1);
+			System.exit(0);
 		}
 		
 		Path currentRelativePath = Paths.get("");
