@@ -306,7 +306,14 @@ public class Settings {
 					BAM_FILE_LIST = val;
 					break;
 				case "iris_args":
-					IRIS_ARGS = val;
+					if(IRIS_ARGS.length() > 0)
+					{
+						IRIS_ARGS += "," + val;
+					}
+					else
+					{
+						IRIS_ARGS = val;
+					}
 					break;
 				case "out_dir":
 					OUT_DIR = val;
