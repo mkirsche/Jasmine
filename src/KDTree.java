@@ -9,6 +9,7 @@
  * https://courses.cs.washington.edu/courses/cse599c1/13wi/slides/lsh-hashkernels-annotated.pdf
  */
 
+import java.util.ArrayDeque;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 
@@ -29,32 +30,88 @@ public class KDTree
 		K = 2;
 		LinkedList<Node> list = new LinkedList<Node>();
 		for (Variant q : p) list.add(new Node(q));
-		root = build(list, 0);
+		root = buildNonrecursive(list, 0);
 	}
 	
 	/*
-	 * Build a subtree of the data structure from a subset of the points
-	 * Initially this is called on the whole tree with all the points
+	 * Build the data structure from a list of points without recursion
+	 * This avoids stack overflow issues caused by larger datasets
 	 */
-	private Node build(LinkedList<Node> p, int depth) 
+	private Node buildNonrecursive(LinkedList<Node> p, int depth) 
 	{
-		if (p.size() == 0) return null;
-		Node pivot = p.remove();
-		
-		// Sort the points into left and right subtrees based on current split dimension
-		LinkedList<Node> left = new LinkedList<Node>();
-		LinkedList<Node> right = new LinkedList<Node>();
-		while (!p.isEmpty()) 
+		if(p.size() == 0)
 		{
-			if (p.peek().planes[depth % K] < pivot.planes[depth % K])
-				left.add(p.remove());
-			else
-				right.add(p.remove());
+			return null;
 		}
-		pivot.children[0] = build(left, depth + 1);
-		pivot.children[1] = build(right, depth + 1);
 		
-		return pivot;
+		// The stack of node lists to process (in place of recursive calls)
+		ArrayDeque<LinkedList<Node>> toProcess = new ArrayDeque<LinkedList<Node>>();
+		ArrayDeque<Node> parents = new ArrayDeque<Node>();
+		ArrayDeque<Integer> depths = new ArrayDeque<Integer>();
+		ArrayDeque<Integer> parentsides = new ArrayDeque<Integer>();
+		
+		// Initialize root to null to be filled 
+		Node res = null;
+		toProcess.addFirst(p);
+		parents.addFirst(p.peekFirst()); // This is not actually the parent of the root, but it will be ignored anyways
+		depths.addFirst(0);
+		parentsides.addFirst(-1);
+		
+		while(!toProcess.isEmpty())
+		{
+			// Get information for processing this node from stacks
+			LinkedList<Node> pcur = toProcess.pollFirst();
+			Node parentcur = parents.pollFirst();
+			int depthcur = depths.pollFirst();
+			int parentsidecur = parentsides.pollFirst();
+			
+			if(pcur.size() == 0)
+			{
+				continue;
+			}
+			
+			// Get pivot as the first point in the list
+			Node pivot = pcur.remove();
+			
+			if(res == null)
+			{
+				res = pivot;
+			}
+			
+			// Separate this point into points left of the pivot vs. right of the pivot
+			LinkedList<Node> left = new LinkedList<Node>();
+			LinkedList<Node> right = new LinkedList<Node>();
+			while (!pcur.isEmpty()) 
+			{
+				if (pcur.peek().planes[depth % K] < pivot.planes[depth % K])
+					left.add(pcur.remove());
+				else
+					right.add(pcur.remove());
+			}
+			
+			// Update this node's parent's child-pointer to this node.
+			if(parentsidecur != -1)
+			{
+				parentcur.children[parentsidecur] = pivot;
+			}
+			
+			pivot.children[0] = null;
+			pivot.children[1] = null;
+			
+			// Add right child to processing stack
+			toProcess.addFirst(right);
+			parents.addFirst(pivot);
+			parentsides.addFirst(1);
+			depths.addFirst(depthcur + 1);
+			
+			// Add left child to processing stack
+			toProcess.addFirst(left);
+			parents.addFirst(pivot);
+			parentsides.addFirst(0);
+			depths.addFirst(depthcur + 1);
+		}
+		
+		return res;
 	}
 	
 	/*
