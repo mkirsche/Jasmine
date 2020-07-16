@@ -69,8 +69,8 @@ public class Settings {
 	{
 		System.out.println();
 		System.out.println("Jasmine version 1.0.2");
-		System.out.println("Usage: java -cp src Main [args]");
-		System.out.println("  Example: java -cp src Main file_list=filelist.txt out_file=out.vcf");
+		System.out.println("Usage: jasmine [args]");
+		System.out.println("  Example: jasmine file_list=filelist.txt out_file=out.vcf");
 		System.out.println();
 		System.out.println("Required args:");
 		System.out.println("  file_list (String) - a file listing paths to all variant files to use (on separate lines)");
