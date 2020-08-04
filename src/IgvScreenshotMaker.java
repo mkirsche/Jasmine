@@ -23,7 +23,7 @@ public class IgvScreenshotMaker {
 	
 	static HashMap<String, String> infoFilters;
 	static HashSet<String> grepFilters;
-	
+		
 	static void parseArgs(String[] args)
 	{
 		infoFilters = new HashMap<String, String>();
@@ -41,6 +41,10 @@ public class IgvScreenshotMaker {
 				else if(arg.toLowerCase().endsWith("svg"))
 				{
 					SVG = true;
+				}
+				else if(arg.toLowerCase().endsWith("normalize_chr_names"))
+				{
+					Settings.DEFAULT_CHR_NORM = true;
 				}
 			}
 			else
@@ -99,11 +103,14 @@ public class IgvScreenshotMaker {
 		System.out.println("  grep_filter=QUERY      - filter to only lines containing a given QUERY");
 		System.out.println("  --squish               - squishes tracks to fit more reads");
 		System.out.println("  --svg                  - save as an SVG instead of a PNG");
+		System.out.println("  --normalize_chr_names  - normalize the VCF chromosome name to strip \"chr\"");
 		System.out.println();
 	}
 	
 	public static void main(String[] args) throws Exception
 	{
+		Settings.CHR_NAME_MAP = new ChrNameNormalization();
+		
 		parseArgs(args);
 		
 		Path currentRelativePath = Paths.get("");
@@ -164,8 +171,8 @@ public class IgvScreenshotMaker {
 				continue;
 			}
 			
-			long start = entry.getPos();
-			long end = entry.getEnd();
+			long start = entry.getPos() - 100;
+			long end = entry.getEnd() + 100;
 			String chr = entry.getChromosome();
 			
 			out.println("goto " + chr + ":" + start + "-" + end);
