@@ -44,7 +44,11 @@ public class VcfEntry {
 		{
 			setType(getNormalizedType());
 		}
-		setChromosome(Settings.CHR_NAME_MAP.normalize(getChromosome()));
+		
+		if(Settings.CHR_NAME_MAP != null)
+		{
+			setChromosome(Settings.CHR_NAME_MAP.normalize(getChromosome()));
+		}
 	}
 	
 	/*
@@ -349,12 +353,23 @@ public class VcfEntry {
 	{
 		if(hasInfoField("CHR2"))
 		{
-			return Settings.CHR_NAME_MAP.normalize(getInfo("CHR2"));
+			if(Settings.CHR_NAME_MAP != null)
+			{
+				return Settings.CHR_NAME_MAP.normalize(getInfo("CHR2"));
+			}
+			else
+			{
+				return getInfo("CHR2");
+			}
 		}
 		String alt = getAlt();
 		if(alt.contains("[") || alt.contains("]"))
 		{
-			return Settings.CHR_NAME_MAP.normalize(alt.split("[\\[\\]]")[1].split(":")[0]);
+			if(Settings.CHR_NAME_MAP != null)
+			{
+				return Settings.CHR_NAME_MAP.normalize(alt.split("[\\[\\]]")[1].split(":")[0]);
+			}
+			return alt.split("[\\[\\]]")[1].split(":")[0];
 		}
 		return "";
 	}
