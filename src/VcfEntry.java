@@ -577,6 +577,22 @@ public class VcfEntry {
 	{
 		if(getType().equals("TRA") && getChromosome().compareTo(getChr2()) > 0)
 		{
+			if(getType().equals("TRA"))
+			{
+				if(getChromosome().compareTo(getChr2()) > 0)
+				{
+					if(hasInfoField("AVG_END"))
+					{
+						return Double.parseDouble(getInfo("AVG_END"));
+					}
+					return getEnd();
+				}
+				if(hasInfoField("AVG_START"))
+				{
+					return Double.parseDouble(getInfo("AVG_START"));
+				}
+				return getPos();
+			}
 			if(hasInfoField("AVG_END"))
 			{
 				return Double.parseDouble(getInfo("AVG_END"));
@@ -599,7 +615,19 @@ public class VcfEntry {
 		{
 			if(getType().equals("TRA"))
 			{
-				
+				if(getChromosome().compareTo(getChr2()) > 0)
+				{
+					if(hasInfoField("AVG_START"))
+					{
+						return Double.parseDouble(getInfo("AVG_START"));
+					}
+					return getPos();
+				}
+				if(hasInfoField("AVG_END"))
+				{
+					return Double.parseDouble(getInfo("AVG_END"));
+				}
+				return getEnd();
 			}
 			if(hasInfoField("AVG_END"))
 			{

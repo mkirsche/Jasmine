@@ -95,14 +95,20 @@ public class VariantMerger
 		for(int i = 0; i<n; i++)
 		{
 			nearestNeighbors[i] = knn.kNearestNeighbor(data[i], 4);
-			toProcess.add(new Edge(i, nearestNeighbors[i][0].index, data[i].distance(nearestNeighbors[i][0])));
+			int maxDistAllowed = Math.max(data[i].maxDist, nearestNeighbors[i][0].maxDist);
+			if(data[i].distance(nearestNeighbors[i][0]) < maxDistAllowed + 1e-9)
+			{
+				toProcess.add(new Edge(i, nearestNeighbors[i][0].index, data[i].distance(nearestNeighbors[i][0])));
+			}
 			countEdgesProcessed[i]++;
 		}
 		
 		while(!toProcess.isEmpty())
 		{
 			Edge e = toProcess.poll();
+						
 			boolean valid = forest.canUnion(e.from, e.to);
+			
 			if(valid)
 			{
 				int fromRoot = forest.find(e.from);
@@ -206,6 +212,11 @@ public class VariantMerger
 				if(data[e.from].distance(candidateTo) > maxDistAllowed + 1e-9)
 				{
 					break;
+				}
+				
+				if(data[e.from].distance(candidateTo) > 1e6)
+				{
+					System.out.println(data[e.from].distance(candidateTo)+" "+maxDistAllowed);
 				}
 				
 				// If edge was invalid because of coming from the same sample, ignore it and try the next one
