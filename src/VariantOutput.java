@@ -207,7 +207,7 @@ public class VariantOutput {
 			
 			lastAdded[groupNumber] = sample;
 			
-			String varId = entry.oldId;
+			String varId = fullId.substring(fullId.indexOf('_') + 1);
 			
 			idLists[groupNumber].append(varId);
 			consensus[groupNumber].setInfo("END", entry.getEnd() + "");
@@ -272,7 +272,7 @@ public class VariantOutput {
 				}
 				if(idListExt.length() == 0)
 				{
-					idListExt = entry.oldId;
+					idListExt = varId;
 				}
 
 				consensus[groupNumber].setInfo("IDLIST_EXT", idListExt);
@@ -377,7 +377,7 @@ public class VariantOutput {
 				}
 				if(allVarsExt.length() == 0)
 				{
-					allVarsExt = entry.oldId;
+					allVarsExt = varId;
 				}
 				
 				String oldAllVarsExt = consensus[groupNumber].getInfo("ALLVARS_EXT");
@@ -431,7 +431,7 @@ public class VariantOutput {
 				}
 				if(idListExt.length() == 0)
 				{
-					idListExt = entry.oldId;
+					idListExt = varId;
 				}
 				
 				String oldIdListExt = consensus[groupNumber].getInfo("IDLIST_EXT");
