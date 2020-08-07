@@ -124,7 +124,8 @@ public class BndVcfEntry extends VcfEntry {
 	 */
 	public double getFirstCoord() throws Exception
 	{
-		if(getChromosome().compareTo(getChr2()) > 0)
+		String chr = getChromosome(), chr2 = getChr2();
+		if(chr.compareTo(chr2) > 0 || (chr.equals(chr2) && getPos() > getEnd()))
 		{
 			if(hasInfoField("AVG_END"))
 			{
@@ -144,7 +145,8 @@ public class BndVcfEntry extends VcfEntry {
 	 */
 	public double getSecondCoord() throws Exception
 	{
-		if(getChromosome().compareTo(getChr2()) > 0)
+		String chr = getChromosome(), chr2 = getChr2();
+		if(chr.compareTo(chr2) > 0 || (chr.equals(chr2) && getPos() > getEnd()))
 		{
 			if(hasInfoField("AVG_START"))
 			{
