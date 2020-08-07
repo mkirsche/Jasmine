@@ -58,7 +58,7 @@ public class VcfEntry {
 	{
 		String normalizedType = getNormalizedType();
 		
-		if(!normalizedType.equals("TRA") && !getAlt().contains("<"))
+		if(!normalizedType.equals("TRA") && !getAlt().contains("<") && getSeq().length() > 0)
 		{
 			setInfo("SVLEN", getAlt().length() - getRef().length() + "");
 		}
@@ -221,6 +221,19 @@ public class VcfEntry {
 		} catch(Exception e) {
             String seq = getSeq();
             String type = getType();
+            if(seq.length() == 0)
+            {
+	            if(type.equals("DEL"))
+	            {
+	            	int diff = (int)(getEnd() - getPos());
+	            	return -diff;
+	            }
+	            if(type.equals("DUP") || type.equals("INV"))
+	            {
+	            	int diff = (int)(getEnd() - getPos());
+	            	return diff;
+	            }
+            }
             if(type.equals("INS")) return seq.length();
             else return -seq.length();
 		}
@@ -383,6 +396,14 @@ public class VcfEntry {
 		{
 			return getInfo("SEQ");
 		}
+		if(hasInfoField("CONSENSUS"))
+		{
+			String nonGenomic = getInfo("CONSENSUS").toLowerCase().replaceAll("acgtn", "");
+			if(nonGenomic.length() == 0)
+			{
+				return getInfo("CONSENSUS");
+			}
+		}
 		String ref = getRef(), alt = getAlt();
 		if(alt.startsWith("<"))
 		{
@@ -403,11 +424,18 @@ public class VcfEntry {
 			alt = tmp;
 			type = "INS";
 		}
-		if(ref.equals("X") || ref.equals("N"))
+		
+		boolean refMissing = ref.equals(".") || ref.equals("X") || ref.equals("N");
+		boolean altMissing = alt.equals(".") || alt.equals("X") || alt.equals("N");
+		if(refMissing && altMissing)
+		{
+			return "";
+		}
+		if(refMissing)
 		{
 			return alt;
 		}
-		else if(alt.equals("X") || ref.equals("N"))
+		else if(altMissing)
 		{
 			return ref;
 		}
