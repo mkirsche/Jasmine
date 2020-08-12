@@ -14,9 +14,12 @@ import java.util.Scanner;
 public class IgvScreenshotMaker {
 	
 	static String vcfFn = "";
+	static String bedFn = "";
 	static String bamFilelist = "";
 	static String vcfFilelist = "";
 	static String genomeFn = "";
+	
+	static int PADDING = 100;
 	
 	static String outPrefix = "";
 	
@@ -62,6 +65,10 @@ public class IgvScreenshotMaker {
 				{
 					vcfFn = val;
 				}
+				else if(key.equalsIgnoreCase("bed_file"))
+				{
+					bedFn = val;
+				}
 				else if(key.equalsIgnoreCase("genome_file"))
 				{
 					genomeFn = val;
@@ -90,7 +97,7 @@ public class IgvScreenshotMaker {
 			}
 		}
 		
-		if(vcfFn.length() == 0 || genomeFn.length() == 0 || bamFilelist.length() == 0 || outPrefix.length() == 0)
+		if((vcfFn.length() == 0 && bedFn.length() == 0) || genomeFn.length() == 0 || bamFilelist.length() == 0 || outPrefix.length() == 0)
 		{
 			usage();
 			System.exit(0);
@@ -113,6 +120,7 @@ public class IgvScreenshotMaker {
 		System.out.println("  info_filter=KEY,VALUE  - filter by an INFO field value (multiple allowed) e.g., info_filter=SUPP_VEC,101");
 		System.out.println("  grep_filter=QUERY      - filter to only lines containing a given QUERY");
 		System.out.println("  vcf_filelist  (String) - the txt file with a list of merged VCFs");
+		System.out.println("  bed_file      (String) - a bed file with a list of ranges (use instead of vcf_file)");
 		System.out.println("  --precise              - require variant to contain \"PRECISE\" as an INFO field");
 		System.out.println("  --squish               - squishes tracks to fit more reads");
 		System.out.println("  --svg                  - save as an SVG instead of a PNG");
@@ -196,82 +204,130 @@ public class IgvScreenshotMaker {
 		}
 		out.println("snapshotDirectory " + outDir);
 		
-		Scanner input = new Scanner(new FileInputStream(new File(vcfFn)));
-		while(input.hasNext())
+		if(vcfFn.length() > 0)
+		{	
+			Scanner input = new Scanner(new FileInputStream(new File(vcfFn)));
+			while(input.hasNext())
+			{
+				String line = input.nextLine();
+				if(line.length() == 0 || line.startsWith("#"))
+				{
+					continue;
+				}
+				VcfEntry entry = new VcfEntry(line);
+				
+				// Check that the entry passes grep and INFO filters
+				boolean passesFilters = true;
+				
+				for(String s : grepFilters)
+				{
+					if(!line.contains(s))
+					{
+						passesFilters = false;
+					}
+				}
+				for(String s : infoFilters.keySet())
+				{
+					if(!entry.hasInfoField(s) || !entry.getInfo(s).equals(infoFilters.get(s)))
+					{
+						passesFilters = false;
+					}
+				}
+				
+				if(PRECISE && !entry.tabTokens[7].startsWith("PRECISE;") && !entry.tabTokens[7].contains(";PRECISE;"))
+				{
+					passesFilters = false;
+				}
+				
+				if(!passesFilters)
+				{
+					continue;
+				}
+				
+				long start = entry.getPos() - PADDING;				
+				long end = entry.getEnd() + PADDING;
+				
+				// Avoid giving non-positive coords
+				start = Math.max(start, 1);
+				end = Math.max(end, 1);
+				
+				// Make sure entire insertion is covered
+				if(entry.getNormalizedType().equals("INS"))
+				{
+					end = start + entry.getLength() + PADDING;
+				}
+				
+				if(end > start + 100000)
+				{
+					continue;
+				}
+				
+				String chr = entry.getChromosome();
+				
+				out.println("goto " + chr + ":" + start + "-" + end);
+				out.println("sort position");
+				if(SQUISH)
+				{
+					for(String bamFile : bamFiles)
+					{
+						out.println("squish " + bamFile);
+					}
+				}
+				else
+				{
+					for(String bamFile : bamFiles)
+					{
+						out.println("collapse " + bamFile);
+					}
+				}
+				out.println("snapshot " + entry.getId() + ".png");
+			}
+						
+			input.close();
+		}
+		
+		else if(bedFn.length() > 0)
 		{
-			String line = input.nextLine();
-			if(line.length() == 0 || line.startsWith("#"))
+			Scanner input = new Scanner(new FileInputStream(new File(bedFn)));
+			while(input.hasNext())
 			{
-				continue;
-			}
-			VcfEntry entry = new VcfEntry(line);
-			
-			// Check that the entry passes grep and INFO filters
-			boolean passesFilters = true;
-			
-			for(String s : grepFilters)
-			{
-				if(!line.contains(s))
+				String line = input.nextLine();
+				if(line.length() == 0)
 				{
-					passesFilters = false;
+					continue;
 				}
-			}
-			for(String s : infoFilters.keySet())
-			{
-				if(!entry.hasInfoField(s) || !entry.getInfo(s).equals(infoFilters.get(s)))
+				
+				String[] tokens = line.split("\t");
+
+				long start = Long.parseLong(tokens[1]);				
+				long end = Long.parseLong(tokens[2]);
+				
+				String chr = tokens[0];
+				
+				out.println("goto " + chr + ":" + start + "-" + end);
+				out.println("sort position");
+				if(SQUISH)
 				{
-					passesFilters = false;
+					for(String bamFile : bamFiles)
+					{
+						out.println("squish " + bamFile);
+					}
 				}
-			}
-			
-			if(PRECISE && !entry.tabTokens[7].startsWith("PRECISE;") && !entry.tabTokens[7].contains(";PRECISE;"))
-			{
-				passesFilters = false;
-			}
-			
-			if(!passesFilters)
-			{
-				continue;
-			}
-			
-			long start = entry.getPos() - 100;
-			long end = entry.getEnd() + 100;
-			if(entry.getNormalizedType().equals("INS"))
-			{
-				end = start + entry.getLength() + 100;
-			}
-			
-			if(end > start + 100000)
-			{
-				continue;
-			}
-			
-			String chr = entry.getChromosome();
-			
-			out.println("goto " + chr + ":" + start + "-" + end);
-			out.println("sort position");
-			if(SQUISH)
-			{
-				for(String bamFile : bamFiles)
+				else
 				{
-					out.println("squish " + bamFile);
+					for(String bamFile : bamFiles)
+					{
+						out.println("collapse " + bamFile);
+					}
 				}
+				out.println("snapshot " + tokens[3] + ".png");
 			}
-			else
-			{
-				for(String bamFile : bamFiles)
-				{
-					out.println("collapse " + bamFile);
-				}
-			}
-			out.println("snapshot " + entry.getId() + ".png");
+						
+			input.close();
 		}
 		
 		out.println("exit");
-		
-		input.close();
-		out.close();
-		
+
 		out.close();
 	}
 }
