@@ -264,10 +264,6 @@ public class IgvScreenshotMaker {
 					out.println("collapse " + bamFile);
 				}
 			}
-			for(String vcfFile : vcfFiles)
-			{
-				out.println("expand " + vcfFile);
-			}
 			out.println("snapshot " + entry.getId() + ".png");
 		}
 		
