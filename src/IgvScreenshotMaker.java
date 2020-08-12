@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -14,12 +15,14 @@ public class IgvScreenshotMaker {
 	
 	static String vcfFn = "";
 	static String bamFilelist = "";
+	static String vcfFilelist = "";
 	static String genomeFn = "";
 	
 	static String outPrefix = "";
 	
 	static boolean SQUISH = false;
 	static boolean SVG = false;
+	static boolean PRECISE = false;
 	
 	static HashMap<String, String> infoFilters;
 	static HashSet<String> grepFilters;
@@ -46,6 +49,10 @@ public class IgvScreenshotMaker {
 				{
 					Settings.DEFAULT_CHR_NORM = true;
 				}
+				else if(arg.toLowerCase().endsWith("precise"))
+				{
+					PRECISE = true;
+				}
 			}
 			else
 			{
@@ -62,6 +69,10 @@ public class IgvScreenshotMaker {
 				else if(key.equalsIgnoreCase("bam_filelist"))
 				{
 					bamFilelist = val;
+				}
+				else if(key.equalsIgnoreCase("vcf_filelist"))
+				{
+					vcfFilelist = val;
 				}
 				else if(key.equalsIgnoreCase("out_prefix"))
 				{
@@ -101,6 +112,8 @@ public class IgvScreenshotMaker {
 		System.out.println("Optional args:");
 		System.out.println("  info_filter=KEY,VALUE  - filter by an INFO field value (multiple allowed) e.g., info_filter=SUPP_VEC,101");
 		System.out.println("  grep_filter=QUERY      - filter to only lines containing a given QUERY");
+		System.out.println("  vcf_filelist  (String) - the txt file with a list of merged VCFs");
+		System.out.println("  --precise              - require variant to contain \"PRECISE\" as an INFO field");
 		System.out.println("  --squish               - squishes tracks to fit more reads");
 		System.out.println("  --svg                  - save as an SVG instead of a PNG");
 		System.out.println("  --normalize_chr_names  - normalize the VCF chromosome name to strip \"chr\"");
@@ -130,11 +143,56 @@ public class IgvScreenshotMaker {
 		out.println("new");
 		out.println("genome " + (genomeFn.startsWith("/") ? 
 				genomeFn : (currentRelativePath.toAbsolutePath().toString() + "/" + genomeFn)));
-		String[] bamFiles = bamFilelist.split(",");
-		for(String bamFn : bamFiles)
+		ArrayList<String> bamFiles = PipelineManager.getFilesFromList(bamFilelist);
+		ArrayList<String> vcfFiles = new ArrayList<String>();
+		if(vcfFilelist.length() > 0)
 		{
+			vcfFiles = PipelineManager.getFilesFromList(vcfFilelist);
+		}
+		for(int i = 0; i<bamFiles.size(); i++)
+		{
+			String bamFn = bamFiles.get(i);
 			out.println("load " + (bamFn.startsWith("/") ? 
 					bamFn : (currentRelativePath.toAbsolutePath().toString() + "/" + bamFn)));
+			if(vcfFiles.size() > 0)
+			{
+				String fn = currentRelativePath.toAbsolutePath().toString() + "/" + StringUtils.fileBaseName(bamFn);
+				fn = fn.substring(0, fn.length() - 4) + ".bed";
+				out.println("load " + fn);
+				
+				PrintWriter curOut = new PrintWriter(new File(fn));
+				Scanner curInput = new Scanner(new FileInputStream(new File(vcfFiles.get(i))));
+				while(curInput.hasNext())
+				{
+					String line = curInput.nextLine();
+					if(line.length() == 0 || line.startsWith("#"))
+					{
+						continue;
+					}
+					VcfEntry entry = VcfEntry.fromLine(line);
+					String chr = entry.getChromosome();
+					int start = (int)entry.getPos();
+					int end = (int)entry.getEnd();
+					String id = entry.getId();
+					String type = entry.getNormalizedType();
+					if(type.equalsIgnoreCase("TRA"))
+					{
+						String chr2 = entry.getChr2();
+						curOut.printf("%s\t%d\t%d\t%s_%s\n", chr, start, start+1, id, type);
+						curOut.printf("%s\t%d\t%d\t%s_%s\n", chr2, end, end+1, id, type);
+					}
+					else
+					{
+						if(end - start <= 100000)
+						{
+							curOut.printf("%s\t%d\t%d\t%s_%s\n", chr, start, end+1, id, type);
+						}
+					}
+				}
+				curInput.close();
+				curOut.close();
+			}
+			
 		}
 		out.println("snapshotDirectory " + outDir);
 		
@@ -166,6 +224,11 @@ public class IgvScreenshotMaker {
 				}
 			}
 			
+			if(PRECISE && !entry.tabTokens[7].startsWith("PRECISE;") && !entry.tabTokens[7].contains(";PRECISE;"))
+			{
+				passesFilters = false;
+			}
+			
 			if(!passesFilters)
 			{
 				continue;
@@ -173,14 +236,37 @@ public class IgvScreenshotMaker {
 			
 			long start = entry.getPos() - 100;
 			long end = entry.getEnd() + 100;
+			if(entry.getNormalizedType().equals("INS"))
+			{
+				end = start + entry.getLength() + 100;
+			}
+			
+			if(end > start + 100000)
+			{
+				continue;
+			}
+			
 			String chr = entry.getChromosome();
 			
 			out.println("goto " + chr + ":" + start + "-" + end);
 			out.println("sort position");
-			out.println("collapse");
 			if(SQUISH)
 			{
-				out.println("squish");
+				for(String bamFile : bamFiles)
+				{
+					out.println("squish " + bamFile);
+				}
+			}
+			else
+			{
+				for(String bamFile : bamFiles)
+				{
+					out.println("collapse " + bamFile);
+				}
+			}
+			for(String vcfFile : vcfFiles)
+			{
+				out.println("expand " + vcfFile);
 			}
 			out.println("snapshot " + entry.getId() + ".png");
 		}
