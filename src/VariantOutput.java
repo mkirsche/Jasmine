@@ -97,6 +97,7 @@ public class VariantOutput {
 						{
 							header.addInfoField("ALLVARS_EXT", "1", "String", "A comma-separated of all variants supporting this call");
 							header.addInfoField("VARCALLS", "1", "String", "The number of variant calls supporting this variant");
+							header.addInfoField("INTRASAMPLE_IDLIST", "1", "String", "The IDs which were merged in the most recent round of merging, with \".\" between samples");
 						}
 						header.print(out);
 					}
@@ -161,6 +162,9 @@ public class VariantOutput {
 		// The list of variant IDs in each merged variant
 		StringBuilder[] idLists;
 		
+		// The list of variant IDs in each merged variant
+		StringBuilder[] intraIdLists;
+		
 		VariantGraph(ArrayList<Variant>[] groups, int sampleCount)
 		{
 			int n = groups.length;
@@ -171,6 +175,7 @@ public class VariantOutput {
 			supportCounts = new int[n];
 			lastAdded = new int[n];
 			idLists = new StringBuilder[n];
+			intraIdLists = new StringBuilder[n];
 			varToGroup = new HashMap<String, Integer>();
 			
 			// Scan through groups and map variant IDs to group numbers
@@ -180,6 +185,10 @@ public class VariantOutput {
 				sizes[i] = groups[i].size();
 				consensus[i] = null;
 				idLists[i] = new StringBuilder("");
+				if(Settings.ALLOW_INTRASAMPLE)
+				{
+					intraIdLists[i] = new StringBuilder("");
+				}
 				char[] suppVec = new char[sampleCount];
 				Arrays.fill(suppVec, '0');
 				for(int j = 0; j<sizes[i]; j++)
@@ -236,6 +245,8 @@ public class VariantOutput {
 				}
 				allVarsExt = "(" + allVarsExt;
 				consensus[groupNumber].setInfo("ALLVARS_EXT", allVarsExt);
+				
+				intraIdLists[groupNumber].append(varId);
 			}
 			
 			if(Settings.INPUTS_MERGED)
@@ -362,6 +373,18 @@ public class VariantOutput {
 				}
 				consensus[groupNumber].setInfo("VARCALLS", 
 						varCallsCount + Integer.parseInt(consensus[groupNumber].getInfo("VARCALLS")) + "");
+			}
+			
+			if(Settings.ALLOW_INTRASAMPLE)
+			{
+				if(lastAdded[groupNumber] != sample)
+				{
+					intraIdLists[groupNumber].append("." + varId);
+				}
+				else
+				{
+					intraIdLists[groupNumber].append("," + varId);
+				}
 			}
 			
 			if(consensus[groupNumber].hasInfoField("ALLVARS_EXT"))
@@ -513,6 +536,11 @@ public class VariantOutput {
 			consensus[groupNumber].setInfo("SUPP", supportCounts[groupNumber]+"");
 			consensus[groupNumber].setInfo("SVMETHOD", "JASMINE");
 			consensus[groupNumber].setInfo("IDLIST", idLists[groupNumber].toString());
+			
+			if(Settings.ALLOW_INTRASAMPLE)
+			{
+				consensus[groupNumber].setInfo("INTRASAMPLE_IDLIST", intraIdLists[groupNumber].toString());
+			}
 			
 			if(Settings.FIX_ENDS)
 			{
