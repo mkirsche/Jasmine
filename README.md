@@ -20,7 +20,7 @@ conda install jasminesv
 
 ## Instructions for building from source
 
-When running Jasmine, one of the preprocessing options is to run Iris, a tool which refines the sequences and breakpoints of insertions in datasets with high-error reads.  Iris depends on samtools, minimap2, and racon by default, which can be installed separately and either added to your path or pointed to with the `iris_args` parameter.  Once these dependency are installed (or if running Jasmine without Iris preprocessing), Jasmine can be built with the following command:
+When running Jasmine, one of the preprocessing options is to run Iris, a tool which refines the sequences and breakpoints of insertions in datasets with high-error reads.  Iris depends on samtools, minimap2, and racon by default, which can be installed separately and either added to your path or pointed to with the `iris_args` parameter.  Once these dependencies are installed (or if running Jasmine without Iris preprocessing), Jasmine can be built with the following command:
 
 ```
 path_to_jasmine_repo/build_jar.sh
