@@ -10,6 +10,8 @@
  */
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 
@@ -22,23 +24,57 @@ public class KDTree
 	int querySize;
 	int K;
 	
+	int n;
+	
 	/*
 	 * Initializes a KD-tree from a list of variants
 	 */
 	public KDTree(Variant[] p) 
 	{
+		n = p.length;
 		K = 2;
 		LinkedList<Node> list = new LinkedList<Node>();
 		for (Variant q : p) list.add(new Node(q));
-		root = buildNonrecursive(list, 0);
+		root = build(list, 0);//buildNonrecursive(list, 0).get(0);
+	}
+	
+	public KDTree(Variant[] p, boolean recursive) 
+	{
+		n = p.length;
+		K = 2;
+		LinkedList<Node> list = new LinkedList<Node>();
+		for (Variant q : p) list.add(new Node(q));
+		root = recursive ? build(list, 0) : buildNonrecursive(list).get(0);
+	}
+	
+	private Node build(LinkedList<Node> p, int depth) 
+	{
+		if (p.size() == 0) return null;
+		Node pivot = p.remove();
+		
+		// Sort the points into left and right subtrees based on current split dimension
+		LinkedList<Node> left = new LinkedList<Node>();
+		LinkedList<Node> right = new LinkedList<Node>();
+		while (!p.isEmpty()) 
+		{
+			if (p.peek().planes[depth % K] < pivot.planes[depth % K])
+				left.add(p.remove());
+			else
+				right.add(p.remove());
+		}
+		pivot.children[0] = build(left, depth + 1);
+		pivot.children[1] = build(right, depth + 1);
+		
+		return pivot;
 	}
 	
 	/*
 	 * Build the data structure from a list of points without recursion
 	 * This avoids stack overflow issues caused by larger datasets
 	 */
-	private Node buildNonrecursive(LinkedList<Node> p, int depth) 
+	private ArrayList<Node> buildNonrecursive(LinkedList<Node> p) 
 	{
+		ArrayList<Node> nodeList = new ArrayList<Node>();
 		if(p.size() == 0)
 		{
 			return null;
@@ -46,14 +82,14 @@ public class KDTree
 		
 		// The stack of node lists to process (in place of recursive calls)
 		ArrayDeque<LinkedList<Node>> toProcess = new ArrayDeque<LinkedList<Node>>();
-		ArrayDeque<Node> parents = new ArrayDeque<Node>();
+		ArrayDeque<Integer> parents = new ArrayDeque<Integer>();
 		ArrayDeque<Integer> depths = new ArrayDeque<Integer>();
 		ArrayDeque<Integer> parentsides = new ArrayDeque<Integer>();
 		
 		// Initialize root to null to be filled 
-		Node res = null;
+		//nodeList.add(res);
 		toProcess.addFirst(p);
-		parents.addFirst(p.peekFirst()); // This is not actually the parent of the root, but it will be ignored anyways
+		parents.addFirst(-1); // This is not actually the parent of the root, but it will be ignored anyways
 		depths.addFirst(0);
 		parentsides.addFirst(-1);
 		
@@ -61,57 +97,94 @@ public class KDTree
 		{
 			// Get information for processing this node from stacks
 			LinkedList<Node> pcur = toProcess.pollFirst();
-			Node parentcur = parents.pollFirst();
+			int parentcur = parents.pollFirst();
 			int depthcur = depths.pollFirst();
 			int parentsidecur = parentsides.pollFirst();
 			
-			if(pcur.size() == 0)
-			{
-				continue;
-			}
-			
 			// Get pivot as the first point in the list
 			Node pivot = pcur.remove();
-			
-			if(res == null)
-			{
-				res = pivot;
-			}
 			
 			// Separate this point into points left of the pivot vs. right of the pivot
 			LinkedList<Node> left = new LinkedList<Node>();
 			LinkedList<Node> right = new LinkedList<Node>();
 			while (!pcur.isEmpty()) 
 			{
-				if (pcur.peek().planes[depth % K] < pivot.planes[depth % K])
-					left.add(pcur.remove());
+				Node check = pcur.pollFirst();
+				if (check.planes[depthcur % K] < pivot.planes[depthcur % K])
+					left.add(check);
 				else
-					right.add(pcur.remove());
+					right.add(check);
 			}
+			
+			//pcur.clear();
 			
 			// Update this node's parent's child-pointer to this node.
 			if(parentsidecur != -1)
 			{
-				parentcur.children[parentsidecur] = pivot;
+				nodeList.get(parentcur).children[parentsidecur] = pivot;
 			}
 			
 			pivot.children[0] = null;
 			pivot.children[1] = null;
+			nodeList.add(pivot);
 			
 			// Add right child to processing stack
-			toProcess.addFirst(right);
-			parents.addFirst(pivot);
-			parentsides.addFirst(1);
-			depths.addFirst(depthcur + 1);
+			if(right.size() > 0)
+			{
+				toProcess.addFirst(right);
+				parents.addFirst(nodeList.size() - 1);
+				parentsides.addFirst(1);
+				depths.addFirst(depthcur + 1);
+			}
 			
 			// Add left child to processing stack
-			toProcess.addFirst(left);
-			parents.addFirst(pivot);
-			parentsides.addFirst(0);
-			depths.addFirst(depthcur + 1);
+			if(left.size() > 0)
+			{
+				toProcess.addFirst(left);
+				parents.addFirst(nodeList.size() - 1);
+				parentsides.addFirst(0);
+				depths.addFirst(depthcur + 1);
+			}
 		}
 		
-		return res;
+		return nodeList;
+	}
+	
+	/*
+	 * Used to make sure two KD-trees are the same
+	 */
+	static boolean compare(String pref, Node a, Node b)
+	{
+		if(a == null && b != null)
+		{
+			System.out.println(pref + " only a is null");
+			return true;
+		}
+		if(b == null && a != null)
+		{
+			System.out.println(pref + " only b is null");
+			return true;
+		}
+		if(a == null && b == null)
+		{
+			return false;
+		}
+		if(a.planes[0] != b.planes[0] || a.planes[1] != b.planes[1])
+		{
+			System.out.println(pref + " diff value: " + a.planes[0] + " " + a.planes[1] + " " + b.planes[0] + " " + b.planes[1]);
+			return true;
+		}
+		
+		boolean leftDiff = compare(pref + "L", a.children[0], b.children[0]);
+		if(leftDiff)
+		{
+			return true;
+		}
+		else
+		{
+			return compare(pref + "R", a.children[1], b.children[1]);
+		}
+		
 	}
 	
 	/*
@@ -168,6 +241,8 @@ public class KDTree
 			planes[0] = p.start;
 			planes[1] = p.end; // add additional dimensions as necessary
 			children = new Node[2];
+			children[0] = null;
+			children[1] = null;
 		}
 	}
 	
