@@ -34,7 +34,7 @@ After building the jar file, Jasmine can be run with the executable file `jasmin
 
 ## IGV visualization module
 
-Jasmine also includes a module for automating the creation of IGV screenshots of variants of interest.  It can be run through the `igv_jasmine` executable file.  Running it with no parameters will print a usage menu describing the required and optional arguments, and it requires at minimum the following:
+Jasmine also includes a module for automating the creation of [IGV](http://software.broadinstitute.org/software/igv/) screenshots of variants of interest.  It can be run through the `igv_jasmine` executable file.  Running it with no parameters will print a usage menu describing the required and optional arguments, and it requires at minimum the following:
 - BAM files from which variants were called in each sample
 - The reference genome
 - The merged VCF file, or a BED file with regions of interest
