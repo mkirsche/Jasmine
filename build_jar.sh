@@ -19,5 +19,7 @@ fi
 cd $BINDIR/src
 javac -cp $irisjar *.java
 jar -c -e Main -f jasmine.jar *.class
+jar -c -e IgvScreenshotMaker -f jasmine_igv.jar *.class
 mv jasmine.jar $BINDIR
+mv jasmine_igv.jar $BINDIR
 cd $BINDIR
