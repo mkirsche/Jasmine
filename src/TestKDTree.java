@@ -16,10 +16,14 @@ public static void main(String[] args)
 	};
 	
 	KDTree kdt = new KDTree(data);
-	Variant[] cur = kdt.kNearestNeighbor(data[0], 5);
-	for(Variant v : cur)
+	for(int i = 0; i<data.length;i++)
 	{
-		System.out.println(v.id+" "+v.start+" "+v.end+" "+v.distance(data[0]));
+		Variant[] cur = kdt.kNearestNeighbor(data[i], 5);
+		for(Variant v : cur)
+		{
+			System.out.println(v.id+" "+v.start+" "+v.end+" "+v.distance(data[i]));
+		}
+		System.out.println();
 	}
 }
 }

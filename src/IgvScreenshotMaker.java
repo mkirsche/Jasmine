@@ -157,6 +157,7 @@ public class IgvScreenshotMaker {
 		{
 			vcfFiles = PipelineManager.getFilesFromList(vcfFilelist);
 		}
+		ArrayList<String> bedFiles = new ArrayList<String>();
 		for(int i = 0; i<bamFiles.size(); i++)
 		{
 			String bamFn = bamFiles.get(i);
@@ -167,7 +168,7 @@ public class IgvScreenshotMaker {
 				String fn = currentRelativePath.toAbsolutePath().toString() + "/" + StringUtils.fileBaseName(bamFn);
 				fn = fn.substring(0, fn.length() - 4) + ".bed";
 				out.println("load " + fn);
-				
+				bedFiles.add(fn);
 				PrintWriter curOut = new PrintWriter(new File(fn));
 				Scanner curInput = new Scanner(new FileInputStream(new File(vcfFiles.get(i))));
 				while(curInput.hasNext())
@@ -279,6 +280,10 @@ public class IgvScreenshotMaker {
 					{
 						out.println("collapse " + bamFile);
 					}
+				}
+				for(String bedFile : bedFiles)
+				{
+					out.println("expand " + bedFile);
 				}
 				out.println("snapshot " + entry.getId() + ".png");
 			}

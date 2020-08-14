@@ -29,7 +29,7 @@ public class VariantMerger
 		n = data.length;
 		
 		forest = new Forest(data);
-		knn = new KDTree(data);
+		knn = new KDTree(data, false);
 		
 		for(int i = 0; i<n; i++) data[i].index = i;
 		this.data = data;
@@ -214,22 +214,12 @@ public class VariantMerger
 					break;
 				}
 				
-				if(data[e.from].distance(candidateTo) > 1e6)
-				{
-					System.out.println(data[e.from].distance(candidateTo)+" "+maxDistAllowed);
-				}
-				
 				// If edge was invalid because of coming from the same sample, ignore it and try the next one
-				else if(data[e.from].sample == candidateTo.sample)
+				else if(!Settings.ALLOW_INTRASAMPLE && data[e.from].sample == candidateTo.sample)
 				{
-					if(Settings.ALLOW_INTRASAMPLE)
-					{
-						toProcess.add(new Edge(e.from, candidateTo.index, data[e.from].distance(candidateTo)));
-						countEdgesProcessed[e.from]++;
-						break;
-					}
+					toProcess.add(new Edge(e.from, candidateTo.index, data[e.from].distance(candidateTo)));
 					countEdgesProcessed[e.from]++;
-					continue;
+					break;
 				}
 				
 				// If sequences weren't similar enough for two insertions, ignore and try again
@@ -270,7 +260,7 @@ public class VariantMerger
 			}
 			else
 			{
-				res[forest.map[i]].add(data[i]);
+				res[forest.find(i)].add(data[i]);
 			}
 		}
 		return res;
