@@ -56,6 +56,10 @@ public class IgvScreenshotMaker {
 				{
 					PRECISE = true;
 				}
+				else if(arg.toLowerCase().endsWith("specific"))
+				{
+					infoFilters.put("IS_SPECIFIC", "1");
+				}
 			}
 			else
 			{
@@ -110,6 +114,10 @@ public class IgvScreenshotMaker {
 	static void usage()
 	{
 		System.out.println();
+		System.out.println("Jasmine IGV Screenshot Maker");
+		System.out.println("Usage: igv_jasmine [args]");
+		System.out.println("  Example: jasmine file_list=filelist.txt out_file=out.vcf");
+		System.out.println();
 		System.out.println("Required args:");
 		System.out.println("  vcf_file      (String) - the VCF file with merged SVs");
 		System.out.println("  genome_file   (String) - the FASTA file with the reference genome");
@@ -119,12 +127,13 @@ public class IgvScreenshotMaker {
 		System.out.println("Optional args:");
 		System.out.println("  info_filter=KEY,VALUE  - filter by an INFO field value (multiple allowed) e.g., info_filter=SUPP_VEC,101");
 		System.out.println("  grep_filter=QUERY      - filter to only lines containing a given QUERY");
-		System.out.println("  vcf_filelist  (String) - the txt file with a list of merged VCFs");
+		System.out.println("  vcf_filelist  (String) - the txt file with a list of input VCFs in the same order as BAM files");
 		System.out.println("  bed_file      (String) - a bed file with a list of ranges (use instead of vcf_file)");
 		System.out.println("  --precise              - require variant to contain \"PRECISE\" as an INFO field");
+		System.out.println("  --specific             - shorthand for info_filter=IS_SPECIFIC,1");
 		System.out.println("  --squish               - squishes tracks to fit more reads");
 		System.out.println("  --svg                  - save as an SVG instead of a PNG");
-		System.out.println("  --normalize_chr_names  - normalize the VCF chromosome name to strip \"chr\"");
+		System.out.println("  --normalize_chr_names  - normalize the VCF chromosome names to strip \"chr\"");
 		System.out.println();
 	}
 	
