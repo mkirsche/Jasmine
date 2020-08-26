@@ -21,6 +21,12 @@ public class VcfEntry {
 		{
 			return new BndVcfEntry(line);
 		}
+		else if(res.getAlt().contains("[") || res.getAlt().contains("]"))
+		{
+			// BND format but not a translocation, so set REF and ALT to symbolic notation instead
+			res.setRef(".");
+			res.setAlt("<" + res.getType() + ">");
+		}
 		
 		// Adding this for reverse compatibility
 		if(res.hasInfoField("IN_SPECIFIC"))
