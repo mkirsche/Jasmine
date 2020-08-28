@@ -63,6 +63,10 @@ public class VariantInput {
 		Scanner input = new Scanner(new FileInputStream(new File(filename)));
 		ArrayList<Variant> allVariants = new ArrayList<Variant>();
 		HashSet<String> ids = new HashSet<String>();
+		if(!previouslyMergedSamples.containsKey(sample))
+		{
+			previouslyMergedSamples.put(sample, 1);
+		}
 		while(input.hasNext())
 		{
 			String line = input.nextLine();
