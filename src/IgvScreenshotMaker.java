@@ -116,7 +116,8 @@ public class IgvScreenshotMaker {
 		System.out.println();
 		System.out.println("Jasmine IGV Screenshot Maker");
 		System.out.println("Usage: igv_jasmine [args]");
-		System.out.println("  Example: jasmine file_list=filelist.txt out_file=out.vcf");
+		System.out.println("  Example: igv_jasmine vcf_file=merged.vcf genome_file=genome.fa"
+				+ " bam_filelist=bams.txt out_prefix=igv");
 		System.out.println();
 		System.out.println("Required args:");
 		System.out.println("  vcf_file      (String) - the VCF file with merged SVs");
