@@ -10,3 +10,6 @@ bin/
 .idea/
 *.iml
 src/FixStrands.java
+data/
+output/
+out.log
