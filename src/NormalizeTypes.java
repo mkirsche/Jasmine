@@ -9,7 +9,7 @@ public class NormalizeTypes {
 	static String outputFile = "";
 	public static void main(String[] args) throws Exception
 	{
-		if(args.length != 3)
+		if(args.length != 2)
 		{
 			System.out.println("Usage: java NormalizeTypes input_vcf output_vcf");
 			return;
@@ -18,6 +18,7 @@ public class NormalizeTypes {
 		{
 			inputFile = args[0];
 			outputFile = args[1];
+			Settings.CHR_NAME_MAP = new ChrNameNormalization();
 			convertFile(inputFile, outputFile);
 		}		
 	}
@@ -33,7 +34,7 @@ public class NormalizeTypes {
 		
 		VcfHeader header = new VcfHeader();
 		ArrayList<VcfEntry> entries = new ArrayList<VcfEntry>();
-		
+				
 		while(input.hasNext())
 		{
 			String line = input.nextLine();
@@ -43,7 +44,14 @@ public class NormalizeTypes {
 			}
 			else if(line.length() > 0)
 			{
-				VcfEntry ve = new VcfEntry(line);
+				VcfEntry ve = VcfEntry.fromLine(line);
+				if(ve.getAlt().contains("[") || ve.getAlt().contains("]"))
+				{
+					ve.setInfo("CHR2", ve.getChr2());
+					ve.setInfo("END", ve.getEnd() + "");
+					ve.setInfo("STRANDS", ve.getStrand() + "");
+					ve.setAlt("<TRA>");
+				}
 				ve.setType(ve.getNormalizedType());
 				if(ve.getAlt().startsWith("<"))
 				{

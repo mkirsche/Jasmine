@@ -1,3 +1,6 @@
+/*
+ * A program for filtering variants based on their overlap with a list of regions.
+ */
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
@@ -15,6 +18,7 @@ public class Overlap
 	static String ofn = "";
 	static String FILTER_MODE = "CONTAINED_IN_REGION";
 	static String REPORT_MODE = "REMOVE";
+	static String reportInfo = "";
 	
 	static ChrNameNormalization chrNorm;
 	static void parseArgs(String[] args)
@@ -42,7 +46,16 @@ public class Overlap
 				{
 					ofn = val;
 				}
+				else if(key.equalsIgnoreCase("info_report"))
+				{
+					reportInfo = val;
+				}
 			}
+		}
+		
+		if(reportInfo.length() > 0)
+		{
+			REPORT_MODE = "INFO";
 		}
 		
 		if(vcfFn.length() == 0 || bedFn.length() == 0 || ofn.length() == 0)
@@ -64,6 +77,7 @@ public class Overlap
 		System.out.println("  out_file   (String) - the name of the output VCF filtered by regions of interest");
 		System.out.println();
 		System.out.println("Optional args:");
+		System.out.println("  info_report (String) [] - the INFO field to indicate presence in regions instead of removing non-overlapping variants");
 		System.out.println();
 	}
 	
@@ -82,7 +96,7 @@ public class Overlap
 		Scanner input = new Scanner(new FileInputStream(new File(bedFn)));
 		
 		ArrayList<Event> events = new ArrayList<Event>();
-		//int idNum = 0;
+		int idNum = 0;
 		while(input.hasNext())
 		{
 			String line = input.nextLine();
@@ -95,9 +109,9 @@ public class Overlap
 			chr = chrNorm.normalize(chr);
 			int start = Integer.parseInt(tokens[1]);
 			int end = Integer.parseInt(tokens[2]);
-			//idNum++;
-			events.add(new Event(chr, start, 1, chr+"_"+start+"_"+end + ""));
-			events.add(new Event(chr, end, -1, chr+"_"+start+"_"+end + ""));
+			idNum++;
+			events.add(new Event(chr, start, 1, idNum + ""));
+			events.add(new Event(chr, end, -1, idNum + ""));
 		}
 		input.close();
 		
@@ -333,6 +347,10 @@ public class Overlap
 			{
 				if(!printedHeader)
 				{
+					if(REPORT_MODE.equalsIgnoreCase("INFO"))
+					{
+						header.addInfoField(reportInfo, "1", "String", "Whether or not the variant is in the regions of interest listed in " + bedFn);
+					}
 					header.print(out);
 					printedHeader = true;
 				}
@@ -351,8 +369,20 @@ public class Overlap
 				{
 					if(hasOverlap)
 					{
-						out.println(line);
+						out.println(entry);
 					}
+				}
+				if(REPORT_MODE.equalsIgnoreCase("INFO"))
+				{
+					if(hasOverlap)
+					{
+						entry.setInfo(reportInfo, "1");
+					}
+					else
+					{
+						entry.setInfo(reportInfo, "0");
+					}
+					out.println(entry);
 				}
 			}
 		}
