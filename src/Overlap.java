@@ -67,7 +67,7 @@ public class Overlap
 	static void usage()
 	{
 		System.out.println();
-		System.out.println("Jasmine IGV Screenshot Maker");
+		System.out.println("Jasmine Overlapping");
 		System.out.println("Usage: overlap_jasmine [args]");
 		System.out.println("  Example: overlap_jasmine vcf_file=merged.vcf bed_file=regions.bed out_fie=filtered.vcf");
 		System.out.println();

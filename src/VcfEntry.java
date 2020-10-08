@@ -17,15 +17,21 @@ public class VcfEntry {
 	public static VcfEntry fromLine(String line) throws Exception
 	{
 		VcfEntry res = new VcfEntry(line);
+		
 		if(res.getType().equals("BND"))
 		{
-			return new BndVcfEntry(line);
+			res = new BndVcfEntry(line);
 		}
 		else if(res.getAlt().contains("[") || res.getAlt().contains("]"))
 		{
 			// BND format but not a translocation, so set REF and ALT to symbolic notation instead
 			res.setRef(".");
 			res.setAlt("<" + res.getType() + ">");
+		}
+		
+		if(Settings.NORMALIZE_TYPE)
+		{
+			res.normalizeType();
 		}
 		
 		// Adding this for reverse compatibility
@@ -46,14 +52,29 @@ public class VcfEntry {
 					+ Arrays.toString(tabTokens));
 		}
 		oldId = getId();
-		if(Settings.NORMALIZE_TYPE && !getType().equals("BND"))
-		{
-			setType(getNormalizedType());
-		}
 		
 		if(Settings.CHR_NAME_MAP != null)
 		{
 			setChromosome(Settings.CHR_NAME_MAP.normalize(getChromosome()));
+		}
+	}
+	
+	/*
+	 * Normalizes the type of the VCF entry
+	 */
+	void normalizeType() throws Exception
+	{
+		if(getAlt().contains("[") || getAlt().contains("]"))
+		{
+			setInfo("CHR2", getChr2());
+			setInfo("END", getEnd() + "");
+			setInfo("STRANDS", getStrand() + "");
+			setAlt("<TRA>");
+		}
+		setType(getNormalizedType());
+		if(getAlt().startsWith("<"))
+		{
+			setAlt("<" + getNormalizedType() + ">");
 		}
 	}
 	
