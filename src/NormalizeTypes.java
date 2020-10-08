@@ -45,18 +45,7 @@ public class NormalizeTypes {
 			else if(line.length() > 0)
 			{
 				VcfEntry ve = VcfEntry.fromLine(line);
-				if(ve.getAlt().contains("[") || ve.getAlt().contains("]"))
-				{
-					ve.setInfo("CHR2", ve.getChr2());
-					ve.setInfo("END", ve.getEnd() + "");
-					ve.setInfo("STRANDS", ve.getStrand() + "");
-					ve.setAlt("<TRA>");
-				}
-				ve.setType(ve.getNormalizedType());
-				if(ve.getAlt().startsWith("<"))
-				{
-					ve.setAlt("<" + ve.getNormalizedType() + ">");
-				}
+				ve.normalizeType();
 				entries.add(ve);
 			}
 		}
