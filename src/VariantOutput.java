@@ -185,10 +185,7 @@ public class VariantOutput {
 				sizes[i] = groups[i].size();
 				consensus[i] = null;
 				idLists[i] = new StringBuilder("");
-				if(Settings.ALLOW_INTRASAMPLE)
-				{
-					intraIdLists[i] = new StringBuilder("");
-				}
+				intraIdLists[i] = new StringBuilder("");
 				char[] suppVec = new char[sampleCount];
 				Arrays.fill(suppVec, '0');
 				for(int j = 0; j<sizes[i]; j++)
@@ -227,9 +224,14 @@ public class VariantOutput {
 			consensus[groupNumber].setInfo("AVG_START", entry.getPos() + "");
 			consensus[groupNumber].setInfo("AVG_END", entry.getEnd() + "");
 			
-			if(Settings.ALLOW_INTRASAMPLE)
+			if(Settings.ALLOW_INTRASAMPLE || entry.hasInfoField("ALLVARS_EXT"))
 			{
-				consensus[groupNumber].setInfo("VARCALLS", "1");
+				String varCalls = "1";
+				if(entry.hasInfoField("VARCALLS"))
+				{
+					varCalls = entry.getInfo("VARCALLS");
+				}
+				consensus[groupNumber].setInfo("VARCALLS", varCalls);
 				String allVarsExt = entry.getInfo("ALLVARS_EXT");
 				if(allVarsExt.length() == 0)
 				{
