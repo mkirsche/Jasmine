@@ -5,6 +5,7 @@ bin/
 *.class
 *.vcf
 *.vcf.graph
+*.bed
 *.txt
 # IDEA setup
 .idea/
