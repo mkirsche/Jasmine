@@ -62,6 +62,13 @@ public class DuplicationsToInsertions {
 					
 					long start = ve.getPos(), end = Long.parseLong(ve.getInfo("END"));
 					int length = ve.getLength();
+					if(end <= start)
+					{
+						System.err.printf("Duplication with ID %s has end (%d) <= start (%d), so was not converted\n", 
+								ve.getId(), start, end);
+						entries.add(ve);
+						continue;
+					}
 					long nstart = start + length - 1, nend = nstart;
 
 					if(ve.getAlt().equals("<DUP>"))
