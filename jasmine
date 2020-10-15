@@ -5,5 +5,5 @@ else
     BINDIR=$(dirname "$(readlink "$0" || echo "$(echo "$0" | sed -e 's,\\,/,g')")")
 fi
 
-java -jar $BINDIR/jasmine.jar iris_args=samtools_path=samtools,racon_path=racon,minimap_path=minimap2 "${@:1}"
+java -cp $BINDIR/jasmine_iris.jar:$BINDIR/jasmine.jar Main iris_args=samtools_path=samtools,racon_path=racon,minimap_path=minimap2 "${@:1}"
 
