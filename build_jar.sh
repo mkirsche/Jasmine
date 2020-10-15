@@ -16,8 +16,10 @@ else
     irisjar=$BINDIR/Iris/iris.jar
 fi
 
+cp $irisjar $BINDIR/jasmine_iris.jar
+
 cd $BINDIR/src
-javac -cp $irisjar *.java
+javac -cp $BINDIR/jasmine_iris.jar *.java
 jar -c -e Main -f jasmine.jar *.class
 jar -c -e IgvScreenshotMaker -f jasmine_igv.jar *.class
 mv jasmine.jar $BINDIR
