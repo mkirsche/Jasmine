@@ -98,6 +98,10 @@ public class IgvScreenshotMaker {
 				{
 					grepFilters.add(val);
 				}
+				else if(key.equalsIgnoreCase("padding"))
+				{
+					PADDING = Integer.parseInt(val);
+				}
 			}
 		}
 		
@@ -265,7 +269,7 @@ public class IgvScreenshotMaker {
 				// Make sure entire insertion is covered
 				if(entry.getNormalizedType().equals("INS"))
 				{
-					end = start + entry.getLength() + PADDING;
+					end = entry.getPos() + entry.getLength() + PADDING;
 				}
 				
 				if(end > start + 100000)
