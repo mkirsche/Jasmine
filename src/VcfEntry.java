@@ -470,7 +470,7 @@ public class VcfEntry {
 		{
 			int startPad = 0, endPad = 0;
 			int totalPad = ref.length();
-			while(startPad + endPad < totalPad && startPad < alt.length())
+			while(startPad + endPad < totalPad && startPad + endPad < alt.length())
 			{
 				if(ref.charAt(startPad) == alt.charAt(startPad))
 				{
