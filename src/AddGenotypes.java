@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Scanner;
 
 public class AddGenotypes {
@@ -321,6 +322,7 @@ public class AddGenotypes {
 		
 		FileFormatField(String fileName, boolean reformat) throws Exception
 		{
+			HashSet<String> ids = new HashSet<String>();
 			variantFormats = new ArrayList<VariantFormatField>();
 			idToVariantIndex = new HashMap<String, Integer>();
 			header = new VcfHeader();
@@ -365,6 +367,25 @@ public class AddGenotypes {
 					
 					// Add this variant's format fields to the list
 					VcfEntry entry = new VcfEntry(line);
+					if(ids.contains(entry.getId()))
+					{
+						String oldId = entry.getId();
+						int index = 1;
+						while(true)
+						{
+							String newId = oldId + "_duplicate" + index;
+							if(!ids.contains(newId))
+							{
+								entry.setId(newId);
+								break;
+							}
+							else
+							{
+								index++;
+							}
+						}
+					}
+					ids.add(entry.getId());
 					idToVariantIndex.put(entry.getId(), variantFormats.size());
 					VariantFormatField vff = new VariantFormatField(line);
 					if(reformat)
