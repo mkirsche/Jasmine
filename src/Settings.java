@@ -68,7 +68,7 @@ public class Settings {
 	static void usage()
 	{
 		System.out.println();
-		System.out.println("Jasmine version 1.0.9");
+		System.out.println("Jasmine version 1.0.10");
 		System.out.println("Usage: jasmine [args]");
 		System.out.println("  Example: jasmine file_list=filelist.txt out_file=out.vcf");
 		System.out.println();
