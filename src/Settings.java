@@ -340,7 +340,7 @@ public class Settings {
 			usage();
 			System.exit(0);
 		}
-		if(GENOME_FILE.length() == 0 && (RUN_IRIS || CONVERT_DUPLICATIONS))
+		if(GENOME_FILE.length() == 0 && !POSTPROCESS_ONLY && (RUN_IRIS || CONVERT_DUPLICATIONS))
 		{
 			usage();
 			System.exit(0);
