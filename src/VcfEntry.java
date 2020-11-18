@@ -69,7 +69,7 @@ public class VcfEntry {
 			setInfo("CHR2", getChr2());
 			setInfo("END", getEnd() + "");
 			setInfo("STRANDS", getStrand() + "");
-			setAlt("<TRA>");
+			//setAlt("<TRA>");
 		}
 		setType(getNormalizedType());
 		if(getAlt().startsWith("<"))
