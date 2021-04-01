@@ -5,6 +5,7 @@
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class Settings {
 
@@ -62,6 +63,9 @@ public class Settings {
 	
 	static ChrNameNormalization CHR_NAME_MAP;
 	
+	static String PER_SAMPLE_DIST_FILE = "";
+	static int[] PER_SAMPLE_DISTS;
+	
 	/*
 	 * Print the usage menu
 	 */
@@ -94,6 +98,7 @@ public class Settings {
 		System.out.println("  out_dir         (String) [output]   - the directory where intermediate files go");
 		System.out.println("  samtools_path   (String) [samtools] - the path to the samtools executable used for coverting duplications");
 		System.out.println("  chr_norm_file   (String) []         - the path to a file containing chromosome name mappings, if they are being normalized");
+		System.out.println("  sample_dists  (String) []         - the path to a file containing distance thresholds for each sample, one per line");
 		System.out.println("  --ignore_strand                     - allow variants with different strands to be merged");
 		System.out.println("  --ignore_type                       - allow variants with different types to be merged");
 		System.out.println("  --dup_to_ins                        - convert duplications to insertions for SV merging and then convert them back");
@@ -326,6 +331,10 @@ public class Settings {
 					break;
 				case "chr_norm_file":
 					CHR_NORM_FILE = val;
+					break;
+				case "sample_dists":
+					PER_SAMPLE_DIST_FILE = val;
+					break;
 				default:
 					break;
 			}
@@ -350,6 +359,25 @@ public class Settings {
 		{
 			usage();
 			System.exit(0);
+		}
+		
+		if(PER_SAMPLE_DIST_FILE.length() > 0)
+		{
+			try 
+			{
+				ArrayList<String> vals = PipelineManager.getFilesFromList(PER_SAMPLE_DIST_FILE);
+				PER_SAMPLE_DISTS = new int[vals.size()];
+				for(int i = 0; i < vals.size(); i++)
+				{
+					PER_SAMPLE_DISTS[i] = Integer.parseInt(vals.get(i));
+				}
+				
+			} 
+			catch(Exception e) 
+			{
+				usage();
+				System.exit(0);
+			}
 		}
 		
 		Path currentRelativePath = Paths.get("");

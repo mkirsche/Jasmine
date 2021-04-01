@@ -95,9 +95,9 @@ public class VariantOutput {
 						header.addInfoField("SVLEN", "1", "String", "The length (in bp) of the variant");
 						if(Settings.ALLOW_INTRASAMPLE)
 						{
-							header.addInfoField("ALLVARS_EXT", "1", "String", "A comma-separated of all variants supporting this call");
+							header.addInfoField("ALLVARS_EXT", ".", "String", "A comma-separated of all variants supporting this call");
 							header.addInfoField("VARCALLS", "1", "String", "The number of variant calls supporting this variant");
-							header.addInfoField("INTRASAMPLE_IDLIST", "1", "String", "The IDs which were merged in the most recent round of merging, with \".\" between samples");
+							header.addInfoField("INTRASAMPLE_IDLIST", ".", "String", "The IDs which were merged in the most recent round of merging");
 						}
 						header.print(out);
 					}
