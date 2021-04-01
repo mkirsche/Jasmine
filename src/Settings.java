@@ -98,7 +98,7 @@ public class Settings {
 		System.out.println("  out_dir         (String) [output]   - the directory where intermediate files go");
 		System.out.println("  samtools_path   (String) [samtools] - the path to the samtools executable used for coverting duplications");
 		System.out.println("  chr_norm_file   (String) []         - the path to a file containing chromosome name mappings, if they are being normalized");
-		System.out.println("  sample_dists  (String) []         - the path to a file containing distance thresholds for each sample, one per line");
+		System.out.println("  sample_dists    (String) []         - the path to a file containing distance thresholds for each sample, one per line");
 		System.out.println("  --ignore_strand                     - allow variants with different strands to be merged");
 		System.out.println("  --ignore_type                       - allow variants with different types to be merged");
 		System.out.println("  --dup_to_ins                        - convert duplications to insertions for SV merging and then convert them back");
