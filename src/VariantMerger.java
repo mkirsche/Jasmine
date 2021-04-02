@@ -96,6 +96,10 @@ public class VariantMerger
 		{
 			nearestNeighbors[i] = knn.kNearestNeighbor(data[i], 4);
 			int maxDistAllowed = Math.max(data[i].maxDist, nearestNeighbors[i][0].maxDist);
+			if(Settings.REQUIRE_MUTUAL_DISTANCE)
+			{
+				maxDistAllowed = Math.min(data[i].maxDist, nearestNeighbors[i][0].maxDist);
+			}
 			if(data[i].distance(nearestNeighbors[i][0]) < maxDistAllowed + 1e-9)
 			{
 				toProcess.add(new Edge(i, nearestNeighbors[i][0].index, data[i].distance(nearestNeighbors[i][0])));
@@ -125,6 +129,10 @@ public class VariantMerger
 							{
 								Variant candidateTo = data[merged[toRoot].get(j)];
 								int maxDistAllowed = Math.max(candidateFrom.maxDist, candidateTo.maxDist);
+								if(Settings.REQUIRE_MUTUAL_DISTANCE)
+								{
+									maxDistAllowed = Math.min(data[i].maxDist, nearestNeighbors[i][0].maxDist);
+								}
 								if(candidateFrom.distance(candidateTo) > maxDistAllowed + 1e-9)
 								{
 									valid = false;
@@ -209,9 +217,20 @@ public class VariantMerger
 				// This edge was invalid because of distance from the query, so stop looking at any edges 
 				// since they'll only get farther away
 				int maxDistAllowed = Math.max(data[e.from].maxDist, candidateTo.maxDist);
-				if(data[e.from].distance(candidateTo) > maxDistAllowed + 1e-9)
+				if(Settings.REQUIRE_MUTUAL_DISTANCE)
+				{
+					maxDistAllowed = Math.min(data[e.from].maxDist, candidateTo.maxDist);
+				}
+				
+				if(data[e.from].distance(candidateTo) > data[e.from].maxDist + 1e-9)
 				{
 					break;
+				}
+				
+				else if(data[e.from].distance(candidateTo) > maxDistAllowed + 1e-9)
+				{
+					countEdgesProcessed[e.from]++;
+					continue;
 				}
 				
 				// If edge was invalid because of coming from the same sample, ignore it and try the next one
