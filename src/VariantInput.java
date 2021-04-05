@@ -173,7 +173,7 @@ public class VariantInput {
 		}
 		
 		// Next check if a per-sample distance threshold was set
-		else if(Settings.PER_SAMPLE_DISTS.length > sample)
+		else if(Settings.PER_SAMPLE_DISTS != null && Settings.PER_SAMPLE_DISTS.length > sample)
 		{
 			maxDist = Settings.PER_SAMPLE_DISTS[sample];
 		}
