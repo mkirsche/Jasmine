@@ -37,9 +37,11 @@ public class InsertionsToDuplications {
 		PrintWriter out = new PrintWriter(new File(outputFile));
 		
 		VcfHeader header = new VcfHeader();
-		ArrayList<VcfEntry> entries = new ArrayList<VcfEntry>();
 		
 		int countDup = 0;
+		
+		boolean headerPrinted = false;
+		int totalEntries = 0;
 		
 		while(input.hasNext())
 		{
@@ -50,7 +52,17 @@ public class InsertionsToDuplications {
 				continue;
 			}
 			
+			if(!headerPrinted)
+			{
+				header.addInfoField("REFINEDALT", "1", "String", "For duplications which were changed to insertions and refined, the refined ALT sequence");
+				header.addInfoField("STRANDS", "1", "String", "");
+				header.print(out);
+				headerPrinted = true;
+			}
+			
 			VcfEntry ve = new VcfEntry(line);
+			
+			totalEntries++;
 			
 			if(line.contains("OLDTYPE=DUP") && ve.getType().equals("INS"))
 			{
@@ -67,25 +79,16 @@ public class InsertionsToDuplications {
 				ve.setInfo("STRANDS", "-+");
 				ve.setRef(".");
 				ve.setAlt("<DUP>");
-				entries.add(ve);
+				out.println(ve);
 			}
 			else
 			{
 				ve.setInfo("REFINEDALT", ".");
-				entries.add(ve);
+				out.println(ve);
 			}
 		}
 		
-		System.out.println("Number of insertions converted back to duplications: " + countDup + " out of " + entries.size() + " total variants");
-		
-		header.addInfoField("REFINEDALT", "1", "String", "For duplications which were changed to insertions and refined, the refined ALT sequence");
-		header.addInfoField("STRANDS", "1", "String", "");
-		header.print(out);
-						
-		for(VcfEntry ve : entries)
-		{
-			out.println(ve);
-		}
+		System.out.println("Number of insertions converted back to duplications: " + countDup + " out of " + totalEntries + " total variants");
 		
 		input.close();
 		out.close();

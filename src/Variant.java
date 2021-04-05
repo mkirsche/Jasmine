@@ -28,6 +28,9 @@ public class Variant implements Comparable<Variant>
 	// The minimum sequence similarity another variant needs to merge with this one if both are insertions
 	double minSeqId;
 	
+	// The stat and end of an interval for checking overlap
+	double[] interval;
+	
 	int hash;
 	static int hash(String infoString)
 	{
@@ -71,6 +74,7 @@ public class Variant implements Comparable<Variant>
 		this.maxDist = maxDist;
 		this.minSeqId = minSeqId;
 		hash = 0;
+		interval = null;
 	}
 	
 	Variant(int sample, String id, double start, double end, String graphID, String seq)
@@ -83,6 +87,7 @@ public class Variant implements Comparable<Variant>
 		if(minSeqId > 0) this.seq = seq;
 		this.maxDist = Settings.MAX_DIST;
 		this.minSeqId = Settings.MIN_SEQUENCE_SIMILARITY;
+		interval = null;
 	}
 	
 	/*
@@ -159,5 +164,21 @@ public class Variant implements Comparable<Variant>
 		if(hash != o.hash) return Long.compare(hash, o.hash);
 		if(start != o.start) return Double.compare(start, o.start);
 		return id.compareTo(o.id);
+	}
+
+	public boolean passesOverlap(Variant v) 
+	{
+		if(interval == null || v.interval == null)
+		{
+			return true;
+		}
+		double maxStart = Math.max(interval[0], v.interval[0]);
+		double minEnd = Math.min(interval[1], v.interval[1]);
+		if(minEnd <= maxStart + 1E-9)
+		{
+			return false;
+		}
+		double maxIntervalSize = Math.max(interval[1] - interval[0], v.interval[1] - v.interval[0]);
+		return minEnd - maxStart + 1e-9 >= maxIntervalSize * Settings.OVERLAP_REQUIRED;
 	}
 }

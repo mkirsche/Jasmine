@@ -201,6 +201,10 @@ public class VariantInput {
 		
 		Variant res = new Variant(sample, entry.getId(), start, end, id, seq, maxDist, minSeqId);
 		res.hash = Variant.hash(entry.tabTokens[7]);
+		if(Settings.OVERLAP_REQUIRED > 0 && (entry.getType().equals("DEL")) || entry.getType().equals("INV") || entry.getType().equals("DUP"))
+		{
+			res.interval = new double[] {entry.getPos(), entry.getEnd()};
+		}
 		return res;
 	}
 }

@@ -248,6 +248,12 @@ public class VariantMerger
 					continue;
 				}
 				
+				else if(!data[e.from].passesOverlap(candidateTo))
+				{
+					countEdgesProcessed[e.from]++;
+					continue;
+				}
+				
 				// The next edge is something we want to consider since it is close enough and goes to a
 				// different sample
 				else
