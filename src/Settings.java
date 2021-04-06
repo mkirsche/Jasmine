@@ -66,7 +66,7 @@ public class Settings {
 	static String PER_SAMPLE_DIST_FILE = "";
 	static int[] PER_SAMPLE_DISTS;
 	
-	static boolean REQUIRE_MUTUAL_DISTANCE = false;
+	static boolean REQUIRE_MUTUAL_DISTANCE = true;
 	
 	static double OVERLAP_REQUIRED = 0.0;
 	
@@ -125,7 +125,7 @@ public class Settings {
 		System.out.println("  --require_first_sample              - only output merged variants which include a variant from the first sample");
 		System.out.println("  --comma_filelist                    - input VCFs are given comma-separated instead of providing a txt file");
 		System.out.println("  --normalize_chrs                    - normalize chromosome names (to NCBI standards - without \"chr\" - by default)");
-		System.out.println("  --mutual_distance                   - require a pair of points to be within both of their distance thresholds");
+		System.out.println("  --non_mutual_distance               - no longer require a pair of points to be within both of their distance thresholds");
 
 
 		System.out.println();
@@ -262,9 +262,9 @@ public class Settings {
 				{
 					DEFAULT_CHR_NORM = true;
 				}
-				else if(args[i].endsWith("mutual_distance"))
+				else if(args[i].endsWith("non_mutual_distance"))
 				{
-					REQUIRE_MUTUAL_DISTANCE = true;
+					REQUIRE_MUTUAL_DISTANCE = false;
 				}
 				continue;
 			}
