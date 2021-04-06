@@ -392,10 +392,16 @@ public class Settings {
 			}
 		}
 		
-		Path currentRelativePath = Paths.get("");
-		OUT_DIR = currentRelativePath.toAbsolutePath().toString() + "/" + OUT_DIR;
+		if(!OUT_DIR.startsWith("/"))
+		{
+			Path currentRelativePath = Paths.get("");
+			OUT_DIR = currentRelativePath.toAbsolutePath().toString() + "/" + OUT_DIR;
+		}
 		File f = new File(OUT_DIR);
-		f.mkdir();
+		if(!f.isDirectory())
+		{
+			f.mkdir();
+		}
 		
 		CHR_NAME_MAP = new ChrNameNormalization();
 	}
