@@ -422,6 +422,28 @@ public class AddGenotypes {
 					variantFormats.add(vff);
 				}
 			}
+			if(!extractedSampleNames)
+			{
+				extractedSampleNames = true;
+										
+				// Get the list of sample names from the last header line
+				String lastLine = header.lines.get(header.lines.size() - 1);
+				String[] tabTokens = lastLine.split("\t");
+				
+				// Check if there are actually sample names in the header
+				if(tabTokens.length > 9)
+				{
+					sampleNames = new String[tabTokens.length - 9];
+					for(int i = 0; i<sampleNames.length; i++)
+					{
+						sampleNames[i] = tabTokens[i + 9];
+					}
+				}
+				else
+				{
+					sampleNames = new String[0];
+				}
+			}
 			input.close();
 		}
 	}
