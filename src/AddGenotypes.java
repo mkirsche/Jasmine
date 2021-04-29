@@ -216,11 +216,18 @@ public class AddGenotypes {
 					}
 					else
 					{
-						// Fill fields with "NA" but use "./." for genotype
+						// Fill fields with "NA" but use "./." or "0|0" for genotype
 						String val = "NA";
 						if(fieldName.equals("GT"))
 						{
-							val = "./.";
+							if(Settings.DEFAULT_ZERO_GENOTYPE)
+							{
+								val = "0|0";
+							}
+							else
+							{
+								val = "./.";
+							}
 						}
 						res.sampleFieldValues[sampleIndex][res.getFieldIndex(fieldName)] = val;
 					}
@@ -255,6 +262,10 @@ public class AddGenotypes {
 					}
 					else
 					{
+						if(Settings.DEFAULT_ZERO_GENOTYPE)
+						{
+							res.sampleFieldValues[j][i] = "0|0";
+						}
 						res.sampleFieldValues[j][i] = "./.";
 					}
 				}

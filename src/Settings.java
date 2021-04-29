@@ -17,7 +17,7 @@ public class Settings {
 	static String FILE_LIST = "";
 	static String OUT_FILE = "";
 	static int MAX_DIST = 1000;
-	static double MAX_DIST_LINEAR = 0.0;
+	static double MAX_DIST_LINEAR = 0.5;
 	static int MIN_SUPPORT = 1;
 	static double MIN_SEQUENCE_SIMILARITY = 0;
 	static boolean USE_EDIT_DISTANCE = false;
@@ -27,10 +27,12 @@ public class Settings {
 	static boolean CHANGE_VAR_IDS = true;
 	static boolean USE_END = false;
 	static boolean MAX_DIST_SET = false;
-	static int MIN_DIST = -1; // -1 means no minimum
+	static int MIN_DIST = 100; // -1 means no minimum
 	static boolean OUTPUT_GENOTYPES = false;
 	static boolean INPUTS_MERGED = true;
 	static boolean USING_FILE_LIST = true;
+	static boolean DEFAULT_ZERO_GENOTYPE = false;
+	static boolean USE_LINEAR_THRESHOLD = true;
 	
 	static String CHR_NORM_FILE = "";
 	static boolean DEFAULT_CHR_NORM = false;
@@ -76,7 +78,7 @@ public class Settings {
 	static void usage()
 	{
 		System.out.println();
-		System.out.println("Jasmine version 1.0.11");
+		System.out.println("Jasmine version 1.1.0");
 		System.out.println("Usage: jasmine [args]");
 		System.out.println("  Example: jasmine file_list=filelist.txt out_file=out.vcf");
 		System.out.println();
@@ -85,9 +87,9 @@ public class Settings {
 		System.out.println("  out_file  (String) - the name of the file to output the merged variants to");
 		System.out.println();
 		System.out.println("Optional args:");
-		System.out.println("  max_dist        (int)    [1000]     - the maximum distance variants can be apart when being merged");
-		System.out.println("  min_dist        (int)    [-1]       - the minimum distance threshold a variant can have when using max_dist_linear");
-		System.out.println("  max_dist_linear (float)  [0]        - make max_dist this proportion of the length of each variant (overrides max_dist)");
+		System.out.println("  max_dist_linear (float)  [0.5]      - the proportion of the length of each variant to set distance threshold to");
+		System.out.println("  max_dist        (int)    [inf]      - the maximum distance variants can be apart when being merged");
+		System.out.println("  min_dist        (int)    [100]      - the minimum distance threshold a variant can have when using max_dist_linear");
 		System.out.println("  kd_tree_norm    (int)    [2]        - the power to use in kd-tree distances (1 is Manhattan, 2 is Euclidean, etc.)");
 		System.out.println("  min_seq_id      (float)  [0]        - the minimum sequence identity for two insertions to be merged");
 		System.out.println("  k_jaccard       (int)    [9]        - the kmer size to use when computing Jaccard similarity of insertions");
@@ -126,6 +128,8 @@ public class Settings {
 		System.out.println("  --comma_filelist                    - input VCFs are given comma-separated instead of providing a txt file");
 		System.out.println("  --normalize_chrs                    - normalize chromosome names (to NCBI standards - without \"chr\" - by default)");
 		System.out.println("  --non_mutual_distance               - no longer require a pair of points to be within both of their distance thresholds");
+		System.out.println("  --default_zero_genotype             - marks genotype as 0|0 instead of ./. for any samples in which a merged variant is absent");
+		System.out.println("  --nonlinear_dist                    - disable distance threshold depending on variant length and use max_dist instead");
 
 
 		System.out.println();
@@ -133,6 +137,7 @@ public class Settings {
 		System.out.println("  genome_file is required if the dup_to_ins option or the run_iris option is used.");
 		System.out.println("  bam_list is required if the run_iris option is used.");
 		System.out.println("  Setting both max_dist_linear and max_dist sets thresholds to minimum of max_dist and max_dist_linear * sv_length");
+		System.out.println("  Setting both max_dist_linear and min_dist sets thresholds to maximum of min_dist and max_dist_linear * sv_length");
 		System.out.println();
 		
 	}
@@ -171,7 +176,12 @@ public class Settings {
 	{
 		if(args.length == 1 && (args[0].equalsIgnoreCase("--version") || args[0].equalsIgnoreCase("-v")))
 		{
-			System.out.println("Jasmine version 1.0.0");
+			System.out.println("Jasmine version 1.1.0");
+			System.exit(0);
+		}
+		if(args.length == 0)
+		{
+			usage();
 			System.exit(0);
 		}
 		for(int i = 0; i<args.length; i++)
@@ -266,6 +276,14 @@ public class Settings {
 				{
 					REQUIRE_MUTUAL_DISTANCE = false;
 				}
+				else if(args[i].endsWith("default_zero_genotype"))
+				{
+					DEFAULT_ZERO_GENOTYPE = true;
+				}
+				else if(args[i].endsWith("nonlinear_dist"))
+				{
+					USE_LINEAR_THRESHOLD = false;
+				}
 				continue;
 			}
 			int equalIdx = args[i].indexOf('=');
@@ -351,24 +369,43 @@ public class Settings {
 					break;
 			}
 		}
+		
 		if(FILE_LIST.length() == 0 && !POSTPROCESS_ONLY)
 		{
+			System.out.println("Error: No list of VCFs specified");
+			System.out.println();
 			usage();
 			System.exit(0);
 		}
+		
 		if(OUT_FILE.length() == 0 && !PREPROCESS_ONLY)
 		{
+			System.out.println("Error: No output VCF file specified");
+			System.out.println();
 			usage();
 			System.exit(0);
 		}
-		if(GENOME_FILE.length() == 0 && !POSTPROCESS_ONLY && (RUN_IRIS || CONVERT_DUPLICATIONS))
+		
+		if(GENOME_FILE.length() == 0 && !POSTPROCESS_ONLY && RUN_IRIS)
 		{
+			System.out.println("Error: Cannot run Iris without a genome file specified");
+			System.out.println();
+			usage();
+			System.exit(0);
+		}
+		
+		if(GENOME_FILE.length() == 0 && !POSTPROCESS_ONLY && CONVERT_DUPLICATIONS)
+		{
+			System.out.println("Error: Cannot convert duplications to insetions without a genome file specified");
+			System.out.println();
 			usage();
 			System.exit(0);
 		}
 		
 		if(BAM_FILE_LIST.length() == 0 && RUN_IRIS)
 		{
+			System.out.println("Error: Cannot run Iris without a list of BAM alignment files specified");
+			System.out.println();
 			usage();
 			System.exit(0);
 		}
