@@ -2,18 +2,18 @@
 
 ## Installation
 Ensure that `snakemake` is installed.
-Clone the repository via `git clone https://github.com/aganezov/EnsemblePLInternal.git` into a general location (e.g., `/path/to/pipelines`) on a computing cluster.
+Clone the repository via `git clone https://github.com/mkirsche/Jasmine.git` into a general location (e.g., `/path/to/pipelines`) on a computing cluster.
 
 ## Experiment run
 Determine and `cd` into experiment dedicated folder (e.g., `experiment`).
-Create symlinks to all `snakefile` and `py` files in the `EnsemblePIInteral` master folder:
+Create symlinks to all `snakefile` and `py` files in the `Jasmine/pipeline` master folder:
 ```bash
-ln -s /path/to/pipelines/EnsemblePIInteral/*snakefile .
-ln -s /path/to/pipelines/EnsemblePIInteral/*py .
+ln -s /path/to/pipelines/Jasmine/pipeline/*snakefile .
+ln -s /path/to/pipelines/Jasmine/pipeline/*py .
 ``` 
 Copy configuration `yaml` files:
 ```bash
-cp /path/to/pipelines/EnsemblePIInteral/*yaml .
+cp /path/to/pipelines/Jasmine/pipeline/*yaml .
 ```
 Set up targeted dataset inside `data.yaml` file.
 
