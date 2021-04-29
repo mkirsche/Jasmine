@@ -136,8 +136,9 @@ public class Settings {
 		System.out.println("Notes:");
 		System.out.println("  genome_file is required if the dup_to_ins option or the run_iris option is used.");
 		System.out.println("  bam_list is required if the run_iris option is used.");
-		System.out.println("  Setting both max_dist_linear and max_dist sets thresholds to minimum of max_dist and max_dist_linear * sv_length");
-		System.out.println("  Setting both max_dist_linear and min_dist sets thresholds to maximum of min_dist and max_dist_linear * sv_length");
+		System.out.println("  Setting both max_dist_linear and max_dist sets thresholds to minimum of max_dist and max_dist_linear * sv_length.");
+		System.out.println("  Setting both max_dist_linear and min_dist sets thresholds to maximum of min_dist and max_dist_linear * sv_length.");
+		System.out.println("  Setting both min_dist to -1 removes the minimum threshold.");
 		System.out.println();
 		
 	}
