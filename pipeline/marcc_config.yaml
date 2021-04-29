@@ -1,0 +1,71 @@
+"__default__":
+  account: "FILL"
+  time: "24:0:0"
+  nCPUs: 2
+  nodes: 1
+  partition: "shared,parallel,lrgmem"
+  mem_mb: "2000"
+  name: "JOBNAME.{rule}.{wildcards}"
+  out: "logs/cluster/{rule}.{wildcards}.out"
+  err: "logs/cluster/{rule}.{wildcards}.err"
+
+single_alignment:
+  time: "72:0:0"
+  partition: "parallel,lrgmem,shared"
+  nCPUs: 24
+  mem_mb: "{resources.mem_mb}"
+  name: "{rule}.{wildcards}"
+
+single_sam_to_sort_bam:
+  time: "24:0:0"
+  partition: "parallel,shared,lrgmem"
+  nCPUs: 24
+  mem_mb: "{resources.mem_mb}"
+  name: "samtools.{rule}.{wildcards}"
+
+merge_sorted:
+  time: "24:0:0"
+  partition: "shared,parallel,lrgmem"
+  nCPUs: 1
+  mem_mb: "{resources.mem_mb}"
+  name: "samtools.{rule}.{wildcards}"
+
+merged_average_coverage_samtools:
+  time: "24:0:0"
+  partition: "shared,parallel,lrgmem"
+  nCPUs: 1
+  name: "samtools.{rule}.{wildcards}"
+
+merged_coverage_mosdepth:
+  time: "24:0:0"
+  partition: "shared,parallel,lrgmem"
+  nCPUs: 24
+  name: "samtools.{rule}.{wildcards}"
+
+sensitive_svs_sniffles:
+  time: "24:0:0"
+  partition: "shared,parallel,lrgmem"
+  nCPUs: 5
+  mem_mb: "{resources.mem_mb}"
+  name: "sv_inference.{rule}.{wildcards}"
+
+sensitive_ins_to_dup_conversion:
+  time: "24:0:0"
+  partition: "shared,parallel,lrgmem"
+  nCPUs: 2
+  mem_mb: "{resources.mem_mb}"
+  name: "jasmine_pre.{rule}.{wildcards}"
+
+refined_sensitive_new_sv_types:
+  time: "72:0:0"
+  partition: "parallel,lrgmem,shared"
+  nCPUs: 24
+  mem_md: "{resources.mem_mb}"
+  name: "jasmine_pre.{rule}.{wildcards}"
+
+intra_sample_merging:
+  time: "24:0:0"
+  partition: "parallel,lrgmem,shared"
+  nCPUs: 24
+  mem_md: "{resources.mem_mb}"
+  name: "jasmine_pre.{rule}.{wildcards}"

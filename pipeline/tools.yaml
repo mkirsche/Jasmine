@@ -1,0 +1,106 @@
+sv_tools_enabled:
+  - "sniffles"
+
+aligner: "ngmlr"
+
+tools:
+  tmp_dir: ""
+  samtools:
+    path: "samtools"
+    threads: 100
+    mem_mb_per_thread: 1000
+    mem_mb_core: 2000
+  ngmlr:
+    reads_cnt_per_run: 200000
+    path: "ngmlr"
+    threads: 100
+    time: "72:0:0"
+    mem_mb_per_thread: 1000
+    mem_mb_core: 6000
+  sniffles:
+    path: "sniffles"
+    threads: 5
+    min_support: 2
+    min_length: 20
+    max_num_splits: 10
+    max_distance: 50
+    num_reads_report: -1
+    min_seq_size: 1000
+    time: "24:0:0"
+    mem_mb_per_thread: 1000
+    mem_mb_core: 25000
+  java:
+    path: "java"
+  jasmine:
+    src_path: ""
+    threads: 2
+    mem_mb_core: 20000
+    mem_mb_per_thread: 4000
+    ins_to_dup:
+      max_dup_length: 10000
+      script_name: "InsertionsToDuplications"
+    specific_marked:
+      spec_reads_fixed: 10
+      spec_reads_fraction: 0.25
+      spec_len: 30
+    is_merging:
+      normalize_types: True
+      use_types: True
+      use_strands: True
+      use_edit_distance: False
+      use_end: False
+      max_distance: 100
+      min_distance: -1
+      threads: 100
+      strategy: "default"
+      kd_tree_norm: 2
+      min_seq_id: 0
+      max_distance_linear: 0
+      k_jaccard: 9
+  iris:
+    src_path: ""
+    threads: 100
+    mem_mb_core: 20000
+    mem_mb_per_thread: 1000
+    min_ins_length: 30
+    max_out_length: 100000
+    max_ins_dist: 100
+    max_length_change: 0.25
+  minimap2:
+    reads_cnt_per_run: 800000
+    mem_mb_per_thread: 1000
+    mem_mb_core: 6000
+    path: "minimap2"
+    threads: 100
+    time: "72:0:0"
+  racon:
+    path: "racon"
+  sv_sizes:
+    path: "sv_sizes.py"
+    bins: "1,30,50,100,150,200,350,300,500,750,1000,2000,5000,10000,50000,100000,500000"
+    types: "INS,DEL,DUP,INV,TRA"
+    abs_length: True
+    info_length_field: "SVLEN"
+  sam_fix:
+    path: "fix_sam.py"
+  seqtk:
+    path: "seqtk"
+  mosdepth:
+    path: "mosdepth"
+    mem_mb_per_thread: 1000
+    mem_mb_core: 2000
+    threads: 100
+    paer_base: False
+    fast_mode: True
+    window_size: 500
+  meryl:
+    path: "meryl"
+    distinct: 0.9998
+    k: 15
+  winnowmap:
+    reads_cnt_per_run: 800000
+    mem_mb_per_thread: 1000
+    mem_mb_core: 6000
+    path: "winnowmap"
+    threads: 100
+    time: "72:0:0"

@@ -1,0 +1,22 @@
+samples:
+  - sample: sample_1
+    # list of paths for fastq reads. Can be with fastq, fq, fastq.gz, or fq.gz extensions. At least one entry is required.
+    reads_paths:
+      - "path1/reads.fq"
+      - "path2/reads.fq"
+      - "path3/reads.fq"
+    # ONT or PB. Required.
+    tech: "ONT"
+
+  - sample: sample_2
+    reads_paths:
+      - "path1/reads.fq"
+    existing_alignments:
+      - ""
+    tech: "ONT"
+
+# full path to the reference. Required.
+ref: "GRCh38.fa"
+
+# not required. `alignments`, `svs`, etc subdirs will be created in it. Default is "."
+output_dir: ""
