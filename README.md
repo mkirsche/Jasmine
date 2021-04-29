@@ -8,7 +8,7 @@
 
 JASMINE: Jointly Accurate Sv Merging with Intersample Network Edges
 
-Version 1.0.11
+Version 1.1.0
 
 This tool is used to merge structural variants (SVs) across samples.  Each sample has a number of SV calls, consisting of position information (chromosome, start, end, length), type and strand information, and a number of other values.  Jasmine represents the set of all SVs across samples as a network, and uses a modified minimum spanning forest algorithm to determine the best way of merging the variants such that each merged variants represents a set of analogous variants occurring in different samples.
 
@@ -38,6 +38,15 @@ path_to_jasmine_repo/build_jar.sh
 After building the jar file, Jasmine can be run with the executable file `jasmine`, which will be in the main folder of this repository if building from source, or in the condabin folder if installed through conda.  Running it with no parameters will print a usage menu describing the required and optional arguments.
 
 
+## Optimized SV Inference Pipeline
+
+Jasmine is offered as standalone software and will accurately merge SV calls from any SV callers, including short-read callers. However, if calling SVs from genomic long reads (PacBio CLR, PacBio HiFi, or Oxford Nanopore), for best results, we recommend using the following optimized pipeline to obtain population-scale SV calls from FASTQ files.  This pipeline is provided as a [Snakemake pipeline](https://github.com/mkirsche/Jasmine/tree/master/pipeline). 
+
+
+![Jasmine SV Inference Pipeline](https://github.com/mkirsche/Jasmine/blob/master/pipeline/pipelineoverview.svg)
+<img src="https://github.com/mkirsche/Jasmine/blob/master/pipeline/pipelineoverview.svg" align="center">
+
+
 ## IGV visualization module
 
 Jasmine also includes a module for automating the creation of [IGV](http://software.broadinstitute.org/software/igv/) screenshots of variants of interest.  It can be run through the `igv_jasmine` executable file.  Running it with no parameters will print a usage menu describing the required and optional arguments, and it requires at minimum the following:
@@ -46,6 +55,7 @@ Jasmine also includes a module for automating the creation of [IGV](http://softw
 - The merged VCF file, or a BED file with regions of interest
 
 Running this module creates a folder which will store IGV screenshots for each variant (optionally filtered based on the command line parameters), and populates that folder with a .bat file, a script which can be run through IGV by selecting Tools -> Run Batch Script and navigating to the file.  After running this script, the folder containing the .bat file will also include images of the regions surrounding each variant of interest.
+
 
 ## User Manual
 
