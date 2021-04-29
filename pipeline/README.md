@@ -30,11 +30,9 @@ snakemake -s pipeline.snakefile --latency-wait 200 -pr -j 20 --rerun-incomplete 
 which ensures that
  * no more than 20 jobs (`-j`) are submitted at a time
  * any incomplete results from possible previous failed runs are regenerated (`--rerun-incomplete`)
- * sets up a SLURM submission setup, which in turn:
-    * requests a single node of `parallel` partition per job,
-    * with a 3 day time limit,
-    * with 24G of RAM per node,
-    * and with 
+ * sets up a SLURM submission setup, which in turn requests a single node of `parallel` partition per job with:
+    * a 3 day time limit,
+    * 24G of RAM per node,
 
 ## Pipeline Overview
 
@@ -48,4 +46,4 @@ which ensures that
 8. Generate a list of all finalized per-sample VCF files (txt file, one per line)
 9. Merge SVs across samples: `jasmine file_list=<vcflist> out_file=<outputmergedvcf>`
 10. Convert insertions back to duplications: `jasmine --dup_to_ins --postprocess_only out_file=<mergedvcf>`
-11. Remove low-confidence or imprecise calls: `cat <merged VCF> | grep -v 'IMPRECISE;' | grep -v 'IS_SPECIFIC=0'`
+11. Remove low-confidence or imprecise calls: `cat <mergedvcf> | grep -v 'IMPRECISE;' | grep -v 'IS_SPECIFIC=0'`
