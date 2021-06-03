@@ -20,6 +20,8 @@ The recommended installation method is through [bioconda](https://bioconda.githu
 Conda Installation command:
 
 ```
+conda config --add channels bioconda
+conda config --add channels conda-forge
 conda install jasminesv
 ```
 
