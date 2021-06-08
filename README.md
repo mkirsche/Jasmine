@@ -46,9 +46,15 @@ To run Jasmine on HiFi data from the HG002 trio, run the following commands (typ
 wget https://bx.bio.jhu.edu/data/jasmine/HG002Trio/UnmergedVCFs/HG002vGRCh38_wm_50md_PBCCS_sniffles.s2l20.refined.nSVtypes.ism.vcf .
 wget https://bx.bio.jhu.edu/data/jasmine/HG002Trio/UnmergedVCFs/HG003vGRCh38_wm_50md_PBCCS_sniffles.s2l20.refined.nSVtypes.ism.vcf .
 wget https://bx.bio.jhu.edu/data/jasmine/HG002Trio/UnmergedVCFs/HG004vGRCh38_wm_50md_PBCCS_sniffles.s2l20.refined.nSVtypes.ism.vcf .
+wget https://bx.bio.jhu.edu/data/jasmine/HG002Trio/HG002Trio_HiFi.merged.vcf .
 ls *vGRCh38_wm_50md_PBCCS_sniffles.s2l20.refined.nSVtypes.ism.vcf > filelist.txt
-jasmine file_list=filelist.txt out_file=merged.vcf
+jasmine file_list=filelist.txt out_file=merged_unfiltered.vcf
+cat merged_unfiltered.vcf | grep -v 'IS_SPECIFIC=0' | grep -v 'IMPRECISE;' > merged.vcf
+cat HG002Trio_HiFi.merged.vcf | grep -v 'IS_SPECIFIC=0' | grep -v 'IMPRECISE;' > postedresults.vcf
 ```
+
+The output of merged.vcf should then exactly match the contents of postedresults.vcf
+
 
 ## Optimized SV Inference Pipeline
 
