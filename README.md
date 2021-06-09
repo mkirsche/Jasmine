@@ -61,7 +61,7 @@ Jasmine is offered as standalone software and will accurately merge SV calls fro
 
 
 ![Jasmine SV Inference Pipeline](https://github.com/mkirsche/Jasmine/blob/master/pipeline/pipelineoverview.svg)
-<img src="https://github.com/mkirsche/Jasmine/blob/master/pipeline/pipelineoverview.svg" align="center">
+
 
 
 ## IGV visualization module
