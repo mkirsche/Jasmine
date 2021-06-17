@@ -17,9 +17,11 @@ This tool is used to merge structural variants (SVs) across samples.  Each sampl
 
 The recommended installation method is through [bioconda](https://bioconda.github.io/).
 
-Conda Installation command:
+Conda Installation command (typically takes under a minute to install):
 
 ```
+conda config --add channels bioconda
+conda config --add channels conda-forge
 conda install jasminesv
 ```
 
@@ -38,13 +40,28 @@ path_to_jasmine_repo/build_jar.sh
 After building the jar file, Jasmine can be run with the executable file `jasmine`, which will be in the main folder of this repository if building from source, or in the condabin folder if installed through conda.  Running it with no parameters will print a usage menu describing the required and optional arguments.
 
 
+## Demo Dataset
+To run Jasmine on HiFi data from the HG002 trio, run the following commands (typically takes about a minute to download and under five minutes to run on a modern desktop):
+```
+wget https://bx.bio.jhu.edu/data/jasmine/HG002Trio/UnmergedVCFs/HG002vGRCh38_wm_50md_PBCCS_sniffles.s2l20.refined.nSVtypes.ism.vcf .
+wget https://bx.bio.jhu.edu/data/jasmine/HG002Trio/UnmergedVCFs/HG003vGRCh38_wm_50md_PBCCS_sniffles.s2l20.refined.nSVtypes.ism.vcf .
+wget https://bx.bio.jhu.edu/data/jasmine/HG002Trio/UnmergedVCFs/HG004vGRCh38_wm_50md_PBCCS_sniffles.s2l20.refined.nSVtypes.ism.vcf .
+wget https://bx.bio.jhu.edu/data/jasmine/HG002Trio/HG002Trio_HiFi.merged.vcf .
+ls *vGRCh38_wm_50md_PBCCS_sniffles.s2l20.refined.nSVtypes.ism.vcf > filelist.txt
+jasmine file_list=filelist.txt out_file=merged.vcf
+jasmine --dup_to_ins --postprocess_only out_file=merged.vcf
+```
+
+The output of merged.vcf should then exactly match the contents of HG002Trio_HiFi.merged.vcf.
+
+
 ## Optimized SV Inference Pipeline
 
 Jasmine is offered as standalone software and will accurately merge SV calls from any SV callers, including short-read callers. However, if calling SVs from genomic long reads (PacBio CLR, PacBio HiFi, or Oxford Nanopore), for best results, we recommend using the following optimized pipeline to obtain population-scale SV calls from FASTQ files.  This pipeline is provided as a [Snakemake pipeline](https://github.com/mkirsche/Jasmine/tree/master/pipeline). 
 
 
 ![Jasmine SV Inference Pipeline](https://github.com/mkirsche/Jasmine/blob/master/pipeline/pipelineoverview.svg)
-<img src="https://github.com/mkirsche/Jasmine/blob/master/pipeline/pipelineoverview.svg" align="center">
+
 
 
 ## IGV visualization module

@@ -2,18 +2,18 @@
 
 ## Installation
 Ensure that `snakemake` is installed.
-Clone the repository via `git clone https://github.com/aganezov/EnsemblePLInternal.git` into a general location (e.g., `/path/to/pipelines`) on a computing cluster.
+Clone the repository via `git clone https://github.com/mkirsche/Jasmine.git` into a general location (e.g., `/path/to/pipelines`) on a computing cluster.
 
 ## Experiment run
 Determine and `cd` into experiment dedicated folder (e.g., `experiment`).
-Create symlinks to all `snakefile` and `py` files in the `EnsemblePIInteral` master folder:
+Create symlinks to all `snakefile` and `py` files in the `Jasmine/pipeline` master folder:
 ```bash
-ln -s /path/to/pipelines/EnsemblePIInteral/*snakefile .
-ln -s /path/to/pipelines/EnsemblePIInteral/*py .
+ln -s /path/to/pipelines/Jasmine/pipeline/*snakefile .
+ln -s /path/to/pipelines/Jasmine/pipeline/*py .
 ``` 
 Copy configuration `yaml` files:
 ```bash
-cp /path/to/pipelines/EnsemblePIInteral/*yaml .
+cp /path/to/pipelines/Jasmine/pipeline/*yaml .
 ```
 Set up targeted dataset inside `data.yaml` file.
 
@@ -30,11 +30,9 @@ snakemake -s pipeline.snakefile --latency-wait 200 -pr -j 20 --rerun-incomplete 
 which ensures that
  * no more than 20 jobs (`-j`) are submitted at a time
  * any incomplete results from possible previous failed runs are regenerated (`--rerun-incomplete`)
- * sets up a SLURM submission setup, which in turn:
-    * requests a single node of `parallel` partition per job,
-    * with a 3 day time limit,
-    * with 24G of RAM per node,
-    * and with 
+ * sets up a SLURM submission setup, which in turn requests a single node of `parallel` partition per job with:
+    * a 3 day time limit,
+    * 24G of RAM per node,
 
 ## Pipeline Overview
 
@@ -48,4 +46,4 @@ which ensures that
 8. Generate a list of all finalized per-sample VCF files (txt file, one per line)
 9. Merge SVs across samples: `jasmine file_list=<vcflist> out_file=<outputmergedvcf>`
 10. Convert insertions back to duplications: `jasmine --dup_to_ins --postprocess_only out_file=<mergedvcf>`
-11. Remove low-confidence or imprecise calls: `cat <merged VCF> | grep -v 'IMPRECISE;' | grep -v 'IS_SPECIFIC=0'`
+11. Remove low-confidence or imprecise calls: `cat <mergedvcf> | grep -v 'IMPRECISE;' | grep -v 'IS_SPECIFIC=0'`
