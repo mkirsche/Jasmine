@@ -110,9 +110,7 @@ public class VariantMerger
 		while(!toProcess.isEmpty())
 		{
 			Edge e = toProcess.poll();
-						
 			boolean valid = forest.canUnion(e.from, e.to);
-			
 			if(valid)
 			{
 				int fromRoot = forest.find(e.from);

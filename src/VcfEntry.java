@@ -311,11 +311,11 @@ public class VcfEntry {
 			}
 			if(refLength > altLength)
 			{
-				return "INS";
+				return "DEL";
 			}
 			else if(refLength < altLength)
 			{
-				return "DEL";
+				return "INS";
 			}
 			else
 			{
