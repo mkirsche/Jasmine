@@ -78,7 +78,7 @@ public class Settings {
 	static void usage()
 	{
 		System.out.println();
-		System.out.println("Jasmine version 1.1.0");
+		System.out.println("Jasmine version 1.1.1");
 		System.out.println("Usage: jasmine [args]");
 		System.out.println("  Example: jasmine file_list=filelist.txt out_file=out.vcf");
 		System.out.println();
@@ -177,7 +177,7 @@ public class Settings {
 	{
 		if(args.length == 1 && (args[0].equalsIgnoreCase("--version") || args[0].equalsIgnoreCase("-v")))
 		{
-			System.out.println("Jasmine version 1.1.0");
+			System.out.println("Jasmine version 1.1.1");
 			System.exit(0);
 		}
 		if(args.length == 0)

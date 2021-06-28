@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Scanner;
 
 public class PipelineManager {
@@ -22,14 +23,23 @@ public class PipelineManager {
 static String convertDuplicationsToInsertions(String fileList) throws Exception
 {
 	ArrayList<String> vcfFiles = getFilesFromList(fileList);
-	ArrayList<String> newVcfFiles = new ArrayList<String>();	
+	ArrayList<String> newVcfFiles = new ArrayList<String>();
+	
+	HashSet<String> basenames = new HashSet<String>();
 	
 	for(int i = 0; i<vcfFiles.size(); i++)
 	{
 		String vcfFile = vcfFiles.get(i);
-		String newVcfFile = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(vcfFile), "dupToIns");
+		String basename = StringUtils.fileBaseName(vcfFile);
+		while(basenames.contains(basename))
+		{
+			basename = i + "_" + basename;
+		}
+		
+		String newVcfFile = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(basename, "dupToIns");
 		newVcfFiles.add(newVcfFile);
 		DuplicationsToInsertions.convertFile(vcfFile, Settings.GENOME_FILE, newVcfFile);
+		basenames.add(basename);
 	}
 		
 	return buildUpdatedFileList(fileList, "dupToIns", newVcfFiles);
@@ -45,14 +55,21 @@ static String normalizeTypes(String fileList) throws Exception
 	ArrayList<String> vcfFiles = getFilesFromList(fileList);
 	ArrayList<String> newVcfFiles = new ArrayList<String>();
 	
+	HashSet<String> basenames = new HashSet<String>();
+	
 	for(int i = 0; i<vcfFiles.size(); i++)
 	{
 		String vcfFile = vcfFiles.get(i);
-		
-		String newVcfFile = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(vcfFile), "normalizeTypes");
+		String basename = StringUtils.fileBaseName(vcfFile);
+		while(basenames.contains(basename))
+		{
+			basename = i + "_" + basename;
+		}
+		String newVcfFile = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(basename, "normalizeTypes");
 		newVcfFiles.add(newVcfFile);
 		
 		NormalizeTypes.convertFile(vcfFile, newVcfFile);
+		basenames.add(basename);
 	}
 	
 	return buildUpdatedFileList(fileList, "normalizeTypes", newVcfFiles);
@@ -71,11 +88,20 @@ static String runIris(String fileList) throws Exception
 	// Get any optional arguments to be passed to Iris that the user specified
 	String[] optionalArgs = Settings.IRIS_ARGS.split(",");
 	
+	HashSet<String> basenames = new HashSet<String>();
+	
 	// Refine one VCF file at a time
 	for(int i = 0; i<vcfFiles.size(); i++)
 	{
 		String vcfFile = vcfFiles.get(i);
-		String newVcfFile = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(vcfFile), "irisRefined");
+		
+		String basename = StringUtils.fileBaseName(vcfFile);
+		while(basenames.contains(basename))
+		{
+			basename = i + "_" + basename;
+		}
+		
+		String newVcfFile = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(basename, "irisRefined");
 		String bamFile = bamFiles.get(i);
 		newVcfFiles.add(newVcfFile);
 		
@@ -101,6 +127,8 @@ static String runIris(String fileList) throws Exception
 		
 		// Actually run Iris
 		Iris.runIris(allArgs);
+		
+		basenames.add(basename);
 	}
 	
 	return buildUpdatedFileList(fileList, "irisRefined", newVcfFiles);
@@ -115,14 +143,23 @@ static String markSpecificCalls(String fileList) throws Exception
 	ArrayList<String> vcfFiles = getFilesFromList(fileList);
 	ArrayList<String> newVcfFiles = new ArrayList<String>();
 			
-	//PrintWriter newFileListOut = new PrintWriter(new File(newFileList));
+	HashSet<String> basenames = new HashSet<String>();
 	
 	for(int i = 0; i<vcfFiles.size(); i++)
 	{
 		String vcfFile = vcfFiles.get(i);
-		String newVcfFile = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(StringUtils.fileBaseName(vcfFile), "markedSpec");
+		
+		String basename = StringUtils.fileBaseName(vcfFile);
+		while(basenames.contains(basename))
+		{
+			basename = i + "_" + basename;
+		}
+		
+		String newVcfFile = Settings.OUT_DIR + "/" + StringUtils.addDescriptor(basename, "markedSpec");
 		newVcfFiles.add(newVcfFile);
 		MarkSpecificCalls.convertFile(vcfFile, newVcfFile, Settings.SPECIFIC_MIN_RCOUNT, Settings.SPECIFIC_MIN_LENGTH);
+		
+		basenames.add(basename);
 	}
 	
 	return buildUpdatedFileList(fileList, "markedSpec", newVcfFiles);
