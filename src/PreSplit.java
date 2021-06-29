@@ -13,6 +13,7 @@ public class PreSplit
 	static String fileList = "";
 	static String outputDir = "";
 	static int segmentLength = -1;
+	static boolean transTogether = false;
 	
 	static void usage()
 	{
@@ -25,9 +26,10 @@ public class PreSplit
 		System.out.println("  output_dir      (String) - The directory to write the split files to");
 		System.out.println();
 		System.out.println("Optional args:");
-		System.out.println("  segment_length  (int)    - Length of segments to break chromosomes into (default whole-chromosome)");
+		System.out.println("  segment_length  (int)    - length of segments to split chromosomes into (default whole-chromosome)");
 		System.out.println("  --ignore_strand          - allow variants with different strands to be merged");
 		System.out.println("  --ignore_type            - allow variants with different types to be merged");
+		System.out.println("  --combine_translocations - keep all translocations together to reduce number of groups");
 		System.out.println();
 	}
 	
@@ -44,6 +46,10 @@ public class PreSplit
 				else if(args[i].endsWith("ignore_type"))
 				{
 					Settings.USE_TYPE = false;
+				}
+				else if(args[i].endsWith("combine_translocations"))
+				{
+					transTogether = true;
 				}
 			}
 			else
@@ -191,6 +197,10 @@ public class PreSplit
 			if(segmentLength != -1 && !entry.getNormalizedType().equals("TRA"))
 			{
 				graphId = graphId + "_" + ((entry.getPos() / segmentLength) * segmentLength);
+			}
+			if(entry.getNormalizedType().equals("TRA") && transTogether)
+			{
+				graphId = "TRA";
 			}
 			if(!res.containsKey(graphId))
 			{
