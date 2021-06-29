@@ -95,7 +95,7 @@ public class Settings {
 		System.out.println("  k_jaccard       (int)    [9]        - the kmer size to use when computing Jaccard similarity of insertions");
 		System.out.println("  max_dup_length  (int)    [10k]      - the maximum length of duplication that can be converted to an insertion");
 		System.out.println("  min_support     (int)    [1]        - the minimum number of callsets a variant must be in to be output");
-		System.out.println("  threads         (int)    [2]        - the number of threads to use for merging the variants");
+		System.out.println("  threads         (int)    [1]        - the number of threads to use for merging the variants");
 		System.out.println("  spec_reads      (int)    [10]       - the minimum number of reads a variant needs to be in the specific callset");
 		System.out.println("  spec_len        (int)    [30]       - the minimum length a variant needs to be in the specific callset");
 		System.out.println("  genome_file     (String) []         - the reference genome being used");
@@ -149,13 +149,21 @@ public class Settings {
 	static long parseLong(String s) throws Exception
 	{
 		s = s.toLowerCase();
-		if(s.endsWith("g") || s.endsWith("b") || s.endsWith("kkk"))
+		if(s.endsWith("g") || s.endsWith("b"))
 		{
 			return (long)(Double.parseDouble(s.substring(0, s.length()-1)) * 1e9 + .5);
 		}
-		if(s.endsWith("m") || s.endsWith("kk"))
+		if(s.endsWith("kkk"))
+		{
+			return (long)(Double.parseDouble(s.substring(0, s.length()-3)) * 1e9 + .5);
+		}
+		if(s.endsWith("m"))
 		{
 			return (long)(Double.parseDouble(s.substring(0, s.length()-1)) * 1e6 + .5); 
+		}
+		if(s.endsWith("kk"))
+		{
+			return (long)(Double.parseDouble(s.substring(0, s.length()-2)) * 1e6 + .5); 
 		}
 		if(s.endsWith("k"))
 		{

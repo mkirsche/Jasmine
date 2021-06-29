@@ -21,7 +21,9 @@ cp $irisjar $BINDIR/jasmine_iris.jar
 cd $BINDIR/src
 javac -cp $BINDIR/jasmine_iris.jar *.java
 jar -c -e Main -f jasmine.jar *.class
+jar -c -e PreSplit -f jasmine_split.jar *.class
 jar -c -e IgvScreenshotMaker -f jasmine_igv.jar *.class
 mv jasmine.jar $BINDIR
 mv jasmine_igv.jar $BINDIR
+mv jasmine_split.jar $BINDIR
 cd $BINDIR
