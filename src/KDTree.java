@@ -11,9 +11,9 @@
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
+import java.util.Stack;
 
 public class KDTree 
 {
@@ -207,22 +207,48 @@ public class KDTree
 	/*
 	 * Search the subtree rooted at cur for candidate points in the set of query's k-nearest neighbors
 	 */
-	private void search(Node cur, int depth) {
-		if (cur == null) return;
-		int betterChild = (int) Math.signum(search.planes[depth % K] - cur.planes[depth % K]) < 0 ? 0 : 1;
-		search(cur.children[betterChild], depth + 1);
-		Candidate toAdd = new Candidate(cur.p, cur.p.distance(search.p));
-		if (best == null || best.size() < querySize || toAdd.compareTo(best.peek()) > 0) 
+	private void search(Node ocur, int odepth) {
+		Stack<Node> curs = new Stack<Node>();
+		Stack<Integer> depths = new Stack<Integer>();
+		Stack<Boolean> processedBest = new Stack<Boolean>();
+		curs.add(ocur);
+		depths.add(odepth);
+		processedBest.push(false);
+		while(!curs.isEmpty())
 		{
-			if(best.size() == querySize)
+			Node cur = curs.pop();
+			int depth = depths.pop();
+			boolean bestDone = processedBest.pop();
+			
+			if(cur == null) continue;
+			
+			int betterChild = (int) Math.signum(search.planes[depth % K] - cur.planes[depth % K]) < 0 ? 0 : 1;
+			
+			if(!bestDone)
 			{
-				best.poll();
+				curs.add(cur);
+				depths.add(depth);
+				processedBest.add(true);
+				curs.add(cur.children[betterChild]);
+				depths.add(depth+1);
+				processedBest.add(false);
+				continue;
 			}
-			best.add(toAdd);
-		}
-		if (best.size() < querySize || Math.abs(search.planes[depth % K] - cur.planes[depth % K]) < best.peek().dist)
-		{
-			search(cur.children[1 - betterChild], depth + 1);
+			Candidate toAdd = new Candidate(cur.p, cur.p.distance(search.p));
+			if (best == null || best.size() < querySize || toAdd.compareTo(best.peek()) > 0) 
+			{
+				if(best.size() == querySize)
+				{
+					best.poll();
+				}
+				best.add(toAdd);
+			}
+			if (best.size() < querySize || Math.abs(search.planes[depth % K] - cur.planes[depth % K]) < best.peek().dist)
+			{
+				curs.add(cur.children[1 - betterChild]);
+				depths.add(depth+1);
+				processedBest.add(false);
+			}
 		}
 	}
 	

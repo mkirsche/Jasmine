@@ -31,14 +31,13 @@ public class AddGenotypes {
 	/*
 	 * To add other FORMAT fields, add their details here and add the logic to initialize them in reformatVariantFormat
 	 */
-	static String[] newFieldNames = {"GT", "IS", "OT", "OS", "DV", "DR"};
-	static String[] newFieldNums = {"1", "1", "1", "1", "1", "1"};
-	static String[] newFieldTypes = {"String", "String", "String", "String", "String", "String", "String", "String"};
+	static String[] newFieldNames = {"GT", "IS", "OT", "DV", "DR"};
+	static String[] newFieldNums = {"1", "1", "1", "1", "1"};
+	static String[] newFieldTypes = {"String", "String", "String", "String", "String"};
 	static String[] newFieldDescs = new String[] {
 			"The genotype of the variant",
 			"Whether or not the variant call was marked as specific due to high read support and length",
 			"The original type of the variant",
-			"The SUPP_VEC field in the previously merged file, if any",
 			"The number of reads supporting the variant sequence",
 			"The number of reads supporting the reference sequence"
 	};
@@ -212,7 +211,6 @@ public class AddGenotypes {
 						{
 							res.sampleFieldValues[sampleIndex][res.getFieldIndex(fieldName)] = ".";
 						}
-						listIndex++;
 					}
 					else
 					{
@@ -233,6 +231,7 @@ public class AddGenotypes {
 					}
 					sampleIndex++;
 				}
+				if(include) listIndex++;
 			}
 		}
 		
@@ -297,17 +296,6 @@ public class AddGenotypes {
 						{
 							res.sampleFieldValues[j][i] = ".";
 						}
-					}
-				}
-				else if(field.equals("OS"))
-				{
-					if(entry.hasInfoField("SUPP_VEC"))
-					{
-						res.sampleFieldValues[j][i] = entry.getInfo("SUPP_VEC");
-					}
-					else
-					{
-						res.sampleFieldValues[j][i] = ".";
 					}
 				}
 				else if(field.equals("DV"))
