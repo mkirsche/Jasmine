@@ -93,6 +93,9 @@ public class VariantOutput {
 						header.addInfoField("AVG_LEN", "1", "String", "Average length for variants merged into this one");
 						header.addInfoField("END", "1", "String", "The end position of the variant");
 						header.addInfoField("SVLEN", "1", "String", "The length (in bp) of the variant");
+						header.addInfoField("PRECISE", "0", "Flag", "Precise structural variation");
+						header.addInfoField("IMPRECISE", "0", "Flag", "Imprecise structural variation");
+
 						if(Settings.ALLOW_INTRASAMPLE)
 						{
 							header.addInfoField("ALLVARS_EXT", ".", "String", "A comma-separated of all variants supporting this call");

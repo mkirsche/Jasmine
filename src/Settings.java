@@ -78,12 +78,12 @@ public class Settings {
 	static void usage()
 	{
 		System.out.println();
-		System.out.println("Jasmine version 1.1.1");
+		System.out.println("Jasmine version 1.1.2");
 		System.out.println("Usage: jasmine [args]");
 		System.out.println("  Example: jasmine file_list=filelist.txt out_file=out.vcf");
 		System.out.println();
 		System.out.println("Required args:");
-		System.out.println("  file_list (String) - a file listing paths to all variant files to use (on separate lines)");
+		System.out.println("  file_list (String) - a file listing paths to unzipped VCF files to merge (on separate lines)");
 		System.out.println("  out_file  (String) - the name of the file to output the merged variants to");
 		System.out.println();
 		System.out.println("Optional args:");

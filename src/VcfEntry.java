@@ -46,6 +46,10 @@ public class VcfEntry {
 	{
 		originalLine = line;
 		tabTokens = line.split("\t");
+		if(line.length() >=2 && line.charAt(0) == 31 && (line.charAt(1) == 65533 || line.charAt(1) == 139))
+		{
+			throw new Exception("Trying to read a gzipped file, but only unzipped VCFs are accepted");
+		}
 		if(tabTokens.length < 8)
 		{
 			throw new Exception("VCF line had too few entries: "

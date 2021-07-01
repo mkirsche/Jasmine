@@ -60,6 +60,10 @@ public class VariantInput {
 	 */
 	private static TreeMap<String, ArrayList<Variant>> getSingleList(String filename, int sample) throws Exception
 	{
+		if(filename.endsWith(".gz"))
+		{
+			System.err.println("Warning: " + filename + " ends with .gz, but (b)gzipped VCFs are not accepted");
+		}
 		Scanner input = new Scanner(new FileInputStream(new File(filename)));
 		ArrayList<Variant> allVariants = new ArrayList<Variant>();
 		HashSet<String> ids = new HashSet<String>();
@@ -73,6 +77,10 @@ public class VariantInput {
 			if(line.length() == 0 || line.startsWith("#"))
 			{
 				continue;
+			}
+			if(line.length() >=2 && line.charAt(0) == 31 && (line.charAt(1) == 65533 || line.charAt(1) == 139))
+			{
+				throw new Exception(filename + " is a gzipped file, but only unzipped VCFs are accepted");
 			}
 			VcfEntry entry = VcfEntry.fromLine(line);
 			if(!previouslyMergedSamples.containsKey(sample))
