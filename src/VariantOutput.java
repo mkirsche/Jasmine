@@ -128,6 +128,36 @@ public class VariantOutput {
 					groups.get(graphID).processVariant(entry, sample, out);
 				}
 			}
+			
+			if(sample == 0 && !printedHeader)
+			{
+				printedHeader = true;
+				header.addInfoField("SUPP_VEC", "1", "String", "Vector of supporting samples");
+				header.addInfoField("SUPP_VEC_EXT", "1", "String", "Vector of supporting samples, potentially extended across multiple merges");
+				header.addInfoField("SUPP", "1", "String", "Number of samples supporting the variant");
+				header.addInfoField("SUPP_EXT", "1", "String", "Number of samples supporting the variant, potentially extended across multiple merges");
+				header.addInfoField("IDLIST", ".", "String", "Variant IDs of variants merged to make this call (at most 1 per sample)");
+				header.addInfoField("IDLIST_EXT", ".", "String", "Variant IDs of variants merged, potentially extended across multiple merges");
+				header.addInfoField("SVMETHOD", "1", "String", "");
+				header.addInfoField("STARTVARIANCE", "1", "String", "Variance of start position for variants merged into this one");
+				header.addInfoField("ENDVARIANCE", "1", "String", "Variance of end position for variants merged into this one");
+				header.addInfoField("AVG_START", "1", "String", "Average start position for variants merged into this one");
+				header.addInfoField("AVG_END", "1", "String", "Average end position for variants merged into this one");
+				header.addInfoField("AVG_LEN", "1", "String", "Average length for variants merged into this one");
+				header.addInfoField("END", "1", "String", "The end position of the variant");
+				header.addInfoField("SVLEN", "1", "String", "The length (in bp) of the variant");
+				header.addInfoField("PRECISE", "0", "Flag", "Precise structural variation");
+				header.addInfoField("IMPRECISE", "0", "Flag", "Imprecise structural variation");
+
+				if(Settings.ALLOW_INTRASAMPLE)
+				{
+					header.addInfoField("ALLVARS_EXT", ".", "String", "A comma-separated of all variants supporting this call");
+					header.addInfoField("VARCALLS", "1", "String", "The number of variant calls supporting this variant");
+					header.addInfoField("INTRASAMPLE_IDLIST", ".", "String", "The IDs which were merged in the most recent round of merging");
+				}
+				header.print(out);
+			}
+			
 			input.close();
 			sample++;
 		}
