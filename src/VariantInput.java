@@ -187,7 +187,7 @@ public class VariantInput {
 		}
 		
 		// Next, check if there is a length-based threshold
-		else if(Settings.MAX_DIST_LINEAR > 0)
+		else if(Settings.USE_LINEAR_THRESHOLD && Settings.MAX_DIST_LINEAR > 0)
 		{
 			maxDist = (int)(Settings.MAX_DIST_LINEAR * Math.abs(entry.getLength()) + 0.5);
 			if(Settings.MAX_DIST_SET)
