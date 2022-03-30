@@ -81,8 +81,8 @@ public class VariantOutput {
 						printedHeader = true;
 						header.addInfoField("SUPP_VEC", "1", "String", "Vector of supporting samples");
 						header.addInfoField("SUPP_VEC_EXT", "1", "String", "Vector of supporting samples, potentially extended across multiple merges");
-						header.addInfoField("SUPP", "1", "String", "Number of samples supporting the variant");
-						header.addInfoField("SUPP_EXT", "1", "String", "Number of samples supporting the variant, potentially extended across multiple merges");
+						header.addInfoField("SUPP", "1", "Integer", "Number of samples supporting the variant");
+						header.addInfoField("SUPP_EXT", "1", "Integer", "Number of samples supporting the variant, potentially extended across multiple merges");
 						header.addInfoField("IDLIST", ".", "String", "Variant IDs of variants merged to make this call (at most 1 per sample)");
 						header.addInfoField("IDLIST_EXT", ".", "String", "Variant IDs of variants merged, potentially extended across multiple merges");
 						header.addInfoField("SVMETHOD", "1", "String", "");
