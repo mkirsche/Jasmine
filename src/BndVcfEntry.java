@@ -32,6 +32,11 @@ public class BndVcfEntry extends VcfEntry {
 		{
 			return Long.parseLong(getInfo("END"));
 		}
+		
+		if(altTokens.length == 1)
+		{
+			return getPos();
+		}
 		String chrPosToken = altTokens[1];
 		return Long.parseLong(chrPosToken.substring(1 + chrPosToken.lastIndexOf(':')));
 	}
@@ -76,6 +81,10 @@ public class BndVcfEntry extends VcfEntry {
 		if(hasInfoField("CHR2"))
 		{
 			return Settings.CHR_NAME_MAP.normalize(getInfo("CHR2"));
+		}
+		if(altTokens.length == 1)
+		{
+			return getChromosome();
 		}
 		String chrPosToken = altTokens[1];
 		return Settings.CHR_NAME_MAP.normalize(chrPosToken.substring(0, chrPosToken.lastIndexOf(':')));
