@@ -1,6 +1,7 @@
 /*
  * Main interface for Jasmine
  */
+import java.io.File;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
@@ -11,6 +12,15 @@ public static void main(String[] args) throws Exception
 	
 	// The input file to SV merging may change based on the steps the user wants to run
 	String currentInputFile = Settings.FILE_LIST;
+	
+	if(Settings.USING_FILE_LIST)
+	{
+		File f = new File(currentInputFile);
+		if(!f.exists())
+		{
+			System.out.println("Warning: Input file list " + currentInputFile + " does not exist.");
+		}
+	}
 	
 	if(!Settings.POSTPROCESS_ONLY)
 	{
