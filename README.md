@@ -43,10 +43,11 @@ After building the jar file, Jasmine can be run with the executable file `jasmin
 ## Demo Dataset
 To run Jasmine on HiFi data from the HG002 trio, run the following commands (typically takes about a minute to download and under five minutes to run on a modern desktop):
 ```
-wget https://bx.bio.jhu.edu/data/jasmine/HG002Trio/UnmergedVCFs/HG002vGRCh38_wm_50md_PBCCS_sniffles.s2l20.refined.nSVtypes.ism.vcf .
-wget https://bx.bio.jhu.edu/data/jasmine/HG002Trio/UnmergedVCFs/HG003vGRCh38_wm_50md_PBCCS_sniffles.s2l20.refined.nSVtypes.ism.vcf .
-wget https://bx.bio.jhu.edu/data/jasmine/HG002Trio/UnmergedVCFs/HG004vGRCh38_wm_50md_PBCCS_sniffles.s2l20.refined.nSVtypes.ism.vcf .
-wget https://bx.bio.jhu.edu/data/jasmine/HG002Trio/HG002Trio_HiFi.merged.vcf .
+wget http://data.schatz-lab.org/jasmine/HG002Trio/UnmergedVCFs/HG002vGRCh38_wm_50md_PBCCS_sniffles.s2l20.refined.nSVtypes.ism.vcf.gz
+wget http://data.schatz-lab.org/jasmine/HG002Trio/UnmergedVCFs/HG003vGRCh38_wm_50md_PBCCS_sniffles.s2l20.refined.nSVtypes.ism.vcf.gz
+wget http://data.schatz-lab.org/jasmine/HG002Trio/UnmergedVCFs/HG004vGRCh38_wm_50md_PBCCS_sniffles.s2l20.refined.nSVtypes.ism.vcf.gz
+wget http://data.schatz-lab.org/jasmine/HG002Trio/#:~:text=HG002Trio_HiFi.merged.vcf.gz
+gunzip *
 ls *vGRCh38_wm_50md_PBCCS_sniffles.s2l20.refined.nSVtypes.ism.vcf > filelist.txt
 jasmine file_list=filelist.txt out_file=merged.vcf
 jasmine --dup_to_ins --postprocess_only out_file=merged.vcf
