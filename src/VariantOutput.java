@@ -404,7 +404,7 @@ public class VariantOutput {
 				}
 				else if(entry.hasInfoField("SUPP"))
 				{
-					varCallsCount = Integer.parseInt("SUPP");
+					varCallsCount = Integer.parseInt(entry.getInfo("SUPP"));
 				}
 				consensus[groupNumber].setInfo("VARCALLS", 
 						varCallsCount + Integer.parseInt(consensus[groupNumber].getInfo("VARCALLS")) + "");
