@@ -43,6 +43,41 @@ public class VariantOutput {
 		
 		boolean printedHeader = false;
 		
+		// If merging different callers, do a first pass to collect header lines
+		// (INFO/FORMAT/FILTER definitions) from ALL input files before printing
+		// anything, so fields unique to later files aren't lost.
+		if(Settings.DIFF_CALLERS)
+		{
+			ArrayList<String> allFilenames = PipelineManager.getFilesFromList(fileList);
+			for(String fn : allFilenames)
+			{
+				Scanner headerScan = new Scanner(new FileInputStream(new File(fn)));
+				while(headerScan.hasNext())
+				{
+					String hline = headerScan.nextLine();
+					if(hline.length() == 0)
+					{
+						continue;
+					}
+				        if(hline.startsWith("#CHROM"))
+					{
+						// Skip #CHROM here.
+						// It will be added exactly once from sample 0
+						// in the main output loop below.
+					}
+					else if(hline.startsWith("#"))
+					{
+						header.addLine(hline);
+					}
+					else
+					{
+						break;
+					}
+					
+				}
+				headerScan.close();
+			}
+		}
 		ArrayList<String> filenames = PipelineManager.getFilesFromList(fileList);
 		for(String filename : filenames)
 		{
@@ -59,25 +94,31 @@ public class VariantOutput {
 				{
 					continue;
 				}
-				
-				// Print header lines from the first file listed
-				else if(line.startsWith("#"))
+
+				// Print header lines from the first file listed.
+				// If DIFF_CALLERS, non-#CHROM header lines were already collected
+				// in the pre-pass above.
+				if(line.startsWith("#"))
 				{
-					if(sample == 0)
+					if(line.startsWith("#CHROM"))
+					{
+						if(sample == 0)
+						{
+							header.addLine(line);
+						}
+					}
+					else if(sample == 0 && !Settings.DIFF_CALLERS)
 					{
 						header.addLine(line);
 					}
-					else
-					{
-						continue;
-					}
+					continue;
 				}
 				else
 				{
-					
 					// Update the consensus variant in the appropriate graph
 					if(sample == 0 && !printedHeader)
 					{
+					
 						printedHeader = true;
 						header.addInfoField("SUPP_VEC", "1", "String", "Vector of supporting samples");
 						header.addInfoField("SUPP_VEC_EXT", "1", "String", "Vector of supporting samples, potentially extended across multiple merges");
@@ -95,6 +136,7 @@ public class VariantOutput {
 						header.addInfoField("SVLEN", "1", "String", "The length (in bp) of the variant");
 						header.addInfoField("PRECISE", "0", "Flag", "Precise structural variation");
 						header.addInfoField("IMPRECISE", "0", "Flag", "Imprecise structural variation");
+						header.addInfoField("STRANDS", "1", "String", "Strand orientation of merged calls");
 
 						if(Settings.ALLOW_INTRASAMPLE)
 						{

@@ -61,6 +61,7 @@ public class Settings {
 	
 	static boolean ALLOW_INTRASAMPLE = false;
 	static boolean NORMALIZE_TYPE = false;
+        static boolean DIFF_CALLERS = false;
 	static boolean REQUIRE_FIRST_SAMPLE = false;
 	
 	static ChrNameNormalization CHR_NAME_MAP;
@@ -261,6 +262,10 @@ public class Settings {
 				{
 					ALLOW_INTRASAMPLE = true;
 				}
+                               else if(args[i].endsWith("diff_callers"))
+                                {
+                                        DIFF_CALLERS = true;
+                                }
 				else if(args[i].endsWith("normalize_type"))
 				{
 					NORMALIZE_TYPE = true;
